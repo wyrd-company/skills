@@ -18,7 +18,7 @@ pushover --list-recipients
 pushover --recipient boblangley --title 'Input needed' --message 'The plan is ready for your review.'
 
 # Include a link the user can open from the notification.
-pushover --recipient iradesa --title 'Review ready' --message 'Please review the proposed changes.' \
+pushover --recipient <operator> --title 'Review ready' --message 'Please review the proposed changes.' \
   --url 'https://github.com/owner/repo/pull/123' --url-title 'Open pull request'
 ```
 
