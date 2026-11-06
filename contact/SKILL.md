@@ -5,7 +5,7 @@ description: Use whenever you need to contact the user outside of the thread
 
 You have 2 tools at your disposal for contacting the user outside of your conversation/thread:
 
-- `pushover`: Use this for alerts.
+- `pushover`: Use this for alerts to specific users.
 - `ntfy`: Use this for general notifications.
 
 ## Pushover
@@ -14,25 +14,33 @@ Use the workspace `pushover` CLI to send push notifications. Run
 `pushover --help` for all options.
 
 ```bash
-pushover --title 'Input needed' --message 'The plan is ready for your review.'
+pushover --list-recipients
+pushover --recipient boblangley --title 'Input needed' --message 'The plan is ready for your review.'
 
 # Include a link the user can open from the notification.
-pushover --title 'Review ready' --message 'Please review the proposed changes.' \
+pushover --recipient iradesa --title 'Review ready' --message 'Please review the proposed changes.' \
   --url 'https://github.com/owner/repo/pull/123' --url-title 'Open pull request'
 ```
 
-`--message` is required; `--title`, `--url`, and `--url-title` are optional.
+`--recipient` and `--message` are required; `--title`, `--url`, and `--url-title`
+are optional. Use `boblangley` for Bob and `iradesa` for Katelyn, provided their
+secrets have been provisioned. `--list-recipients` shows the supported names;
+omitting the recipient also lists them and exits with an error without sending.
+Choose the recipient from the task context; ask if the intended person is
+unclear. Do not infer the recipient from the current Git operator.
 Quote message text to preserve spaces and shell characters. `--device` can
 target named Pushover devices; by default the notification goes to all devices.
 The default priority is `0` (normal). Use `--priority 1` sparingly for urgent
 notifications. Priority `2` repeats emergency alerts and should only be used
 when explicitly requested.
 
-Credentials load automatically from OpenBao at `kv/workspace/pushover`, fields
-`user_key` and `app_token`, through the Wyrwood socket configured by `BAO_ADDR`.
+Credentials load automatically from OpenBao at
+`kv/workspace/pushover/<recipient>`, fields `user_key` and `app_token`, through
+the Wyrwood socket configured by `BAO_ADDR`.
 No `--user`, `--token`, local credential file, or container login is needed.
 If access returns `403`, report that the workspace's Wyrwood policy needs read
-access to `kv/data/workspace/pushover`; do not seek alternate credentials.
+access to `kv/data/workspace/pushover/*` and list access to
+`kv/metadata/workspace/pushover`; do not seek alternate credentials.
 
 Exit status `0` means Pushover accepted the notification, not that the user read
 it. Report failures; avoid blind retries after a timeout because the original
