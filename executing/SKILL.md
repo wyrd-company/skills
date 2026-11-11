@@ -1,25 +1,34 @@
 ---
 name: executing
 description: >
-  Use whenever you are performing work yourself, of any kind. Covers understanding the work, working in verifiable units, when to decide and when to ask, proving the result, and handing it over. Hint words from the user or task: `complete`, `do`, `execute`, `implement`, `perform`
+  Use whenever you are performing work, of any kind. Covers understanding the work, working in verifiable units, when to decide and when to ask, proving the result, and handing it over. Hint words from the user or task: `complete`, `do`, `execute`, `implement`, `perform`. Not for just answering questions.
 ---
 
-Work the task end to end: from understanding why it exists to a result that someone else can check without asking you.
+Complete the work end to end: from understanding why it exists to a result that someone else can check without asking you.
 
 ## Understand
 
-If you do not know why the task exists, you cannot make good decisions or judge when it is done.
+If you do not know why the work has been requested, you cannot make good decisions or judge when it is done.
 
-- Why is the work being performed? The GitHub issue, when there is one, defines the goal or deliverable; the task is the ticket to do the work.
+- Why is the work being performed?
 - What is the definition of done?
 - How will the output be used, and by whom?
 
-Read what already exists before you start: earlier notes on the task, the branch history, and the repository's own instructions. If something is ambiguous and the context does not settle it, record the ambiguity on the task with the reading you chose. Do not guess silently.
+The GitHub issue, when there is one, answers these questions; otherwise the operator's prompt has to carry the context. A task is a ticket to do work, not what, why, or how that allows you to understand. The task may provide additional detail on how to measure done but you should not need it to understand.
+
+Read what already exists before you start: repository documentation, issues, earlier notes on the task, the branch history, and the repository's own instructions. If something is ambiguous and the context does not settle it, report the ambiguity with the reading you chose. Do not guess silently.
+
+## Tasks
+
+- Tasks are the normal "ticket" for doing more than trivial work. You should [expect one](../task-ownership/SKILL.md) or [write one](../task-authoring/SKILL.md).
+- Anything else that is low risk and can be accomplished in a few turns does not need a task.
+- The sections above the log are agreed scope. Do not change them without approval.
 
 ## Scope and authority
 
-- The task is the contract. Do not edit its goal or definition of done to match what you built. If the contract is wrong, say so on the task and get it changed by whoever wrote it.
-- The repository's rules are part of the contract. In a fork this includes the fork's own boundary: read its rules and find the check that enforces them before you design anything. If the task cannot be done inside the boundary, stop and ask; do not widen the boundary to fit the design.
+- The task and/or the user's prompt is the contract. If the contract is wrong, say so and get it changed by whoever wrote it.
+- Do not edit the goal or definition of done to match what you built. 
+- The repository's rules are part of the contract. In a fork this includes the fork's own boundary: read its rules and find the check that enforces them before you design anything. If the work cannot be done inside the boundary, stop and ask; do not widen the boundary to fit the design.
 - Base the work on the branch it will integrate into, which is not always `main`, and confirm the base is current before substantive work.
 
 ## Sequence work into verifiable units
@@ -32,7 +41,7 @@ A problem caught at the unit that caused it is cheap to find. A problem caught a
 - Verify before advancing: known-good state, one change, run the check, then proceed. Never defer verification to a final batch.
 - Order the units so the sequence builds confidence on its own, for you while executing and for a reviewer reading it afterwards.
 
-Track the units in the task list your harness provides, so the plan and its progress are visible while you work.
+When available, track the units in the todo list your harness provides (e.g. `update_plan`,`TodoWrite`,`TaskCreate`).
 
 ## Commit each unit
 
@@ -42,9 +51,22 @@ Commit when a small, logical step is complete. Use the conventional commit forma
 - Each commit leaves the work in a valid state: checks pass and nothing is half-wired.
 - Stage by explicit path. Tools that format, generate or test can change files you did not edit, so read `git status` after running them and before staging. A change you did not make on purpose is a finding: undo it, or keep it and say so in the commit message.
 
+## Keep track of resources
+
+As you provision resources to implement the work, keep track of what you have provisioned:
+
+- Temp files and folders
+- Docker artifacts (containers, volumes, networks, etc)
+- VMs
+- Running processes (record the process IDs)
+- Worktrees and branches
+- Threads you have launched
+
+Log to the task. When available, use your built-in todo tracking tools to remind you to cleanup later.
+
 ## When to decide and when to ask
 
-The default is to proceed. People supervise asynchronously, most work is reversible and reviewable, and a wrong decision usually costs less to correct than a stalled task costs to unblock. Do the work, show the result, and explain the decisions you made along the way so they can be corrected afterwards.
+The default is to proceed. People supervise asynchronously, most work is reversible and reviewable, and a wrong decision usually costs less to correct than stalled work costs to unblock. Do the work, show the result, and explain the decisions you made along the way so they can be corrected afterwards.
 
 Bring a human in when:
 
@@ -53,9 +75,9 @@ Bring a human in when:
 - **It needs something only they have.** Credentials, access, or an account you were not given. Do not look for another way in.
 - **It changes the goal.** Product direction and the definition of done come from the people who own them. How to get there is yours.
 
-Everything else is yours to decide, including choices between valid options with no clear winner: pick one, record why on the task, and keep going. If you are stuck after real investigation, that is a blocker to record on the task and hand off, not a reason to wait in silence.
+Everything else is yours to decide, including choices between valid options with no clear winner: pick one, say so out loud, record why on the task, and keep going. 
 
-While a question is open, carry on with whatever does not depend on the answer, and write anything that does depend on it as pending, not as settled.
+If the question is still open after real investigation, record what you investigated. While a question is open, carry on with whatever does not depend on the answer, and write anything that does depend on it as pending, not as settled.
 
 When you do ask, make the question cheap to answer:
 
@@ -63,15 +85,37 @@ When you do ask, make the question cheap to answer:
 - Trace each option through every rule and document it touches, found by search and not from memory, and state what each option changes. A person can only rule on the consequences you show.
 - Give your recommendation.
 
+## Being blocked
+
+We cant anticipate everything up front. When you run into an obstacle, try what you can first.
+
+This is not a mandate to operate unethically or outside the spirit of the work, but to be resourceful.
+
+If you are still stuck after real investigation, [record what you tried](references/blocked.md) along with the [hand-off](references/handoff.md), [mark the task blocked](../task-ownership/SKILL.md#blocked), and hand off.
+
+Commit the work in progress, push the branch and remove the worktree, as for a handoff. Name the branch and commit in the log entry.
+
+Notify the thread's operator or agent with delegated authority. How people are notified, and when a person must be brought in at all, is settled in another skill; until it is, use `contact`.
+
 ## Be visible
 
-A session can end at any moment, and the moment it most often ends is between finishing the work and reporting it. Record progress as it happens, at three levels:
+Anywhere where `log`, `report`, or `record` is mentioned refers to this sections instructions.
 
+Record progress as it happens, as units land, at these levels:
+
+- The thread itself.
+- `update_plan`, `TodoWrite`, `TaskUpdate`
 - **Commits** record each step.
-- **The task** is the working log. Append an entry as each unit lands: what landed, the commit, the state of verification, and what is next. Another agent must be able to resume from the task and the git history alone.
-- **The GitHub issue or pull request** gets significant progress on the deliverable, written for the people who follow it. It is not a working log.
+- **The task** is the working log. [Append an entry](../task-ownership/SKILL.md#log) as each unit lands: what landed, the commit, the state of verification, and what is next. Another agent must be able to resume from the task and the git history alone.
+- **The GitHub issue or pull request** gets significant progress on the deliverable, written for the people who follow it. It is not a working log. An issue may be served by several tasks/work efforts, so say which part your update covers.
 
-Keep the log true. Every entry maps to a real action, and its evidence shows what the entry claims. Log the forks, pivots and abandoned approaches that shaped the work. If the work diverged from what an entry says, fix the entry.
+- Every record maps to a real action, and its linked evidence shows what the record claims. 
+- Record the forks, pivots and abandoned approaches that shaped the work. 
+- Record what you observed. Mark a conclusion as a conclusion.
+- A cause or mechanism added after the task was written/work started is executed like the contract, so it carries the same duty: state whether it is measured, inferred or assumed. See [definition-of-done.md](references/definition-of-done.md).
+- Link issues to pull requests.
+- Add the pull request to the task, when it exists.
+- Review findings and replies stay on the pull request; the record links them and records how each was settled.
 
 ## Prove it is done
 
@@ -88,22 +132,101 @@ Before starting a unit or a task, ask: "How will I prove this worked?" Then veri
 
 **Say what you observed, not what you concluded.** When you report a cause, name the evidence that rules out the alternatives. A claim that something is absent, or that a list is complete, needs a search, not a list built from the files you happened to open. Count a number yourself before you repeat it.
 
-## Review your own work, then run the expensive checks
+## Work you discover
+
+Work inside the contract is yours to do. For anything outside it, search the board and issues first, then:
+
+- when it must happen now for this task to finish: Write a task (see `task-authoring`) and record the dependency;
+- otherwise raise an issue with its goal and bar, and link it from the log. Do not park it on the board.
+
+If the task and/or issue already exists, update dependencies as appropriate and add/log a comment providing the context of how the task/issue relates to the current work.
+
+## Once work is complete
+
+Every Definition of Done element is met and no decision the work depends on is open at the commit you will be delivering.
+
+Check to see if the target branch moved. If it has, rebase now and correct any merge conflicts.
+
+### Review your own work, then run the expensive checks
 
 Use focused tests and cheap static checks while the work can still change. Read your own diff, tests and prose cold, commit every final change, and only then run the full, live or slow checks, once, on the settled commit. If a file changes afterwards, the earlier result no longer proves the current state: rerun what the change affects.
 
-## Independent review
+Hand over for review only when the checks passed at the commit you are handing over and no decision you need is still open; otherwise hand over as blocked, with the failure and the exact question.
 
-Before handing over, have the work reviewed by an agent on a different model family from the one that did it. Self-review is not a substitute; the point is eyes you cannot bring yourself.
+### Prepare the review surface
 
-Point the reviewer at the task and any issue, and give it your thread id. Answer every finding: addressed, rejected with a reason, deferred with a destination, or answered.
+Write the [handoff](references/handoff.md).
 
-## Show your work
+Reread the handoff against its evidence. Each result quoted comes from a run at the handoff commit.
 
-Work is reviewed after the fact, so leave evidence that lets a person see the outcome without running anything or reading the transcript: screenshots, recordings, terminal captures, the output of the proving script.
+Work is reviewed after the fact, so include evidence that lets a person see the outcome without running anything or reading the transcript: screenshots, recordings, terminal captures, the output of the proving script.
 
-Keep the evidence where the reviewer will look: attached to the pull request, the issue or the task. Commit it only when it will be reused elsewhere.
+Keep the evidence where the reviewer will look: attached to the pull request and issue and linked in the task. Commit it only when it will be reused elsewhere. Use `gh --attach` to attach media to descriptions/comments in GitHub
 
-## Hand over
+Name a skipped check as unverified. Do not report it as passed.
 
-A handover is complete when someone else can check the result or resume the work from the task record and the git history. Hand over for review only when the checks passed at the commit you are handing over and no decision you need is still open; otherwise hand over as blocked, with the failure and the exact question. Once the work is merged, clean up what you created: branches, worktrees, processes and scratch files.
+Note the target branch for the PR: Epics often use an epic branch as the target. Stand-alone work the default is `main`. If you are unsure, ask.
+
+- GitHub PR review (default):
+  - Push the branch
+  - Open a GitHub PR
+- gitpr review (local):
+  - create the PR using gitpr
+- Non-git review surfaces will be added as they are needed.
+
+### Independent review
+
+Self-review is not a substitute; the point is eyes you cannot bring yourself.
+
+Use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
+
+The reviewer may ask questions, answer them directly so they can finish their review.
+
+### Triage Review
+
+The reviewer will return the review surface with a result: Accepted or rejected with findings.
+
+For each finding from the reviewer decide:
+
+- Accept: You will remediate the finding as part of this work.
+- Reject: The finding is incorrect, answer the reviewers thread with why the finding is rejected.
+- Defer: The finding is correct, but does not need to be addressed as part of this work. Explain why. If the work is part of an epic, recommend if the work is part of the epic or not. Epic may be a task and/or an issue, out of epic is always an issue.
+
+## When the review closes without you
+
+When you find the pull request was merged, closed or rejected while you were still working: do not push, merge or reopen. Leave your local commits where they are. Report which commits the review did not include and whether each looks covered already. Then stop. Whoever dispatched the work decides what happens to the rest.
+
+## Merge
+
+By default you do not have merge authority. 
+
+If you have been granted merge authority perform the merge.
+
+- SSH fast-foward merge GitHub PRs so they close as merged.
+- `gitpr merge`
+
+Do not change the branch between approval and merge: a rebase or a late commit means the merged change is not the reviewed one.
+
+## Finalize
+
+When available, check your plan/todo/task built-in tool for outstanding items.
+
+Cean up what you provisioned that is no longer needed: 
+
+- settle launched threads
+- remove local branches
+- remove worktrees
+- stop processes
+- remove docker artifacts
+- delete scratch files
+- Anything else not covered that is no longer needed.
+
+If it is needed beyond your work, it probably should be checked in or documented and provisioned as part of our workspace definition through a raised PR.
+
+Fetch and fast forward main.
+
+Provide a final report listing what was done.
+
+When the task delivers only part of its issue, comment on the issue with what remains. A pull request that closes an issue should close it only when the goal is met.
+
+If you were dispatched by another thread, let them know the work has been completed. If it was the user, notify them.
