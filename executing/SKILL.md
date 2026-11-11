@@ -1,7 +1,7 @@
 ---
 name: executing
 description: >
-  Use whenever you are carrying out a task yourself, of any kind: code, design, research, content, configuration. Covers understanding the task, working in verifiable units, when to decide and when to ask, proving the result, and handing it over. Hint words from the user or task: `complete`, `do`, `execute`, `implement`, `perform`
+  Use whenever you are performing work yourself, of any kind. Covers understanding the work, working in verifiable units, when to decide and when to ask, proving the result, and handing it over. Hint words from the user or task: `complete`, `do`, `execute`, `implement`, `perform`
 ---
 
 Work the task end to end: from understanding why it exists to a result that someone else can check without asking you.
