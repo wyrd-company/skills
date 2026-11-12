@@ -130,6 +130,8 @@ Before starting a unit or a task, ask: "How will I prove this worked?" Then veri
 
 **Prove the guards.** A passing suite shows a guard is present, not that it works. A check your change relies on for correctness or safety is proved when breaking it makes a test fail. Prove it with the repository's mutation testing tool, as you would write any other test, and hand over the tool's report so the reviewer can accept it without repeating the run.
 
+**Acceptance.** Working is not the same as meeting the user's need. When the bar includes a judgement only the user can make, or the issue or operator asks for it, the work also needs [user-acceptance testing](references/user-acceptance-testing.md). Run it yourself, as the user, before you ask anyone. Acceptance happens only when what you deliver can be used by its user on its own. A part that cannot, such as one child of an epic, is accepted with the whole, where the epic's plan says.
+
 **Say what you observed, not what you concluded.** When you report a cause, name the evidence that rules out the alternatives. A claim that something is absent, or that a list is complete, needs a search, not a list built from the files you happened to open. Count a number yourself before you repeat it.
 
 ## Work you discover

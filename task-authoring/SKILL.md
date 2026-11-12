@@ -64,7 +64,7 @@ A task fits one focused session and yields one coherent, validated result. Split
 
 Do not split work to create more tickets. One executor touching several files for one Definition of Done is one task.
 
-An epic is a task whose children do the work. Epics are planned, not authored here: see [planning](../planning/SKILL.md).
+An epic is a task whose children do the work. Epics are planned, not authored here: see [epic-planning](../epic-planning/SKILL.md).
 
 ## Definition of Done
 
@@ -84,7 +84,7 @@ A soft claim is one that only judgement can settle: the user documentation still
 
 - **Name what is judged.** Point at the artifact and the part of it: the README's install section, the error messages of the new command, the public API of the module. A reviewer should know where to look without reading the whole change.
 - **Name what it is judged against.** A standard, an existing pattern in the repository, an example, or the reader it is for: "a new user can install from the README alone", "follows the retry pattern in `client/`". Without a reference, the judgement is the reviewer's taste.
-- **Say who judges** when it is not the ordinary reviewer: a council, the operator, the user in acceptance testing.
+- **Say who judges** when it is not the ordinary reviewer: a council, the operator, the user in [acceptance testing](../executing/references/user-acceptance-testing.md).
 - **Do not turn it into a check that proves less.** "The README mentions the new flag" can be checked and can pass while the README is wrong. When the check would be a stand-in for the judgement, leave the claim soft. When a real check is cheap, write the hard claim.
 - **Do not repeat standing standards.** What every change in the repository owes (docs in step, changelog, conventions) applies without being written here. Name a standard only when this task touches it in a way the executor might miss; the template's Artifact Impact section is where those go.
 - **Keep them few.** Each soft claim costs a reviewer's attention. Write the ones where a wrong judgement would mean the goal was not met.
@@ -121,7 +121,7 @@ The board's configuration owns the allowed values. This is what each field is fo
 |---|---|
 | `issue` | The issue or issues this task serves, as `owner/repo#123` |
 | `assignee` | The operator who does the work, when a person leads it |
-| `hitl` | The assignee actively participates in some or all of the task. |
+| `hitl` | The operators who take part in the task, and in what role: doing some or all of the work, judging an arena, accepting the result |
 | `council` | The task will be reviewed by a council |
 | `complexity` | Guide the choice of model and effort at dispatch |
 | `priority`, `parent`, dependencies | Order of work and structure |
