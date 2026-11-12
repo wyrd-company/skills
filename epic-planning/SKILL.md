@@ -28,7 +28,13 @@ Use one or more of these to shape the epic. Each reference says when to choose t
 
 ## What you deliver
 
-- **The epic task.** The epic is a `kanban-md` task on the board for its scope: the workspace board, or the project's own. Its children are the tasks that do the work, written with [task-authoring](../task-authoring/SKILL.md) and staged in `backlog` for the orchestrator to release. Tasks and issues need not match one to one: several tasks may serve one issue, and one task may close several.
+- **The epic's board.** Each epic has a board of its own, so its tasks do not contend with other work for the board's task ids, and the whole epic can be committed and archived as one folder. Create it under `epics/` in the tasks folder for the epic's scope. Answer no when `init` offers to ignore it: the board is committed.
+
+  ```bash
+  echo n | kanban-md init --dir "$TASKS/epics/<name>" --name "<name>"
+  ```
+
+- **The epic task.** The epic is a `kanban-md` task on the epic's board. Its children are the tasks that do the work, written with [task-authoring](../task-authoring/SKILL.md) and staged in `backlog` for the orchestrator to release. Tasks and issues need not match one to one: several tasks may serve one issue, and one task may close several.
 - **Every child maps to the goal.** Each child serves a requirement, a success criterion, a step of the acceptance scenario, or coordination the epic needs. Reconcile any child that maps to nothing, and any criterion that no child covers, before you hand over.
 - **The issues, ready.** Each issue states its goal and its bar.
 - **The GitHub project.** People follow an epic on GitHub, not on the board. For an epic with one issue, that issue is what they follow. For several issues, use an existing GitHub project or create one for the epic. The orchestrator keeps it current.

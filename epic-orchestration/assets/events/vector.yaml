@@ -1,0 +1,49 @@
+# Vector: publish epic board events to NATS.
+#
+# Example: adjust it when it meets live events. Watches the activity log of
+# every epic board, keeps the actions an orchestrator acts on, and publishes
+# each as kanban.<workspace>.<action> with the board's path. The
+# devcontainer's Trowel delivers them to Dagu.
+
+data_dir: /var/lib/vector
+
+sources:
+  epic_boards:
+    type: file
+    include:
+      - /workspace/*/tasks/epics/*/activity.jsonl
+      - /tasks/epics/*/activity.jsonl
+    read_from: end
+
+transforms:
+  epic_board_events:
+    type: remap
+    inputs: [epic_boards]
+    source: |
+      entry = parse_json!(.message)
+      . = {
+        "board": replace(string!(.file), r'/activity\.jsonl$', ""),
+        "action": entry.action,
+        "task_id": entry.task_id,
+        "detail": entry.detail,
+        "timestamp": entry.timestamp
+      }
+
+  # A status change made with `edit --status` logs only `edit`, so it is not
+  # kept here. The changes an orchestrator acts on also log one of these: a
+  # holder finishing or handing off releases its claim.
+  epic_board_wanted:
+    type: filter
+    inputs: [epic_board_events]
+    condition: 'includes(["create", "move", "release", "block", "unblock", "delete"], .action)'
+
+sinks:
+  nats_epic_boards:
+    type: nats
+    inputs: [epic_board_wanted]
+    url: "${NATS_URL}"
+    subject: "kanban.${WORKSPACE}.{{ action }}"
+    jetstream:
+      enabled: true
+    encoding:
+      codec: json

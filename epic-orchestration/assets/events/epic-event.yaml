@@ -1,0 +1,85 @@
+# Wake the orchestrator of every epic an event concerns.
+#
+# Trowel calls this for board events (kanban.<workspace>.<action>) and
+# GitHub events (github.<org>.<event>.…). It finds the epics the event
+# concerns and runs each one's orchestrator schedule. The event only says
+# where to look: the pass reads the record itself. The scripts read the event
+# from the environment and never interpolate it into their text, because it
+# comes from outside.
+#
+# Example: adjust it when it meets live events. Once proven, it belongs in the
+# workflows repository's sub-dags.
+type: graph
+shell: bash   # the scripts rely on bash word splitting and globbing
+params:
+  - SUBJECT: ""   # kanban.<workspace>.release, github.<org>.pull_request.…
+  - EVENT: "{}"   # compact JSON from the Vector or Trowel transform
+  - EPIC_BOARDS: "/workspace/*/tasks/epics/* /tasks/epics/*"
+secrets:
+  - name: T3_TOKEN
+    provider: env
+    key: T3_TOKEN
+  - name: T3_SERVER_URL
+    provider: env
+    key: T3_SERVER_URL
+steps:
+  - id: resolve
+    description: Find the orchestrator schedule of each active epic the event concerns.
+    run: |
+      set -euo pipefail
+      case "$SUBJECT" in
+        kanban.*)
+          # One board per epic: the board names the epic.
+          boards=$(jq -r '.board' <<<"$EVENT")
+          repo=""
+          refs="[]"
+          ;;
+        github.*)
+          # An event with no branch, such as a comment, wakes every active epic
+          # in the repository. A pass with nothing to do is cheap.
+          boards=$(for b in $EPIC_BOARDS; do [ -f "$b/config.yml" ] && echo "$b"; done || true)
+          repo=$(jq -r '.repo // ""' <<<"$EVENT")
+          refs=$(jq -c '.refs // []' <<<"$EVENT")
+          ;;
+        *) exit 0 ;;
+      esac
+      for board in $boards; do
+        kanban-md list --dir "$board" --tag epic --status in-progress,review --json \
+            --show-property schedule --show-property branch --show-property repos |
+          jq -r --arg repo "$repo" --argjson refs "$refs" '
+            .[] | .properties // {} |
+            select($repo == "" or ((.repos // "") | split(",") | index($repo))) |
+            select(($refs | length) == 0 or ([.branch] | inside($refs))) |
+            .schedule // empty'
+      done | sort -u | tr '\n' ' '
+    output: SCHEDULES
+
+  - id: wake
+    description: >-
+      Run each schedule. Exit 1 is a refusal because a pass is running: try every
+      schedule, then retry only the refused ones, so one busy epic delays no other.
+    depends: [resolve]
+    preconditions:
+      - condition: "$SCHEDULES"
+        expected: "re:\\S+"
+    run: |
+      set -uo pipefail
+      woken="$DAG_RUN_WORK_DIR/woken"   # survives retries within this run
+      touch "$woken"
+      refused=0 failed=0
+      for schedule in $SCHEDULES; do
+        grep -qxF -- "$schedule" "$woken" && continue
+        rc=0
+        t3c schedule run "$schedule" >/dev/null || rc=$?   # Dagu runs bash -e
+        case $rc in
+          0) echo "$schedule" >>"$woken" ;;
+          1) refused=1; echo "refused, will retry: $schedule" ;;
+          *) failed=2; echo "failed: $schedule" >&2 ;;
+        esac
+      done
+      [ "$refused" = 1 ] && exit 1   # retried
+      exit "$failed"                 # 2 is not retried
+    retry_policy:
+      limit: 10
+      interval_sec: 60
+      exit_code: [1]

@@ -91,7 +91,7 @@ We cant anticipate everything up front. When you run into an obstacle, try what 
 
 This is not a mandate to operate unethically or outside the spirit of the work, but to be resourceful.
 
-If you are still stuck after real investigation, [record what you tried](references/blocked.md) along with the [hand-off](references/handoff.md), [mark the task blocked](../task-ownership/SKILL.md#blocked), and hand off.
+If you are still stuck after real investigation, [record what you tried](assets/blocked.md) along with the [hand-off](assets/handoff.md), [mark the task blocked](../task-ownership/SKILL.md#blocked), and hand off.
 
 Commit the work in progress, push the branch and remove the worktree, as for a handoff. Name the branch and commit in the log entry.
 
@@ -157,7 +157,7 @@ Hand over for review only when the checks passed at the commit you are handing o
 
 ### Prepare the review surface
 
-Write the [handoff](references/handoff.md).
+Write the [handoff](assets/handoff.md).
 
 Reread the handoff against its evidence. Each result quoted comes from a run at the handoff commit.
 
@@ -180,7 +180,9 @@ Note the target branch for the PR: Epics often use an epic branch as the target.
 
 Self-review is not a substitute; the point is eyes you cannot bring yourself.
 
-Use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
+When the task is a child of an epic, do not dispatch the review yourself: release the task for review and stop. The epic's orchestrator dispatches reviews one at a time, in the order it keeps, and sends remediation back to your session.
+
+Otherwise, use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
 
 The reviewer may ask questions, answer them directly so they can finish their review.
 

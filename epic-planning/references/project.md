@@ -59,4 +59,4 @@ Look for the earliest point where a user could accept part of the work, such as 
 
 ### Phase: Epic task
 
-Write the epic task from the [epic template](../assets/epic.md). Under **Pattern**, name the checkpoint tasks. The graph lives in the children's dependencies; do not restate it in the body.
+Write the epic task from the [epic template](../assets/epic.md). Under **Pattern**, name the checkpoint tasks, and how many children may run at once if that needs a limit. The graph lives in the children's dependencies; do not restate it in the body.

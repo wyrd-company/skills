@@ -1,0 +1,82 @@
+# Trowel in the devcontainer: epic events from NATS into Dagu.
+#
+# The org's central Trowel receives GitHub's webhooks and publishes them to
+# NATS. This instance only subscribes. The GitHub subjects below follow
+# github.<org>.<event>.>; match them to the central instance's scheme.
+#
+# Example: adjust it when it meets live events. JetStream streams must
+# already cover these subjects and dlq.epic-events.<workspace>; Trowel does
+# not create streams.
+#
+# Durable consumer names are relay-<name>-<destination>. Devcontainers that
+# shared one name would share one consumer and each see only part of the
+# events, so every name carries ${WORKSPACE}.
+
+server:
+  listen: ":8080"
+
+nats:
+  url: ${NATS_URL}
+  name: trowel-${WORKSPACE}
+
+# Every consumer hands its event to the epic-event workflow in Dagu. The event
+# only says where to look; the orchestrator's pass reads the record.
+subjects:
+  # This devcontainer's board events, published by Vector already reduced.
+  - name: epic-kanban-${WORKSPACE}
+    subject: kanban.${WORKSPACE}.>
+    consumer: &consumer
+      deliver_policy: new
+      max_deliver: 5
+      backoff: [5s, 30s, 2m, 10m]
+      dlq_subject: dlq.epic-events.${WORKSPACE}
+    destinations: &dagu
+      - name: dagu
+        command:
+          argv:
+            - sh
+            - -c
+            - exec dagu enqueue epic-event -- SUBJECT="$RELAY_SUBJECT" EVENT="$(cat)"
+          timeout: 30s
+
+  # A PR opened, merged or closed: a child into the epic branch, or the epic
+  # PR itself. The transform reduces the event to what routing needs: the
+  # repository and the branches it concerns. An event without a branch, such
+  # as a comment, wakes every active epic in the repository.
+  - name: epic-github-pull-request-${WORKSPACE}
+    subject: github.${GITHUB_ORG}.pull_request.>
+    transform: &github
+      payload: >-
+        {
+          "repo": payload.repository.full_name,
+          "action": payload.action,
+          "sender": payload.sender.login,
+          "number": $exists(payload.pull_request) ? payload.pull_request.number : payload.issue.number,
+          "refs": [
+            payload.pull_request.base.ref,
+            payload.pull_request.head.ref,
+            payload.check_suite.head_branch
+          ]
+        }
+    consumer: *consumer
+    destinations: *dagu
+
+  # A review, or an operator's comment on the epic PR or an issue.
+  - name: epic-github-review-${WORKSPACE}
+    subject: github.${GITHUB_ORG}.pull_request_review.>
+    transform: *github
+    consumer: *consumer
+    destinations: *dagu
+
+  - name: epic-github-comment-${WORKSPACE}
+    subject: github.${GITHUB_ORG}.issue_comment.>
+    transform: *github
+    consumer: *consumer
+    destinations: *dagu
+
+  # Checks finishing on the epic branch.
+  - name: epic-github-checks-${WORKSPACE}
+    subject: github.${GITHUB_ORG}.check_suite.>
+    transform: *github
+    consumer: *consumer
+    destinations: *dagu
