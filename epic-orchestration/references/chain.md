@@ -18,10 +18,10 @@ Release the setup link and the first slice together: the slice depends on the se
 
 ## Dispatching
 
-Add this to the [dispatch](dispatch.md) prompt:
+Add this to the [dispatch](dispatch.md) prompt of every link but the setup link. Planning wrote the setup link's successor, the first slice, already.
 
 ```text
-Chain link <n>. Before you release this task, run the chain's completion check from the epic task's Pattern section and log its result on this task. If it does not pass, write the next link with task-authoring: a child of the epic task, in todo, depending on this task, with its slice chosen as the Pattern section says.
+Chain link <n>. Before you release this task, run the chain's completion check from the epic task's Pattern section and log its result on this task. If it does not pass, and no task depends on this one yet, write the next link with task-authoring: a child of the epic task, in todo, depending on this task, with its slice chosen as the Pattern section says.
 ```
 
 Log the dispatch on the epic task: the link's number, its task and the base it started from. The log is how later passes count links for the stop condition.

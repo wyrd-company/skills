@@ -6,3 +6,5 @@ Read this when every child is merged into the epic branch and no executor is sti
 2. A problem found becomes a new child, written with [task-authoring](../../task-authoring/SKILL.md). Return the epic to `in-progress`, and run acceptance again on the new head once the child has merged.
 3. Once accepted, mark the epic pull requests ready, and notify the operator.
 4. Merge them into the default branch only if the epic task's **Authority** section delegates it. Otherwise the operator reviews and merges, and the merge wakes the next pass.
+
+When the children targeted the default branch, there is no epic pull request: the children are already merged. Once accepted, notify the operator and go straight to [finalize](finalize.md).

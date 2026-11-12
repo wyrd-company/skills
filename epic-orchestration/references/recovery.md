@@ -6,6 +6,6 @@ Read this when the work has stopped moving by itself: a task is blocked, a sessi
 - **A session that died:** read the task, its log and its branch history, and check for unpushed work. Repair the claim, log why, then dispatch. If the evidence is not unambiguous, escalate instead.
 - **A claim released with no handoff,** or a status that contradicts the task's own record: return the task to the state its evidence supports, and log why.
 - **A handoff that looks incomplete:** do not dispatch onward until it is complete and the previous agent has stopped.
-- **A deferred finding** goes into the epic, as a new child written with [task-authoring](../../task-authoring/SKILL.md), or out of it, as an issue. The reviewer recommends; an escalation decides, and logs it on the epic.
+- **A deferred finding** goes into the epic, as a new child written with [task-authoring](../../task-authoring/SKILL.md), or out of it, as an issue. The reviewer recommends; an escalation decides, and the pass logs the ruling on the epic task.
 
 To send the next agent, use [dispatch](dispatch.md).

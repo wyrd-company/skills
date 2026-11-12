@@ -18,12 +18,14 @@ Among several adequate solutions, choose the smallest one that keeps the intent,
 
 Before ruling to remove or narrow a capability, check what the code supports at the epic branch head. Notes alone do not establish it.
 
-## Record the ruling
+## Return the ruling
 
-Record each ruling in the epic task's log, so a reviewer can check the authority without your conversation and the next pass can act on it. Use the log, not the body: a body can be rewritten and the ruling lost. Say what the pass should do next.
+Return each ruling to the pass that asked. The pass holds the epic task and logs it there: you do not write to the epic task, or to any task someone else holds. Unclaimed children a ruling adds or changes are yours to write.
+
+Make the ruling stand alone, so a reviewer can check the authority from the log without your conversation, and the next pass can act on it. Say what the pass should do next.
 
 ## Bring in the operator
 
 Bring in the operator when the decision changes the outcome or scope, breaks a released contract, has costly or irreversible consequences for data or compatibility, carries material security, spending, legal or publishing risk, chooses between materially different product or architectural intents, or is still deadlocked after a ruling. How to ask is in [executing](../../executing/SKILL.md#when-to-decide-and-when-to-ask).
 
-Log the question on the epic task as a hold. The operator's answer on GitHub wakes a pass, and the pass acts on it.
+Return the question instead of a ruling. The pass notifies the operator and logs the question as a hold. The operator's answer on GitHub wakes a pass, and the pass acts on it.

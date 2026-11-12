@@ -1,8 +1,8 @@
 # Finalize
 
-Read this when the epic pull requests have merged into the default branch. It closes the epic down: it checks that the work is finished, removes what the epic left behind, brings GitHub up to date, archives the board, and stops the schedule.
+Read this when the epic pull requests have merged into the default branch, or when acceptance has passed for an epic whose children targeted the default branch. It closes the epic down: it checks that the work is finished, removes what the epic left behind, brings GitHub up to date, archives the board, and stops the schedule.
 
-1. Confirm every child is `done` and every agent has stopped.
+1. Confirm every child is `done`, or `archived` with the ruling that dropped it in its log, and that every agent has stopped.
 2. Delegate the cleanup: fast-forward the local default branch, remove the epic's worktrees, delete the epic and task branches locally and on the remote, settle the threads, and remove scratch files and Docker artifacts.
 3. Close the issues whose goal is met. On any other, comment with what remains.
 4. Bring the GitHub project up to date.
@@ -20,11 +20,11 @@ Copy the whole folder: the task files, `activity.jsonl` and `config.yml`, leavin
 ```bash
 export AWS_PROFILE=workspace-archives
 DEST="s3://workspace-archives/$WORKSPACE/<project>/<epic>/"
-aws s3 sync "$BOARD" "$DEST" --exclude .lock
-aws s3 sync "$BOARD" "$DEST" --exclude .lock --dryrun   # prints nothing when the archive matches
+aws s3 sync "$BOARD" "$DEST" --exclude .lock --delete
+aws s3 sync "$BOARD" "$DEST" --exclude .lock --delete --dryrun   # prints nothing when the archive matches
 git rm -r "$BOARD"
 git commit -m "chore: archive epic <epic>"
 git push
 ```
 
-Remove the folder only once the dry run prints nothing. If the copy fails, leave the board where it is and escalate: the board is the epic's only full record.
+`--delete` removes anything under the epic's key that is not on the board, such as a task file a retry renamed, so the archive is the board exactly. Remove the folder only once the dry run prints nothing. If the copy fails, leave the board where it is and escalate: the board is the epic's only full record.

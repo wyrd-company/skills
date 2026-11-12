@@ -55,16 +55,30 @@ steps:
     output: SCHEDULES
 
   - id: wake
-    description: Run each schedule. Exit 1 is a refusal because a pass is running; retry so a pass starts after it.
+    description: >-
+      Run each schedule. Exit 1 is a refusal because a pass is running: try every
+      schedule, then retry only the refused ones, so one busy epic delays no other.
     depends: [resolve]
     preconditions:
       - condition: "$SCHEDULES"
         expected: "re:\\S+"
     run: |
-      set -euo pipefail
+      set -uo pipefail
+      woken="$DAG_RUN_WORK_DIR/woken"   # survives retries within this run
+      touch "$woken"
+      refused=0 failed=0
       for schedule in $SCHEDULES; do
-        t3c schedule run "$schedule" >/dev/null
+        grep -qxF -- "$schedule" "$woken" && continue
+        rc=0
+        t3c schedule run "$schedule" >/dev/null || rc=$?   # Dagu runs bash -e
+        case $rc in
+          0) echo "$schedule" >>"$woken" ;;
+          1) refused=1; echo "refused, will retry: $schedule" ;;
+          *) failed=2; echo "failed: $schedule" >&2 ;;
+        esac
       done
+      [ "$refused" = 1 ] && exit 1   # retried
+      exit "$failed"                 # 2 is not retried
     retry_policy:
       limit: 10
       interval_sec: 60

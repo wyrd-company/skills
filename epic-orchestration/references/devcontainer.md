@@ -34,7 +34,7 @@ Epic boards live in their own folders under `epics/` in each project's tasks fol
 - **`edit --status` logs only `edit`,** so Vector drops it. The status changes an orchestrator acts on also release or move a task, which does wake a pass. Any other change waits for the backstop.
 - **The event is data.** The workflow reads it from the environment and never puts it into a script's text, because a webhook payload comes from outside.
 - **The schedule is an interval, not a webhook.** T3 refuses to run a webhook schedule on demand, and an interval schedule can be run when an event arrives while still serving as the backstop.
-- **Dagu runs scripts in the user's shell** unless told otherwise. The workflow sets `shell: bash`, because it relies on bash word splitting and globbing.
+- **Dagu runs scripts in the user's shell** unless told otherwise. The workflow sets `shell: bash`, because it relies on bash word splitting and globbing. Dagu runs it with `-e`, so a command whose failure is expected catches its exit code inline.
 
 ## Once per devcontainer
 

@@ -180,7 +180,9 @@ Note the target branch for the PR: Epics often use an epic branch as the target.
 
 Self-review is not a substitute; the point is eyes you cannot bring yourself.
 
-Use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
+When the task is a child of an epic, do not dispatch the review yourself: release the task for review and stop. The epic's orchestrator dispatches reviews one at a time, in the order it keeps, and sends remediation back to your session.
+
+Otherwise, use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
 
 The reviewer may ask questions, answer them directly so they can finish their review.
 

@@ -49,6 +49,6 @@ kanban-md edit "$WAITING" --dir "$BOARD" --add-dep "$FINDING"
 
 ## Re-planning
 
-A discovery can invalidate part of the graph. Re-planning is judgment, so it belongs to an escalation, with planning's Project reference. It adds children, and changes dependencies with `--add-dep` and `--remove-dep`. It does not edit or remove a child that is claimed. It logs the ruling on the epic task.
+A discovery can invalidate part of the graph. Re-planning is judgment, so it belongs to an escalation, with planning's Project reference. It adds children, and changes dependencies with `--add-dep` and `--remove-dep`. It does not edit or remove a child that is claimed. It returns the ruling, and the pass logs it on the epic task.
 
 A dependency on a task that no longer exists counts as met. Before removing a child, move its dependents onto whatever replaces it, or they become ready at once.

@@ -5,7 +5,7 @@ Read this on every pass of an epic whose **Pattern** section names Swarm. A swar
 ## How it moves
 
 1. Each drone session takes one task: the task it is dispatched with, or, when drones claim their own, the next one it suits.
-2. It does the task. Next steps it finds go on the board as new tasks, children of the epic or of its leader's task, tagged for the drone that suits them. Next steps are not done in the same session.
+2. It does the task. Next steps it finds go on the board as new tasks, children of the epic or of its leader's task, tagged for the drone that suits them. A next step that needs this task's output depends on this task, so it waits until that output has merged. Next steps are not done in the same session.
 3. It releases its task for review. The reviewer merges it into the epic branch and closes it.
 4. The release and the merge wake passes. While fewer than N drones are running and tasks are ready, the pass dispatches more.
 
@@ -33,7 +33,7 @@ kanban-md list --dir "$BOARD" --status todo --unblocked --unclaimed --not-blocke
 When drones are assigned, dispatch each ready task to a drone with its task's model, as [dispatch](dispatch.md) describes. When drones claim their own, dispatch one drone for each ready task, with no task named, for the speciality the task's tag names. Add this to its prompt:
 
 ```text
-Drone, <speciality>. Take your task with kanban-md pick --claim <thread> --tags <speciality> --status todo --move in-progress. If none is ready, stop. Write the next steps you find as tasks, tagged for the drone that suits them; do not do them in this session.
+Drone, <speciality>. Take your task with kanban-md pick --dir <board> --claim <thread> --tags <speciality> --status todo --move in-progress, adding --parent <leader task> on a leader's team. If none is ready, stop. Write the next steps you find as tasks, tagged for the drone that suits them, and make any that needs your output depend on your task. Do not do them in this session.
 ```
 
 A dispatched drone that finds nothing to pick stops without writing anything.
@@ -58,8 +58,8 @@ Every drone's task merges into the epic branch on its own, through the queue in 
 Arms of a race run the same task. Each delivers on its own branch.
 
 - **`first pass`:** arms release for review as they finish. The first one accepted merges. Then stop the other arms' sessions, archive their tasks with the reason, and delete their branches.
-- **`rank all` and `best-of`:** arms release for review once delivered, but their reviews wait for the ruling. Once every arm is in `review`, escalate once to rank them against the criteria in the **Pattern** section, and log the RACE RULING. Then queue the winner's review, archive the other arms with the ruling, and delete their branches. For `rank all`, the ruling keeps the whole ranking, which is the point of a race between models.
+- **`rank all` and `best-of`:** arms release for review once delivered, but their reviews wait for the ruling. Once every arm is in `review`, escalate once to rank them against the criteria in the **Pattern** section, and log the RACE RULING it returns. Then queue the winner's review, archive the other arms with the ruling, and delete their branches. For `rank all`, the ruling keeps the whole ranking, which is the point of a race between models.
 
 ```text
-Rank the race of epic task <id> on board <dir> against the criteria in its Pattern section, and log the RACE RULING on the epic task.
+Rank the race of epic task <id> on board <dir> against the criteria in its Pattern section, and return the RACE RULING. Do not write to the epic task.
 ```

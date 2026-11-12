@@ -37,7 +37,7 @@ Synthesis. The ruling is the ARENA RULING entry in the epic task's log. Start fr
 |---|---|
 | A gladiator in `todo`, unclaimed | Dispatch it |
 | Every gladiator `done`, and no candidate pull requests | Open them, then start the judging below |
-| Verdicts still missing | Nothing: the hold is logged |
+| An operator's verdict still missing | Nothing: the hold is logged |
 | An operator's verdict on GitHub | Log it on the epic task, quoted with its link |
 | Every verdict in, more than one, and no ruling | Escalate to combine them, with the combining prompt below |
 | A ruling, and the synthesis in `todo` | Dispatch the synthesis |
@@ -55,16 +55,16 @@ gh pr close "$CANDIDATE_PR" --delete-branch --comment "Synthesised in #$SYNTHESI
 
 Name each candidate pull request by a letter, not by its model or gladiator, so the judges grade the work. Then, from the epic task's properties:
 
-- **`council` set:** escalate once per member, each on a different strong model from [models.yml](~/models.yml), with the judging prompt below.
+- **`council` set:** escalate once per member, in parallel, each on a different strong model from [models.yml](~/models.yml), with the judging prompt below. Log each verdict as it returns.
 - **`hitl` set:** notify each operator it names, with the candidate pull requests and the rubric, and ask them to answer on the epic pull request with a winner and the ideas worth grafting. Log the hold.
 - **Neither:** escalate once, with the judging prompt. Its verdict is the ruling.
 
 ```text
-Judge the arena of epic task <id> on board <dir>, with the epic-orchestration skill's arena reference. Record your verdict in the epic task's log.
+Judge the arena of epic task <id> on board <dir>, with the epic-orchestration skill's arena reference. Return your verdict, and do not write to the epic task.
 ```
 
 ```text
-Combine the arena verdicts of epic task <id> on board <dir> into a ruling, with the epic-orchestration skill's arena reference.
+Combine the arena verdicts of epic task <id> on board <dir> into a ruling, with the epic-orchestration skill's arena reference. Return the ruling, and do not write to the epic task.
 ```
 
 ## Judging
@@ -72,8 +72,8 @@ Combine the arena verdicts of epic task <id> on board <dir> into a ruling, with 
 Read this when you have been asked to judge an arena.
 
 - **Grade every candidate,** end to end, against each criterion of the rubric in the epic task's **Pattern** section. Cite the evidence for each grade. Do not stop at the first candidate that passes: the comparison is the point.
-- **Judge the work, not who made it.** Read the candidates through their pull requests. Do not read the gladiators' tasks, and do not read another judge's verdict in the log before logging your own.
+- **Judge the work, not who made it.** Read the candidates through their pull requests. Do not read the gladiators' tasks, or another judge's verdict.
 - **Name the base and the grafts.** Pick the strongest candidate as the base, and list the ideas worth taking from the others, each with where it is. Where a graft conflicts with the base, say which one wins. When the **Pattern** section asks for something other than a base with grafts, judge for that instead.
-- **Log it as an ARENA VERDICT,** or as the ARENA RULING when you are the only judge.
+- **Return it as an ARENA VERDICT,** or as the ARENA RULING when you are the only judge. The pass logs it.
 
-When you are asked to combine verdicts, weigh every one of them, the operators' included. Rule as [decide](decide.md) says, and log the ARENA RULING. A split you cannot settle goes to the operator.
+When you are asked to combine verdicts, weigh every one of them, the operators' included. Rule as [decide](decide.md) says, and return the ARENA RULING. A split you cannot settle goes to the operator.

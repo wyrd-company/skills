@@ -15,6 +15,7 @@ Dispatch each task to its own agent session, which outlives the pass. Keep the p
 ```text
 <Implement|Remediate|Review|Accept> task <id> on board <dir>. Epic task: <id>.
 Base: <epic branch> at <sha>
+Merge on acceptance: <yes, as the Authority section delegates | no: accept and hand off> (reviews only)
 Surfaces in play: <for parallel siblings: what else is being touched, and by which task>
 ```
 

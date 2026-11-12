@@ -16,7 +16,7 @@ An epic can run for days. No context lasts that long, and one that tries drifts 
 
 Each pass:
 
-1. Read the record: the epic task and its log, its children, and the epic pull requests.
+1. Read the record: the epic task and its log, its children, and the epic pull requests. Check first that the epic task's claim is this thread. Retake a claim that lapsed. If another holder has it, stop and notify the operator: two orchestrators would undo each other.
 2. Read the reference for the epic's pattern, then compare the record with what the pattern expects next.
 3. For each step the record shows, read the reference below that covers it, and take every step the record settles.
 4. Escalate every step that needs judgment.
@@ -26,13 +26,13 @@ Each pass:
 
 - **Scripts** do what is mechanical, before any model wakes: routing events now, and any check that needs no reading. When a pass keeps doing the same mechanical step, that step belongs in a script.
 - **The pass** does what the record settles: releasing tasks, dispatching when the preflight gives one next step, repairing a claim when the evidence is unambiguous, checking after a merge, keeping GitHub current.
-- **An escalation** to a stronger model does what needs judgment: a ruling, a state you did not expect, a block, what a deferred finding becomes. Delegate it with the epic and the question, choosing its model from [models.yml](~/models.yml). It records its ruling in the epic task's log, and a later pass acts on the ruling.
+- **An escalation** to a stronger model does what needs judgment: a ruling, a state you did not expect, a block, what a deferred finding becomes. Delegate it with the epic and the question, choosing its model from [models.yml](~/models.yml), and wait for it: several at once, such as an arena's council, run in parallel. It returns its ruling, and you log it on the epic task. Only the epic task's holder writes to it. You, or a later pass, act on the ruling.
 
 The pass decides nothing the record does not already settle.
 
 ```text
 Decide for epic task <id> on board <dir>: <question>.
-Use the epic-orchestration skill's decide reference, and record the ruling in the epic task's log.
+Use the epic-orchestration skill's decide reference, and return your ruling. Do not write to the epic task.
 ```
 
 The patterns put the next step into the work itself: a chain link writes the next link, dependencies and `kanban-md pick` order a graph, and the reviewer merges at acceptance. Step in only where the work cannot move on by itself: gates, the review queue, blocks and failures.
@@ -74,6 +74,6 @@ Read only what the step at hand needs.
 - [Review and merge](references/review-and-merge.md): when a child has been released for review, a review is waiting its turn, or a merge has landed in the epic branch. It keeps the branch to one review at a time, in an order the record holds.
 - [Recovery](references/recovery.md): when the work has stopped moving by itself: a task is blocked, a session died or left its claim, a handoff looks incomplete, or a reviewer deferred a finding. It says what to check, what to repair and what to escalate.
 - [Acceptance](references/acceptance.md): when every child is merged and no executor is active, or acceptance found a problem. It takes the epic to pull requests ready for the default branch.
-- [Finalize](references/finalize.md): when the epic pull requests have merged into the default branch. It closes the epic down and archives its board.
+- [Finalize](references/finalize.md): when the epic pull requests have merged into the default branch, or acceptance has passed for an epic without them. It closes the epic down and archives its board.
 - [Decide](references/decide.md): when you are the escalation and have been asked to decide for the epic, not when you are a pass. It holds the authority you decide with, and how to record a ruling.
 - [Devcontainer](references/devcontainer.md): when setting up or debugging what every epic in a devcontainer shares: the event path and the archive storage. A pass needs it only when a pass did not follow an event it should have, or an archive failed.

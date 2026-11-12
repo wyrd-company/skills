@@ -50,4 +50,4 @@ A finding that an escalation takes into the epic becomes a new mapper in the bat
 
 ## Dropping a chunk
 
-A ruling that drops a chunk archives its mapper with the ruling in its log, and records the chunk as missing on the epic task. An archived task counts as `done` for its dependents, so the reducer becomes ready, and its prompt names the chunk as missing. Its definition of done says what to do with it.
+When a ruling drops a chunk, the pass archives its mapper with the ruling in its log, and logs the chunk as missing on the epic task. An archived task counts as `done` for its dependents, so the reducer becomes ready, and its prompt names the chunk as missing. Its definition of done says what to do with it.
