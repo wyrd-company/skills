@@ -58,7 +58,7 @@ Decide who judges:
 
 - A person: set `hitl` to the handles of the operators who judge, comma-separated, from `git operator list`.
 - A council of agents: set `council` to the number of members. With `hitl` also set, the council is in addition to the people.
-- Neither: the orchestrator judges.
+- Neither: one judge on a strong model, as an escalation.
 
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --tags epic --status backlog \
@@ -76,4 +76,14 @@ Write one task per gladiator, as children of the epic, with [task-authoring](../
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --parent "$EPIC" --status backlog \
   --set-property model='"claude/opus-5.5"' --set-property effort='"high"' --body "$BODY"
+```
+
+A gladiator's definition of done is its candidate, delivered on its branch. It closes its own task without review: the judging is its review.
+
+### Phase: Synthesis task
+
+Write one more child of the epic: the synthesis, depending on every gladiator. It starts from the winning candidate, grafts the ideas the ruling names, and is done when the result meets the rubric and the gladiators' worktrees and local branches are removed. It is reviewed and merged like any task, and it is the only one in the arena that merges.
+
+```bash
+kanban-md create "$TITLE" --dir "$BOARD" --parent "$EPIC" --depends-on "$GLADIATORS" --status backlog --body "$BODY"
 ```

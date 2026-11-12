@@ -53,7 +53,7 @@ A later generation may split again and run another map-reduce on the result.
 
 ### Phase: Output
 
-Define what every mapper delivers and where, so that a reducer can read it without the mapper: the format, and the place, such as a file on the mapper's branch or a pull request into the epic branch. Define what each reducer delivers in the same way.
+Define what every mapper delivers and where, so that a reducer can read it without the mapper: the format, and where in the epic branch it lands, such as a file under a path the epic names, or the change itself. Each mapper's output merges into the epic branch like any child's. If the mappers' outputs should not ship, the reducer's definition of done says to remove them. Define what each reducer delivers in the same way.
 
 ### Phase: Epic task
 
@@ -71,7 +71,7 @@ Write the tasks as a tree, with [task-authoring](../../task-authoring/SKILL.md):
 - one mapper task per chunk, as a child of its batch's reducer task;
 - each reducer task depends on the tasks below it.
 
-The tree and the dependencies say different things. The reducer is dispatched first and dispatches its own mappers, so the orchestrator coordinates only the reducers. Its task cannot be completed until every mapper below it is done, and the dependency keeps any other worker from picking it up early. Its definition of done says what reconciling means for this epic: what it does with duplicates, conflicts and a missing chunk.
+The tree groups each batch under its reducer, and the dependencies set the order: the orchestrator dispatches the mappers first, and each reducer once every task below it is done, so the reducer starts from an epic branch that holds every output it reconciles. Its definition of done says what reconciling means for this epic: what it does with duplicates, conflicts and a missing chunk.
 
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --parent "$EPIC" --status backlog --body "$BODY"     # reducer

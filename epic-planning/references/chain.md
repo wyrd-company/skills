@@ -51,7 +51,7 @@ kanban-md create "$TITLE" --dir "$BOARD" --tags epic --status backlog --body "$B
 
 Write the first two links with [task-authoring](../../task-authoring/SKILL.md). Each link's context says how it moves the chain towards the goal.
 
-1. **Setup.** Everything the chain needs before its first slice: the epic branch, test fixtures or profiles, and, when the slices are not known yet, the queue itself (an inventory of what is missing, for example).
+1. **Setup.** Everything the chain needs before its first slice that the orchestrator does not set up itself (it opens the epic branch): test fixtures or profiles, and, when the slices are not known yet, the queue itself (an inventory of what is missing, for example).
 2. **The first slice.** It depends on the setup link.
 
 ```bash

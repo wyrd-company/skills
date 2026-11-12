@@ -72,13 +72,14 @@ kanban-md create "$TITLE" --dir "$BOARD" --tags epic --status backlog --body "$B
 
 ### Phase: Leader tasks
 
-One task per leader, as a child of the epic. It says how many drones the leader runs at once, within the epic's N, and whether it writes its drones' tasks.
+One task per leader, as a child of the epic. It says how many of its team's tasks may run at once, within the epic's N, and whether the leader writes its team's tasks. A leader works in rounds: it writes a round of its team's tasks, waits on them, and writes the next round or closes its task.
 
 ### Phase: Drone tasks
 
 Write the drone tasks for the shape you chose, with [task-authoring](../../task-authoring/SKILL.md), as children of the epic or of a leader's task.
 
 - A drone reads and does only what its task says, so each task is complete on its own. Point to the skills and context it must read; do not copy them in.
+- When drones claim their own tasks, tag each task with the speciality that suits it. Drones pick by that tag.
 - For a race, write the same task once per arm.
 - Set the model and effort for each task, from [models.yml](~/models.yml).
 

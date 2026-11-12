@@ -5,7 +5,7 @@ description: Use when writing a task, the ticket to do a piece of work, or when 
 
 A task is the ticket to do a piece of work. It says what one executor will deliver, how completion is judged, and where the work stands. It does not define the goal: a GitHub issue or the operator's prompt does that.
 
-Tasks live on a `kanban-md` board in a workspace project's `/workspace/{project}/tasks` folder or the workspaces tasks folder `/tasks`. The `kanban-md` skill covers the commands. The workspace's `AGENTS.md` files say which board serves which scope.
+Tasks live on a `kanban-md` board in a workspace project's `/workspace/{project}/tasks` folder or the workspaces tasks folder `/tasks`. Each tasks folder has a `default` board for its scope, and each epic has its own board under `epics/`, which the [planner](../epic-planning/SKILL.md) creates. The `kanban-md` skill covers the commands. The workspace's `AGENTS.md` files say which tasks folder serves which scope.
 
 ## Issue, task, pull request
 
