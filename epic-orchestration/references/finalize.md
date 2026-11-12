@@ -20,11 +20,13 @@ Copy the whole folder: the task files, `activity.jsonl` and `config.yml`, leavin
 ```bash
 export AWS_PROFILE=workspace-archives
 DEST="s3://workspace-archives/$WORKSPACE/<project>/<epic>/"
+CHECK=$(mktemp -d)
 aws s3 sync "$BOARD" "$DEST" --exclude .lock --delete
-aws s3 sync "$BOARD" "$DEST" --exclude .lock --delete --dryrun   # prints nothing when the archive matches
+aws s3 sync "$DEST" "$CHECK"
+diff -r --exclude=.lock "$BOARD" "$CHECK"   # prints nothing when the archive matches
 git rm -r "$BOARD"
 git commit -m "chore: archive epic <epic>"
 git push
 ```
 
-`--delete` removes anything under the epic's key that is not on the board, such as a task file a retry renamed, so the archive is the board exactly. Remove the folder only once the dry run prints nothing. If the copy fails, leave the board where it is and escalate: the board is the epic's only full record.
+`--delete` removes anything under the epic's key that is not on the board, such as a task file a retry renamed. `sync` compares only sizes and times, so read the archive back and compare it byte for byte. Remove the folder only once `diff` prints nothing. If the copy fails, leave the board where it is and escalate: the board is the epic's only full record.
