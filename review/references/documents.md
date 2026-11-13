@@ -19,7 +19,7 @@ Read this when the work is prose: documentation, a design, a specification, or i
 
 ## Designs and specifications
 
-A design is reviewed before anything is built on it, when a miss costs least to fix.
+A design is reviewed before anything is built on it, when a miss costs least to fix. It is held to the [documentation standard](../../standards/references/documentation.md) as well as to what follows.
 
 - **Its questions are answered.** Check it against its template or the issue: every question it must settle is settled.
 - **Its assumptions are justified.** A claim about behaviour, performance or a constraint that the design rests on has evidence, or is marked as an assumption to test.

@@ -1,6 +1,6 @@
 # Documents
 
-Read this to choose the document a decision belongs in, and where it goes. How a document is worded is in `standards`.
+Read this to choose the document a decision belongs in, and where it goes. How a document is worded is in [standards](../../standards/references/documentation.md).
 
 ## The format
 
