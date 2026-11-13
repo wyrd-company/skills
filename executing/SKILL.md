@@ -188,7 +188,7 @@ Self-review is not a substitute; the point is eyes you cannot bring yourself.
 
 When the task is a child of an epic, do not dispatch the review yourself: release the task for review and stop. The epic's orchestrator dispatches reviews one at a time, in the order it keeps, and sends remediation back to your session.
 
-Otherwise, use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, the review surface, and whether the reviewer merges on acceptance. The reviewer follows [review](../review/SKILL.md), at the level the task's `risk` sets.
+Otherwise, use `delegate_task` to dispatch the independent review with handoff. Choose the reviewer's model from [models.yml](~/models.yml), as its header says: the cheapest entry that lists the task's `risk`, from a provider other than yours. Include the task/definition of done, any issues, the review surface, and whether the reviewer merges on acceptance. The reviewer follows [review](../review/SKILL.md), at the level the task's `risk` sets.
 
 The reviewer may ask questions, answer them directly so they can finish their review.
 

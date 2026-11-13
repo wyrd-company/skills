@@ -56,7 +56,7 @@ gh pr close "$CANDIDATE_PR" --delete-branch --comment "Synthesised in #$SYNTHESI
 Name each candidate pull request by a letter, not by its model or gladiator, so the judges grade the work. Then, from the epic task's properties:
 
 - **`council` set:** escalate once per member, in parallel, each on a different strong model from [models.yml](~/models.yml), with the judging prompt below. Log each verdict as it returns.
-- **`hitl` set:** notify each operator it names, with the candidate pull requests and the rubric, and ask them to answer on the epic pull request with a winner and the ideas worth grafting. Log the hold.
+- **`hitl` names judges:** notify each person it names with the `judge` role, with the candidate pull requests and the rubric, and ask them to answer on the epic pull request with a winner and the ideas worth grafting. Log the hold.
 - **Neither:** escalate once, with the judging prompt. Its verdict is the ruling.
 
 ```text

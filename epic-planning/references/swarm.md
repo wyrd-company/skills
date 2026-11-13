@@ -81,7 +81,7 @@ Write the drone tasks for the shape you chose, with [task-authoring](../../task-
 - A drone reads and does only what its task says, so each task is complete on its own. Point to the skills and context it must read; do not copy them in.
 - When drones claim their own tasks, tag each task with the speciality that suits it. Drones pick by that tag.
 - For a race, write the same task once per arm.
-- Set the model and effort for each task, from [models.yml](~/models.yml).
+- Set each task's `complexity`. For a race between models, also set each arm's `model` and `effort`, from [models.yml](~/models.yml).
 
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --parent "$EPIC" --status backlog \

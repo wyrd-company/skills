@@ -83,6 +83,8 @@ A fix pushed without a reply is not a reply. Record each verdict in the finding'
 - **Change approved, rebase expected:** the work is sound, but it must not merge yet. Either a task ahead of it has to merge first, or the base moved during the review. Say so in those words, and give the base head your approval was made against. The next round, at every level, checks only what the rebase changed (`git range-diff` from the old base to the new), and re-runs the checks at the new head, because a clean rebase can still break approved code. This is not a quality finding, and the handoff says so.
 - **Surface rejected:** the surface failed the check in step 2 and you did not review the change. Approve nothing: the next round is a full review.
 
+When the task's `hitl` names someone with the `judge` role, the soft claims they judge are theirs, not yours. Decide everything else. If nothing else blocks, record the result as accepted pending their judgment, and notify them with the surface and the claims to judge. Their verdict completes the acceptance, so do not merge before it.
+
 An acceptance holds only for the head you reviewed. A commit after it, a rebase included, needs another round.
 
 Escalate when you cannot decide: a finding the executor and you still disagree on after a second round, a contradiction between the task and its specification, or a question of scope. In an epic, the orchestrator decides. Otherwise, the operator does.
