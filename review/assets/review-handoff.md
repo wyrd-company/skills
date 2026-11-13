@@ -3,6 +3,7 @@
 {The result and what the executor does next, in two or three sentences.}
 
 - Level: {low | normal | high}, {the signals that set it, and why it was raised, if it was}
+- Reviewer: {full thread id}
 - Surface: {pull request or review id}
 - Reviewed head: {sha}
 - Base head: {sha, which any approval was made against}
@@ -21,5 +22,6 @@
   - Base unmoved since the surface check: {yes | no}
   - Surface head is the reviewed head and the task branch head: {yes | no}
   - Nothing merges ahead: {yes | waiting on task}
+  - Nothing newly public holds a secret or identifying value: {yes | not applicable | no}
 - Merged: {sha into branch | no, and why}
 - Published: {epic pull request comment | unpublished, and why | not an epic}

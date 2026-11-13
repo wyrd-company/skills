@@ -198,7 +198,7 @@ For each finding from the reviewer decide:
 
 ## When the review closes without you
 
-When you find the pull request was merged, closed or rejected while you were still working: do not push, merge or reopen. Leave your local commits where they are. Report which commits the review did not include and whether each looks covered already. Then stop. Whoever dispatched the work decides what happens to the rest.
+When you find the pull request was merged or closed while you were still working, or the review ended the work rather than asking for changes: do not push, merge or reopen. Leave your local commits where they are. Report which commits the review did not include and whether each looks covered already. Then stop. Whoever dispatched the work decides what happens to the rest. A review round that rejects with findings is not this: triage it, as above.
 
 ## Merge
 

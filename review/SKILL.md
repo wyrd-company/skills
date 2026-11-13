@@ -15,7 +15,7 @@ Review costs attention, time and tokens, and a miss costs more the riskier the w
 |---|---|
 | `low` | Read the change against the contract. Check that the handoff's evidence came from the handoff commit. Later rounds read only what changed. |
 | `normal` | As `low`, plus a [task audit](references/task-audit.md), a look at what the change can break beyond its diff, and the cheapest proof re-run yourself. |
-| `high` | As `normal`, plus [lenses](references/lenses.md): fresh reviewers that each read the work for one question. Prove the fact the change's safety rests on by running it. Every round reads the whole change again. |
+| `high` | As `normal`, plus [lenses](references/lenses.md): fresh reviewers that each read the work for one question. Prove the fact the change's safety rests on by running it. Every remediation round reads the whole change again. |
 
 A [council](references/council.md) is separate from the level. When the task sets `council`, several models from different providers give the verdict, at whatever level the work has.
 
@@ -26,10 +26,10 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
 1. **Claim the task.** You hold it for the whole round, and release it with the result.
 
    ```bash
-   kanban-md edit $TASK_ID --dir $BOARD_DIR --claim $THREAD --timestamp --append-body "REVIEW ROUND ${N} STARTED: level ${LEVEL}, ${SURFACE} at ${HEAD}"
+   kanban-md edit $TASK_ID --dir $BOARD_DIR --claim $THREAD --timestamp --append-body "REVIEW ROUND ${N} STARTED by ${THREAD}: level ${LEVEL}, ${SURFACE} at ${HEAD}"
    ```
 
-   Round 1 is the first review of the task. Count the earlier `REVIEW ROUND` entries for the rest.
+   Put your full thread id in the entry: the claim is released at the end of the round, and the entry is what points the next round, and the task audit, at your transcript. The round number is one more than the last result entry, `REVIEW ROUND <n>: <result>`, or 1 when there is none. The `STARTED` and `TRIAGE` entries do not count.
 
 2. **Check the surface before reading it.** The head of the review surface matches the head of the task branch, and the base has not moved under the branch. A review of a surface that will never merge is wasted. If either fails, reject the surface, as below, and stop. The [surface](references/surfaces.md) reference has the commands.
 3. **Read the contract.** The issue's goal, the task's Definition of Done, its soft claims and constraints, the handoff, and any previous rounds' findings. The [task-authoring](../task-authoring/SKILL.md) skill says what each part of a task promises.
@@ -37,7 +37,7 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
    - [code](references/code.md): source, tests, scripts, configuration, CI.
    - [documents](references/documents.md): documentation, designs, specifications, and instructions written for agents, such as skills, prompts and `AGENTS.md`.
 
-   Round 1 reads the whole change. Later rounds at `low` and `normal` read what changed since the last round. Read more when that change reaches into code you approved.
+   Round 1 reads the whole change. Later rounds at `low` and `normal` read what changed since the last round, and at `high` the whole change again. Read more when that change reaches into code you approved. A round after a rebase expected is the exception at every level: it checks what the rebase changed, as below.
 5. **Check how the previous round's findings were settled,** as below.
 6. **Verify each finding before you report it.** A finding is a claim about the work, and it needs the evidence its severity implies. Point at the line, and for P0 and P1 show the failure: a command, a test, a trace. A finding you could not confirm is a `Q`.
 7. **Decide** the result, and deliver it on the surface.
@@ -80,7 +80,7 @@ A fix pushed without a reply is not a reply. Record each verdict in the finding'
 
 - **Accepted:** no P0 or P1 open, every P2 fixed or deferred, every `Q` answered, every soft claim judged met, and the evidence for each Definition of Done line comes from a run at the reviewed head.
 - **Rejected:** anything else. List what blocks.
-- **Change approved, rebase expected:** the work is sound, but it must not merge yet. Either a task ahead of it has to merge first, or the base moved during the review. Say so in those words, and give the base head your approval was made against. The next round checks only what the rebase changed, re-running the checks at the new head, because a clean rebase can still break approved code. This is not a quality finding, and the handoff says so.
+- **Change approved, rebase expected:** the work is sound, but it must not merge yet. Either a task ahead of it has to merge first, or the base moved during the review. Say so in those words, and give the base head your approval was made against. The next round, at every level, checks only what the rebase changed (`git range-diff` from the old base to the new), and re-runs the checks at the new head, because a clean rebase can still break approved code. This is not a quality finding, and the handoff says so.
 - **Surface rejected:** the surface failed the check in step 2 and you did not review the change. Approve nothing: the next round is a full review.
 
 An acceptance holds only for the head you reviewed. A commit after it, a rebase included, needs another round.
@@ -95,8 +95,22 @@ You merge only when the dispatch says to merge on acceptance, or the task's **Re
 2. The base head has not moved since you checked the surface.
 3. The surface head is the head you reviewed, and matches the task branch.
 4. No task has to merge ahead of this one: its dependencies, its blocked mark, and in an epic the merge queue.
+5. When the merge makes commits public for the first time, such as a local `gitpr` review merged into a branch of a public repository, those commits hold no secrets and no local or identifying values: machine paths, account names, internal URLs. A pull request on a public repository is already public, so this gate holds for it.
 
-Merge fast-forward only, and do not rebase first: a rebase after acceptance merges code you did not review. If any gate fails, do not merge. Accept the change and reject the surface. Without merge authority, accept and hand off. The operator merges, and closes the task.
+Merge fast-forward only, and do not rebase first: a rebase after acceptance merges code you did not review. If a gate fails, do not merge, and the round's result follows from the gate:
+
+| Gate failed | Result |
+|---|---|
+| 1 | Rejected |
+| 2 or 4 | Change approved, rebase expected |
+| 3: the branch has commits after the head you reviewed | Rejected, with a finding naming the commits. The next round reviews them. |
+| 5 | Rejected, with a P0 for each value found. Escalate as well. |
+
+Without merge authority, accept and hand off. The operator merges, and closes the task.
+
+## Without a task
+
+Small work can go straight to a pull request, with no task. Then the issue, or the operator's prompt that dispatched you, is the contract, and the pull request's head is the head you review. Skip the claim and the task log. The round's handoff goes on the surface, as the review's summary, and to whoever dispatched you. Merge authority can only come from the dispatch.
 
 ## Hand off
 

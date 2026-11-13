@@ -87,3 +87,9 @@ Use `--text-file` for text with backticks or several lines, and `--pr-level` for
 ## No pull request
 
 For a branch, a commit range or uncommitted work, write the findings in the handoff, ordered by file and line, as `path:L<line>: P1: <problem>. <fix>.`, so they can move to a surface later.
+
+The surface check depends on what you were given:
+
+- **A branch:** as for a pull request. Record the branch head, and check the base is an ancestor of it.
+- **A commit range:** record both ends as full shas. Review exactly that range; nothing can move under it.
+- **Uncommitted work:** there is no head to check. Say so in the handoff, and review the working tree as it is. An acceptance of uncommitted work cannot authorize a merge: a merge needs the commit you reviewed.

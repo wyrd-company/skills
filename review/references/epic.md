@@ -19,10 +19,9 @@ Never write to the epic task. Only its holder does. What the orchestrator needs 
 
 The merge is not finished until the epic pull request shows it.
 
-1. **In a public repository, scan before you push.** Check the commits the push will make public for secrets and for local or identifying values: machine paths, account names, internal URLs. If you find one, do not push. Report it as a P0 and escalate.
-2. **Push the epic branch,** fast-forward only. Check the remote head equals the merge.
-3. **Add one line under `## What landed`** in the epic pull request's description: what the change does for the epic's outcome. Edit only that section.
-4. **Comment on the epic pull request:** what changed and why, the notable decisions, the validation, and the merged commit range.
+1. **Push the epic branch,** fast-forward only, if the merge did not already. Check the remote head equals the merge. The scan of what the push makes public is a merge gate, so it happened before the merge.
+2. **Add one line under `## What landed`** in the epic pull request's description: what the change does for the epic's outcome. Edit only that section.
+3. **Comment on the epic pull request:** what changed and why, the notable decisions, the validation, and the merged commit range.
 
 Then close the task, as the skill's handoff says. If there is no epic pull request yet, or the push is refused, do not improvise: log the merge as unpublished in the handoff, and escalate.
 
