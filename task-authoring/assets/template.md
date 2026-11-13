@@ -40,7 +40,7 @@ Known gaps:
 
 ## Review
 
-{The review surface and reviewer, when they differ from the repository's normal practice. Omit otherwise.}
+{The review surface and reviewer, when they differ from the repository's normal practice, and whether the reviewer merges on acceptance. Omit otherwise.}
 
 ## Related Records
 

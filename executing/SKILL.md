@@ -182,7 +182,7 @@ Self-review is not a substitute; the point is eyes you cannot bring yourself.
 
 When the task is a child of an epic, do not dispatch the review yourself: release the task for review and stop. The epic's orchestrator dispatches reviews one at a time, in the order it keeps, and sends remediation back to your session.
 
-Otherwise, use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, and the review surface.
+Otherwise, use `delegate_task` to dispatch the independent review with handoff. Use a different [model family](~/models.yml), when available, than your own. Include the task/definition of done, any issues, the review surface, and whether the reviewer merges on acceptance. The reviewer follows [review](../review/SKILL.md), at the level the task's `risk` sets.
 
 The reviewer may ask questions, answer them directly so they can finish their review.
 
@@ -198,7 +198,7 @@ For each finding from the reviewer decide:
 
 ## When the review closes without you
 
-When you find the pull request was merged, closed or rejected while you were still working: do not push, merge or reopen. Leave your local commits where they are. Report which commits the review did not include and whether each looks covered already. Then stop. Whoever dispatched the work decides what happens to the rest.
+When you find the pull request was merged or closed while you were still working, or the review ended the work rather than asking for changes: do not push, merge or reopen. Leave your local commits where they are. Report which commits the review did not include and whether each looks covered already. Then stop. Whoever dispatched the work decides what happens to the rest. A review round that rejects with findings is not this: triage it, as above.
 
 ## Merge
 
