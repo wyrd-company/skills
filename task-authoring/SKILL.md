@@ -124,6 +124,7 @@ The board's configuration owns the allowed values. This is what each field is fo
 | `hitl` | The operators who take part in the task, and in what role: doing some or all of the work, judging an arena, accepting the result |
 | `council` | The task will be reviewed by a council |
 | `complexity` | Guide the choice of model and effort at dispatch |
+| `risk` | How much review the work gets: `low`, `normal` or `high`. Set it from what a miss would cost, as [review's triage](../review/references/triage.md) describes. The reviewer may raise it, never lower it |
 | `priority`, `parent`, dependencies | Order of work and structure |
 
 Status and the claim belong to whoever is working the task: see [task-ownership](../task-ownership/SKILL.md).

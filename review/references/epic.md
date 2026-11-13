@@ -1,0 +1,31 @@
+# Epic
+
+Read this when the task you review is a child of an epic. The orchestrator dispatches reviews one at a time per epic branch, and keeps the order in the epic task's log. What it expects of the orchestrator is in [review and merge](../../epic-orchestration/references/review-and-merge.md); this is the reviewer's side.
+
+## The dispatch
+
+The prompt names the task, the epic task, the base and its head, and whether you merge on acceptance. "Merge on acceptance: yes" is your merge authority. It comes from the epic task's **Authority** section, and nothing else grants it.
+
+Never write to the epic task. Only its holder does. What the orchestrator needs from you goes in the child's handoff, and your release wakes the next pass.
+
+## Order
+
+- **The merge queue is in the epic task's log.** Read it. Start the final checks, the surface check and the merge gates, only once the merge ahead of yours has landed.
+- **A task that must not merge yet** is approved and rejected as rebase expected, naming the task it waits on: `Rejected: change approved, rebase expected after <task>`. The next round checks only the rebase.
+- **A swarm's drone undoing or duplicating another's work** is rejected with that reason: the swarm's boundaries are not clear, and the orchestrator escalates it.
+- **A race's arms** wait for the race's ruling before they are reviewed. The orchestrator queues only the winner.
+
+## After you merge
+
+The merge is not finished until the epic pull request shows it.
+
+1. **In a public repository, scan before you push.** Check the commits the push will make public for secrets and for local or identifying values: machine paths, account names, internal URLs. If you find one, do not push. Report it as a P0 and escalate.
+2. **Push the epic branch,** fast-forward only. Check the remote head equals the merge.
+3. **Add one line under `## What landed`** in the epic pull request's description: what the change does for the epic's outcome. Edit only that section.
+4. **Comment on the epic pull request:** what changed and why, the notable decisions, the validation, and the merged commit range.
+
+Then close the task, as the skill's handoff says. If there is no epic pull request yet, or the push is refused, do not improvise: log the merge as unpublished in the handoff, and escalate.
+
+## Deferred findings
+
+When the executor defers a finding, recommend where it goes: into the epic, as a new child task, when it serves the epic's goal; outside it, as an issue, when it does not. Give the reason in the handoff. The orchestrator escalates the decision and logs the ruling.
