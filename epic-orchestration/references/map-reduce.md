@@ -22,7 +22,7 @@ Release every mapper and reducer to `todo`. The reducers' dependencies keep them
 
 ## Dispatching
 
-Dispatch every ready mapper, unless the **Pattern** section limits how many run at once. Mappers are small and alike, so their `complexity` usually allows a cheap model. Their reviews follow their `risk`, as [dispatch](dispatch.md) says, which is often `low` too.
+Dispatch every ready mapper, unless the **Pattern** section limits how many run at once. Mappers are small and alike, so their `complexity` is usually `low`, and the `risk` that sets their reviews often is too.
 
 Add this to the [dispatch](dispatch.md) prompt of a reducer:
 

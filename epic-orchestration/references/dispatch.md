@@ -6,6 +6,8 @@ Read this when a task is ready for its next agent: to implement, remediate, revi
 
 Read the record yourself, not a summary of it: the status, the claim, the blocked mark, and the task's own gates (`hitl`, `council`, its dependencies, and anything its Definition of Done says about order or approval). If these do not add up to one clear next step, do not dispatch: escalate.
 
+`hitl` names the people who take part, by role. For `work`, dispatch the agent that helps them, and name them in its prompt. For `judge` or `accept`, the step that needs them waits: notify them, and log the hold.
+
 Confirm that any handoff before this one is complete and that the previous agent has stopped.
 
 ## The prompt
@@ -19,7 +21,7 @@ Merge on acceptance: <yes, as the Authority section delegates | no: accept and h
 Surfaces in play: <for parallel siblings: what else is being touched, and by which task>
 ```
 
-Choose the model and effort from the task's `complexity`, or its `model` and `effort` when set, and [models.yml](~/models.yml). For a review, choose from the task's `risk` instead: a `low` review suits a cheap model, and a `high` one a strong model from a different family than the executor's. Send remediation back to the executor's own session: it holds the context, and its claim names its thread.
+Look up the model and effort in [models.yml](~/models.yml), as its header says: the cheapest entry that lists the task's `complexity`, or for a review its `risk`, from a provider other than the executor's. Either property is `normal` when unset. The task's `model` and `effort`, when set, override the lookup for its executor. Send remediation back to the executor's own session: it holds the context, and its claim names its thread.
 
 ## Siblings in parallel
 

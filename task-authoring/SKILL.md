@@ -84,7 +84,7 @@ A soft claim is one that only judgement can settle: the user documentation still
 
 - **Name what is judged.** Point at the artifact and the part of it: the README's install section, the error messages of the new command, the public API of the module. A reviewer should know where to look without reading the whole change.
 - **Name what it is judged against.** A standard, an existing pattern in the repository, an example, or the reader it is for: "a new user can install from the README alone", "follows the retry pattern in `client/`". Without a reference, the judgement is the reviewer's taste.
-- **Say who judges** when it is not the ordinary reviewer: a council, the operator, the user in [acceptance testing](../executing/references/user-acceptance-testing.md).
+- **Say who judges** when it is not the ordinary reviewer: a council (`council`), a person (`hitl` with `judge`), the user in [acceptance testing](../executing/references/user-acceptance-testing.md) (`hitl` with `accept`, when the user is a person).
 - **Do not turn it into a check that proves less.** "The README mentions the new flag" can be checked and can pass while the README is wrong. When the check would be a stand-in for the judgement, leave the claim soft. When a real check is cheap, write the hard claim.
 - **Do not repeat standing standards.** What every change in the repository owes (docs in step, changelog, conventions) applies without being written here. Name a standard only when this task touches it in a way the executor might miss; the template's Artifact Impact section is where those go.
 - **Keep them few.** Each soft claim costs a reviewer's attention. Write the ones where a wrong judgement would mean the goal was not met.
@@ -120,10 +120,11 @@ The board's configuration owns the allowed values. This is what each field is fo
 | Field | Purpose |
 |---|---|
 | `issue` | The issue or issues this task serves, as `owner/repo#123` |
-| `assignee` | The operator who does the work, when a person leads it |
-| `hitl` | The operators who take part in the task, and in what role: doing some or all of the work, judging an arena, accepting the result |
+| `assignee` | The operator the work is done for: the operator whose agent claims the task, as [task-ownership](../task-ownership/SKILL.md) sets it |
+| `hitl` | The people who take part, as comma-separated `handle:role` pairs, with handles from `git operator list`. `work`: they do some or all of the work. `judge`: they decide a soft claim, or an arena. `accept`: they accept the result in [acceptance testing](../executing/references/user-acceptance-testing.md). A person with two roles is listed once for each |
 | `council` | The task will be reviewed by a council |
-| `complexity` | Guide the choice of model and effort at dispatch |
+| `complexity` | How hard the work is: `low` when it is mechanical and fully specified, `high` when it needs design judgment, settles ambiguity or reaches across the system, `normal` otherwise and when unset. Dispatch looks up the model and effort for it in [models.yml](~/models.yml) |
+| `model`, `effort` | Override the lookup, only when the work needs a particular model: an arena or a race between models. `model` is `provider/model`, as models.yml names them |
 | `risk` | How much review the work gets: `low`, `normal` or `high`. Set it from what a miss would cost, as [review's triage](../review/references/triage.md) describes. The reviewer may raise it, never lower it |
 | `priority`, `parent`, dependencies | Order of work and structure |
 

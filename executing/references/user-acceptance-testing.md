@@ -33,4 +33,4 @@ Then let them use it their own way. Do not hand them a script of steps to follow
 
 Set up beforehand everything the acceptance does not cover: prerequisites, data, access, running services. The exception is when setting up is part of the experience being accepted, such as installing a new service. Then the setup is under test: give the user the instructions a real user would get, step by step, and let them follow those.
 
-Put the brief and its evidence on the review surface, and notify the user that it is waiting for them.
+Put the brief and its evidence on the review surface, and notify the user that it is waiting for them: on a task, the people its `hitl` names with `accept`.

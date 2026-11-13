@@ -56,13 +56,13 @@ Write the epic task from the [epic template](../assets/epic.md). Under **Pattern
 
 Decide who judges:
 
-- A person: set `hitl` to the handles of the operators who judge, comma-separated, from `git operator list`.
-- A council of agents: set `council` to the number of members. With `hitl` also set, the council is in addition to the people.
+- People: add each judge to `hitl` with the `judge` role, as `handle:judge`.
+- A council of agents: set `council` to the number of members. With judges in `hitl` too, the council is in addition to the people.
 - Neither: one judge on a strong model, as an escalation.
 
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --tags epic --status backlog \
-  --set-property hitl='"boblangley,iradesa"' --set-property council=3 --body "$BODY"
+  --set-property hitl='"<handle>:judge,<handle>:judge"' --set-property council=3 --body "$BODY"
 ```
 
 ### Phase: Gladiator tasks
@@ -71,7 +71,7 @@ Write one task per gladiator, as children of the epic, with [task-authoring](../
 
 - A gladiator reads and does only what its task says, so each task is complete on its own. Point to the skills and context it must read; do not copy them in.
 - The tasks are identical except where the gladiators are meant to differ: the approach, for `by-approach`.
-- Set the model and effort for each gladiator, from [models.yml](~/models.yml).
+- Set each gladiator's `complexity`. For a `by-model` arena, also set its `model` and `effort`, from [models.yml](~/models.yml).
 
 ```bash
 kanban-md create "$TITLE" --dir "$BOARD" --parent "$EPIC" --status backlog \

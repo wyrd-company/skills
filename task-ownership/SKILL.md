@@ -9,7 +9,7 @@ You own a task from the moment you claim it until you release it. While you hold
 
 The task is the ticket for the work. The goal belongs to the GitHub issues it links.
 
-People do not read tasks or the board. When a person leads or participates in the work (`hitl=true`), the agent assigned to help claims the task, notifies the assignee that it is ready to start or when their part is needed, keeps the log and moves the task through its statuses.
+People do not read tasks or the board. When people take part in the work (`hitl`), the agent assigned to help claims the task, notifies each of them when their part is needed (a `work` person when the task is ready to start), keeps the log and moves the task through its statuses.
 
 Read the task, the issues it links, its log and the branch history before you start. Read the latest log entries first: they say where the work stopped.
 
