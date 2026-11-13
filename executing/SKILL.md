@@ -163,7 +163,13 @@ Reread the handoff against its evidence. Each result quoted comes from a run at 
 
 Work is reviewed after the fact, so include evidence that lets a person see the outcome without running anything or reading the transcript: screenshots, recordings, terminal captures, the output of the proving script.
 
-Keep the evidence where the reviewer will look: linked in the pull request, issue and task. Commit it only when it will be reused elsewhere. Upload media to R2 with the AWS CLI, then link its accessible URL in GitHub descriptions and comments. For example: `aws --profile assets-wyrd-foo s3 cp ./login.png s3://assets-wyrd-foo/<path>/login.png`. Use the appropriate profile, bucket, path and URL for the media.
+Keep the evidence where the reviewer will look: linked in the pull request, issue and task. Commit it only when it will be reused elsewhere. Upload media to the public R2 bucket `assets-wyrd-foo` using the AWS CLI profile of the same name. Use `<repo>/pr-<number>/...` or `<repo>/issue-<number>/...` as the object path, and link the corresponding `https://assets.wyrd.foo/<object-path>` URL in GitHub descriptions and comments. For example:
+
+```sh
+aws --profile assets-wyrd-foo s3 cp ./login.png s3://assets-wyrd-foo/example-repo/pr-123/login.png
+```
+
+The public URL is `https://assets.wyrd.foo/example-repo/pr-123/login.png`.
 
 Name a skipped check as unverified. Do not report it as passed.
 
