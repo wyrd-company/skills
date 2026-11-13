@@ -11,8 +11,8 @@ The operator sets the goal, through the issues, the prompt or the skills. How th
 
 - The goal is defined by selected GitHub issues, or by a clearly defined goal in the prompt. Issues when we know what needs to be built; the prompt when the epic is finding that out.
 - A bar is set for the epic as a whole, for each issue, or both. Refuse an epic without a bar: tell the operator what is missing.
-- When a goal is a user-facing need, the issue states the problem apart from any solution, the invariants every solution must keep, the requirements and observable success criteria, and one end-to-end acceptance scenario from the user's point of view. If any of these is missing, the goal is not clear yet: return it to design with the operator instead of inferring it from the request.
-- When the goal is clear but the way to it is not, the epic is not ready to plan. Chart the way first: that is design work (see `designing`), and its output is the decisions planning starts from.
+- When a goal is a user-facing need, the issue states the problem apart from any solution, the invariants every solution must keep, the requirements and observable success criteria, and one end-to-end acceptance scenario from the user's point of view. If any of these is missing, the goal is not clear yet: return it to design with the operator ([framing](../designing/references/framing.md)) instead of inferring it from the request.
+- When the goal is clear but the way to it is not, the epic is not ready to plan. Chart the way first: that is design work ([designing](../designing/references/charting.md)), and its output is the decisions planning starts from.
 
 Read the issues or the prompt, the documentation for the patterns you are considering, and related observations in memory before you choose.
 
