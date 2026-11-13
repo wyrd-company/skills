@@ -163,7 +163,7 @@ Reread the handoff against its evidence. Each result quoted comes from a run at 
 
 Work is reviewed after the fact, so include evidence that lets a person see the outcome without running anything or reading the transcript: screenshots, recordings, terminal captures, the output of the proving script.
 
-Keep the evidence where the reviewer will look: attached to the pull request and issue and linked in the task. Commit it only when it will be reused elsewhere. Use `gh --attach` to attach media to descriptions/comments in GitHub
+Keep the evidence where the reviewer will look: linked in the pull request, issue and task. Commit it only when it will be reused elsewhere. Upload media to R2 with the AWS CLI, then link its accessible URL in GitHub descriptions and comments. For example: `aws --profile assets-wyrd-foo s3 cp ./login.png s3://assets-wyrd-foo/<path>/login.png`. Use the appropriate profile, bucket, path and URL for the media.
 
 Name a skipped check as unverified. Do not report it as passed.
 
