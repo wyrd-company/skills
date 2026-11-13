@@ -31,7 +31,7 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
 
    Put your full thread id in the entry: the claim is released at the end of the round, and the entry is what points the next round, and the task audit, at your transcript. The round number is one more than the last result entry, `REVIEW ROUND <n>: <result>`, or 1 when there is none. The `STARTED` and `TRIAGE` entries do not count.
 
-2. **Check the surface before reading it.** The head of the review surface matches the head of the task branch, and the base has not moved under the branch. A review of a surface that will never merge is wasted. If either fails, reject the surface, as below, and stop. The [surface](references/surfaces.md) reference has the commands.
+2. **Check the surface before reading it.** The surface targets the branch the work is meant to integrate into, its head matches the head of the task branch, and the base has not moved under the branch. A review of a surface that will never merge is wasted. If either fails, reject the surface, as below, and stop. The [surface](references/surfaces.md) reference has the commands.
 3. **Read the contract.** The issue's goal, the task's Definition of Done, its soft claims and constraints, the handoff, and any previous rounds' findings. The [task-authoring](../task-authoring/SKILL.md) skill says what each part of a task promises.
 4. **Review the work** at its level, with the reference for its kind:
    - [code](references/code.md): source, tests, scripts, configuration, CI.
@@ -110,7 +110,7 @@ Without merge authority, accept and hand off. The operator merges, and closes th
 
 ## Without a task
 
-Small work can go straight to a pull request, with no task. Then the issue, or the operator's prompt that dispatched you, is the contract, and the pull request's head is the head you review. Skip the claim and the task log. The round's handoff goes on the surface, as the review's summary, and to whoever dispatched you. Merge authority can only come from the dispatch.
+Small work can go straight to a pull request, with no task. Then the issue, or the operator's prompt that dispatched you, is the contract, and the pull request's head is the head you review. Skip the claim and the task log. The round's handoff goes on the surface, as the review's summary, without the reviewer line: a GitHub surface never carries thread ids. The full handoff goes to whoever dispatched you. Merge authority can only come from the dispatch.
 
 ## Hand off
 

@@ -3,7 +3,7 @@
 {The result and what the executor does next, in two or three sentences.}
 
 - Level: {low | normal | high}, {the signals that set it, and why it was raised, if it was}
-- Reviewer: {full thread id}
+- Reviewer: {full thread id}  <!-- task log only: leave it out on a GitHub surface -->
 - Surface: {pull request or review id}
 - Reviewed head: {sha}
 - Base head: {sha, which any approval was made against}

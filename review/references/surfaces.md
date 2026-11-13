@@ -15,7 +15,7 @@ git rev-parse "origin/$TASK_BRANCH" "origin/$BASE"
 git merge-base --is-ancestor "origin/$BASE" "origin/$TASK_BRANCH" && echo base contained
 ```
 
-`headRefOid` must equal the task branch head, and the base must be an ancestor of the branch. Record both heads: every comment and verdict applies to that pair.
+`baseRefName` must be the branch the work is meant to integrate into: the base in the dispatch, the task's, or the default branch for stand-alone work. `headRefOid` must equal the task branch head, and the base must be an ancestor of the branch. Ancestry alone does not show the target: a pull request aimed at the wrong branch can pass it and show a different diff. Record both heads: every comment and verdict applies to that pair.
 
 ### Read the previous rounds
 
