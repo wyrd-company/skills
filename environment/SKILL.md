@@ -68,18 +68,37 @@ Applications may also write their own configuration. Use chezmoi modify template
 or the application's supported merge mechanism to change only the intended keys,
 preserving unrelated settings, other integrations and account state. Preserve
 unchanged content where possible so reapplying does not create needless drift.
+See the existing
+[Codex modify template](https://github.com/wyrd-company/workspace-dotfiles/blob/main/dot_codex/modify_private_config.toml)
+for this pattern. A value persisted in `~/.codex/config.toml` can override a default
+in `/etc/codex/config.toml`; inspect both layers before changing the default.
 
 Secrets come through Wyrwood's socket using the existing `bao` access. Prefer a
 client's native credential or header helper when it supports the integration;
 keep credentials out of generated configuration and source control.
 
-For running workspaces, `ansible-sync` reapplies the system configuration and runs
-`chezmoi update --init`. `chezmoi apply <target>` applies a particular user-owned
-target from the current dotfiles source. When the layers cooperate, ensure root
-helpers or other prerequisites are installed before the dependent dotfiles apply.
+For running workspaces, `ansible-sync` uses the source and ref configured in
+`/etc/ansible-setup/settings`: a remote source is fetched into its managed checkout;
+an absolute local source is used directly. The workspace playbook then runs
+`chezmoi update --init`, which pulls the configured dotfiles repository before
+applying it. These commands do not automatically consume a separate editing
+worktree. Identify the configured sources and the revisions actually applied.
+`chezmoi apply <target>` applies a particular user-owned target from its selected
+source directory without pulling.
+
+Before merge, verify the branch's templates by rendering or diffing into an
+isolated destination, with representative workspace options and existing
+application state. Select the branch source explicitly; keep these checks separate
+from applying to the running workspace. When applying cooperating layers, install
+root helpers or other prerequisites before the dependent dotfiles apply.
+
 Changes to the workspace definition may need a template update or container
-rebuild. Use the template's update procedure; `/etc/devcontainer/` is read-only
-apart from the local extension points documented in the workspace's `AGENTS.md`.
+rebuild. Read the
+[workspace-template README](https://github.com/wyrd-company/workspace-template/blob/main/README.md)
+and the generated workspace's `.toha.json` tracking record to identify its template;
+consult the installed Toha help for supported operations before choosing an update
+path. `/etc/devcontainer/` is read-only apart from the local extension points
+documented in the workspace's `AGENTS.md`.
 
 Verify the application's effective configuration, including its precedence and
 the required integration's behavior. For files shared with the application,
