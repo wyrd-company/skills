@@ -1,6 +1,10 @@
 # Skills
 
-Each top-level folder is a skill: a `SKILL.md`, the `references/` it reads when needed, and the `assets/` it fills in. A change to a skill is held to [Instructions for agents](review/references/documents.md#instructions-for-agents), the checks a reviewer applies to it.
+Each top-level folder is a skill. Skills are written to the [instructions standard](standards/references/instructions.md), which says how a skill is laid out and worded, and reviewed by the [checks for instructions](review/references/documents.md#instructions-for-agents).
+
+## Design documents
+
+The documents skills ask agents to write follow the formats and schemas of the Refinery ontology, in `wyrd-company/refinery-ontology`. The skills themselves are Markdown in our own words: we adapt the ontology, and do not adopt Refinery as a whole.
 
 ## Sources
 

@@ -30,11 +30,9 @@ A design is reviewed before anything is built on it, when a miss costs least to 
 
 ## Instructions for agents
 
-Skills, prompts, `AGENTS.md` and templates are followed literally, by readers who cannot ask the author what was meant. A wrong rule repeats in every piece of work that follows it.
+Skills, briefs, `AGENTS.md` files and templates are followed literally, by readers who cannot ask the author what was meant. A wrong rule repeats in every piece of work that follows it. They are held to the [instructions standard](../../standards/references/instructions.md), and checked as follows.
 
 - **Walk it as its reader.** Take a realistic task and follow the instructions step by step. Find where an agent would stop because nothing says what to do next, guess, or loop.
 - **Every rule is reachable.** The description says when the instructions apply, and the agent would actually load them then. A reference says when to read it.
 - **No contradiction with other instructions.** Search the other skills and `AGENTS.md` files for the same subject. Two instructions that disagree are a finding, even when this one is right.
-- **It says what to do, not only what to avoid.** A prohibition with no alternative leaves the agent guessing.
-- **It assumes no single user.** Operators, handles and paths come from the thread or the record, not from the text.
 - **Each rule earns its place.** Ask what goes wrong without it. A rule that covers a case that never happens costs every reader.
