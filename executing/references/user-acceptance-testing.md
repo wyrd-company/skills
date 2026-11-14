@@ -15,7 +15,7 @@ The user is whoever the work is for, and it is not always a person. Work for age
 
 ## Accept it yourself first
 
-Before any person is asked, run the acceptance yourself, as the user: follow the user's path, not the developer's, and judge the result against the bar. Fix what fails. A person is asked to accept only work that has passed your own acceptance run and its review.
+Before any person is asked, run the acceptance yourself, as the user: follow the user's path, not the developer's, and judge the result against the bar. Fix what fails. A person is asked to accept only work that has passed your own acceptance run and its review. When the user starts from nothing, as with an install or a first run, accept it on a clean machine: a [boat](../../boat/SKILL.md) sandbox.
 
 ## Accept early when you can
 
@@ -31,6 +31,6 @@ A user must not be expected to remember the goal or the work. Give them:
 
 Then let them use it their own way. Do not hand them a script of steps to follow: a user clicking through "this, then this" is following your path, not judging the result.
 
-Set up beforehand everything the acceptance does not cover: prerequisites, data, access, running services. The exception is when setting up is part of the experience being accepted, such as installing a new service. Then the setup is under test: give the user the instructions a real user would get, step by step, and let them follow those.
+Set up beforehand everything the acceptance does not cover: prerequisites, data, access, running services. A result a person tries in a browser can run in a [boat](../../boat/SKILL.md) sandbox, on a URL you give them. The exception is when setting up is part of the experience being accepted, such as installing a new service. Then the setup is under test: give the user the instructions a real user would get, step by step, and let them follow those.
 
 Put the brief and its evidence on the review surface, and notify the user that it is waiting for them: on a task, the people its `hitl` names with `accept`.

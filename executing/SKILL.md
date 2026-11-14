@@ -57,7 +57,7 @@ As you provision resources to implement the work, keep track of what you have pr
 
 - Temp files and folders
 - Docker artifacts (containers, volumes, networks, etc)
-- VMs
+- VMs, including [boat](../boat/SKILL.md) sandboxes (record their ids)
 - Running processes (record the process IDs)
 - Worktrees and branches
 - Threads you have launched
@@ -122,6 +122,7 @@ Record progress as it happens, as units land, at these levels:
 Before starting a unit or a task, ask: "How will I prove this worked?" Then verify the real thing directly. Do not infer from proxies, self-reports, or "it compiles".
 
 - Use the result the way its user will, as close to their experience as you can get.
+- When the claim is about a fresh machine (an install, setup steps, a clean clone), or the check would change this workspace, prove it in a disposable [boat](../boat/SKILL.md) sandbox.
 - Read the actual value, not a cached or derived copy. When verification fails, suspect the method of observation before the system.
 - Take each result from the run that produced it, at the commit you are handing over. A skipped check is not a pass, and a run that went quiet has not finished. If a check cannot run, record what you tried and what remains unverified.
 - Anything you build that reports an outcome starts as failed and says pass only when a marker shows the run completed. An empty run or a crash must not read as success.
@@ -228,6 +229,7 @@ Cean up what you provisioned that is no longer needed:
 - remove worktrees
 - stop processes
 - remove docker artifacts
+- delete boat sandboxes
 - delete scratch files
 - Anything else not covered that is no longer needed.
 

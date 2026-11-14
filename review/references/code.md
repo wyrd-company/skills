@@ -52,4 +52,4 @@ The handoff's evidence is a claim too. Check it the way you check the code:
 - **A property across an event needs the event.** Survival across a restart, recovery after a crash and expiry over time are proved only by a test that performs the event, with something that held state from before it.
 - **A skipped check is not a pass,** and a green run at an older head proves nothing about this one.
 
-Re-run the cheapest check that proves the main Definition of Done line yourself, at `normal` and above. Use the repository's own commands.
+Re-run the cheapest check that proves the main Definition of Done line yourself, at `normal` and above. Use the repository's own commands. When the proof needs a clean machine, such as an install, re-run it in a [boat](../../boat/SKILL.md) sandbox.
