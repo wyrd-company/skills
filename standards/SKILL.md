@@ -8,7 +8,7 @@ A standard is a rule the work is held to. The executor follows it and the review
 Read the standard for the work at hand:
 
 - [Documentation](references/documentation.md): how design documents are written: vision, specifications, technical designs, decision records and the other design documents.
-- [Workspace](references/workspace.md): where workspace environment configuration belongs, how it is applied, and how a change to it is made to last.
+- [Workspace](references/workspace.md): fitting one workspace to its needs, where configuration shared by every workspace belongs, how it is applied, and how a change to it is made to last.
 
 A repository's own `AGENTS.md` and docs win over a standard here for that repository.
 

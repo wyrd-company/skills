@@ -1,8 +1,24 @@
 # Workspace
 
-Read this when understanding, configuring or troubleshooting a workspace's environment: where a piece of configuration belongs, how it is applied, and how to make a change last. Not for an application's own configuration inside a product repository.
+Read this when understanding, configuring, extending or troubleshooting a workspace's environment: what one workspace can change for itself, where a piece of configuration belongs, how it is applied, and how to make a change last. Not for an application's own configuration inside a product repository.
 
 A workspace is a devcontainer for one product or theme. Agents, and people connecting over SSH or VS Code, all run as the shared `vscode` account, and its home-directory configuration is part of the standard environment. The operator chosen for a thread decides who commits and pushes; it does not select another account or another configuration. The workspace's own `AGENTS.md` gives its paths and limits.
+
+## This workspace or every workspace
+
+Decide first who needs the change.
+
+- **Only this workspace:** fit it to its needs with the workspace's own extension points, below.
+- **Every workspace should be able to have it:** make it an option in `workspace-template`.
+- **Every workspace should have it installed:** `workspace-template`, `workspace-ansible` or `workspace-dotfiles`, by what it is and who owns it, as below.
+
+## Fit one workspace to its needs
+
+- **Template options.** The workspace was made from the Toha template in `workspace-template`. Its interview asks the common options, such as which SDKs to install, and the answers shape the devcontainer: see `/etc/devcontainer/devcontainer.json`. Some answers are also in `/etc/workspace/config.yml`, which configuration can read as data. When an option should be answered differently, ask the operator to rerun the template on the workspace and rebuild the devcontainer.
+- **Build scripts.** `/etc/devcontainer/local/scripts.d/` is writable, and every executable in it runs, in sorted order, when the image is built. When this workspace needs something installed, you may install it now, but also add a script there that installs it, so a rebuild keeps it.
+- **Web access.** The ingress's Caddy proxies requests for `*.$HOSTNAME` to this devcontainer, and Caddy inside it routes them. A snippet in `/etc/caddy/conf.d/<name>.caddy` gives a user access to a dev server or similar. A watcher validates the whole configuration and reloads Caddy; an invalid snippet leaves the running configuration as it was, so check that the new route answers.
+- **Workflows.** Local Dagu workflows go in `/workflows/local/dags`, as `/workflows/local/AGENTS.md` describes.
+- **Secrets.** A secret only this workspace needs is added to OpenBao and bound to this workspace alone. Adding it takes access the container does not have: ask the operator, naming the path and what reads it.
 
 ## Where configuration belongs
 
@@ -41,7 +57,7 @@ Layers override each other. A value in `~/.codex/config.toml` overrides the defa
 
 ## Secrets
 
-Secrets come through the Wyrwood socket, with the existing `bao` access. Prefer an application's own credential or header helper when it has one for the integration. Credentials never go in generated configuration or in source control.
+Secrets are in OpenBao, and only there. The container reads them through the Wyrwood socket with `bao`. A secret never goes in a file, an environment file, generated configuration or source control. When an application needs a credential, have it fetch the credential from `bao` when it uses it, preferably through its own credential or header helper. The only exception is an application that has no way at all to take a secret from OpenBao, and it needs the operator's agreement.
 
 ## Check a branch apart from applying it
 
