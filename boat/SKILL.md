@@ -17,7 +17,7 @@ A check that runs in a worktree, such as tests or a linter, stays there: a sandb
 ## Before you start
 
 - `boat` on `PATH` is a wrapper that reads the API key from OpenBao on each call, as [Boat](https://github.com/wyrd-company/workspace-dotfiles/blob/main/docs/boat.md) in the dotfiles describes. A 403 is the Wyrwood policy: report it, as for any secret.
-- **Cost.** Sandboxes run on the plan's included hours. Run `boat limits --json` first: start only when `canStart` is `true` and `nextStartDollars` is `0`. A start that would cost money beyond the plan is spending money: [ask first](../executing/SKILL.md#when-to-decide-and-when-to-ask).
+- **Cost.** A sandbox uses the plan's included hours while it runs; time beyond them, and a start past the plan's limits, is paid from the wallet. Bound how long it can run: `--timeout` for `boat run`, `--ttl` for `boat new`. Then run `boat limits --json`, before each start and again before each `boat extend`. Go ahead only when `canStart` is `true`, `nextStartDollars` is `0`, and `planIncluded.vmHoursRemaining` covers the whole bound at the machine's rate: the hours are `default` machine hours, `small` uses half as many and `large` twice as many. When it would cost money, or you cannot tell, that is spending money: [ask first](../executing/SKILL.md#when-to-decide-and-when-to-ask).
 - **Size.** Use `--type small` unless the check needs more.
 - **Secrets.** The sandbox is a machine outside the workspace. Pass `--no-env`, so the account's stored secrets stay off it, and never send it a secret with `-e`, `--file` or a pushed file. A check that cannot run without a secret is not a sandbox check: run it in the workspace, or ask the operator.
 
@@ -47,9 +47,11 @@ boat new --no-env --type small --no-snapshots --ttl 3600 --name <task-or-branch>
 
 ## Let a person try it
 
-`boat host <id> <port>` exposes a port on an HTTPS URL. The URL is private by default, but its token is part of the URL: anyone who has it can open it. Post it only where the people meant to use it will read it. `--public` drops the token; use it only when the operator agrees.
+Start the service on the sandbox first, with `boat exec --detach`. `boat host <id> <port>` exposes a port the service listens on for every address (`0.0.0.0`) on an HTTPS URL. A service that listens only on localhost, as many development servers do by default, needs `boat host --localhost <id> <port>`. Open the URL yourself and check that it serves the result before you give it to anyone.
 
-Set the lifetime to cover when the person will look, with `boat extend <id> --hours <n>`. In the brief, say when the sandbox expires and that it will be deleted after the acceptance.
+The URL is private by default, but its token is part of the URL: anyone who has it can open it. Post it only where the people meant to use it will read it. `--public` drops the token; use it only when the operator agrees.
+
+Set the lifetime to cover when the person will look, with `boat extend <id> --hours <n>`, after checking the cost again. In the brief, say when the sandbox expires and that it will be deleted after the acceptance.
 
 ## Evidence
 

@@ -17,4 +17,5 @@ Formats and tools the skill uses, rather than drew on:
 | Source | License | Use |
 |---|---|---|
 | [Boat CLI](https://docs.boat.dev/cli-reference), version 1.0.100 | Proprietary | The commands and options the skill names, read from the CLI's `--help`. |
+| [Boat billing](https://docs.boat.dev/billing), read 2026-11-14 | Proprietary | How included hours, machine sizes and the wallet are charged. |
 | `wyrd-company/workspace-dotfiles`: [docs/boat.md](https://github.com/wyrd-company/workspace-dotfiles/blob/0b46c2cdc46f60dfe071950229a6a1250d0e90f7/docs/boat.md) | Ours | How the CLI is installed and gets its API key. |
