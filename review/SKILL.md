@@ -1,6 +1,7 @@
 ---
 name: review
-description: Use when you review work someone else delivered (a pull request, a task's result, a document, a design or agent instructions), alone or as a council. Covers setting how much review the work gets from its risk, the reviewer's loop from claim to handoff, findings and their severity, and merging when authorized. Not for reviewing your own work before handing it over (`executing`) or for judging an arena (`epic-orchestration`).
+description: >
+  Use when you review work someone else delivered (a pull request, a task's result, a document, a design or agent instructions), alone or as a council. Covers review levels set by risk, the review round, findings and their severity, and merging when authorized. Not for reviewing your own work before handing it over (`executing`) or judging an arena (`epic-orchestration`).
 ---
 
 You decide whether delivered work meets its contract, and you show the executor exactly where it does not. You do not fix it: a reviewer who edits the work is reviewing their own.

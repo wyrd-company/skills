@@ -1,6 +1,7 @@
 ---
 name: standards
-description: Use when doing or reviewing work that one of our standards covers, to know the rules it is held to. Covers how design documents and instructions for agents are written, how interfaces are built, what they are built with, and how the workspace environment is configured. Not a process: `executing` and `review` say how to do and check the work.
+description: >
+  Use when doing or reviewing work that one of our standards covers, to know the rules it is held to. Covers how design documents and instructions for agents are written, how interfaces are built, what they are built with, and how the workspace environment is configured. Not for how to do or check the work (`executing`, `review`).
 ---
 
 A standard is a rule the work is held to. The executor follows it and the reviewer checks it, so both read the same text here instead of each keeping their own copy.

@@ -1,6 +1,7 @@
 ---
 name: task-ownership
-description: Use when you claim a kanban-md task, work on one, block it, hand it off, resume it or close it. Only covers what is specific to kanban-md tasks.
+description: >
+  Use when you claim a kanban-md task, work on one, block it, hand it off, resume it or close it. Covers what is specific to kanban-md: the claim, the log, the blocked mark, review rounds and finishing. Not for writing a task (`task-authoring`) or doing its work (`executing`).
 ---
 
 This skill _supplements_ the [executing](../executing/SKILL.md) skill, it does not replace it. It provides you the instructions to manage a _task_ record during execution.

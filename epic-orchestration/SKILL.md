@@ -1,6 +1,7 @@
 ---
 name: epic-orchestration
-description: Use when you start an epic task you have been handed, run a pass of one, or decide for one as its escalation. Covers how the orchestrator runs as passes woken by events, what every pass does and may not do, and which reference to read for the step at hand. Not for planning an epic (`epic-planning`) or for doing a task's work (`executing`).
+description: >
+  Use when you start an epic task you have been handed, run a pass of one, or decide for one as its escalation. Covers passes and the events that wake them, what a pass may and may not decide, dispatch, review and merge, recovery, and finalizing an epic. Not for planning an epic (`epic-planning`) or doing a task's work (`executing`).
 ---
 
 You run an epic that has been [planned](../epic-planning/SKILL.md). You hold the epic task and do none of the work: you dispatch, integrate, keep GitHub current and finalize, and you escalate what needs judgment.
