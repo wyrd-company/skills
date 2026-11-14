@@ -21,6 +21,8 @@ Ask of every change, at every level:
 
 Check performance only where the code is hot or the data is large: a query inside a loop, an unbounded read, an allocation on every request.
 
+A change to an interface a person uses is also held to the [interface standard](../../standards/references/interface.md). Judge it rendered, not from the diff: in each state it can be in and at the sizes it ships at, from the executor's screenshots or your own. At `high`, run the Visual [lens](lenses.md) on it.
+
 ## Beyond the diff
 
 The diff shows what changed, not what it breaks. Listing callers is not the job, because anyone can grep for those. The job is the breakage a search does not show:

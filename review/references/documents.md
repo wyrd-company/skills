@@ -26,6 +26,7 @@ A design is reviewed before anything is built on it, when a miss costs least to 
 - **Its failure modes are named:** what happens on error, under load, at the limits, and with an attacker.
 - **It can be built.** An implementer can start without making a design decision of their own: a storage choice, an interface, an error strategy. Each one left open is a finding.
 - **Its trade-offs are real.** Where it accepts a compromise as unavoidable, ask whether it is. A finding here proposes the alternative and says what the alternative costs.
+- **An interface design names its states and its visual language.** Every state of every view is designed, and a `DESIGN.md` passes `npx @google/design.md lint` with no errors and no contrast warnings ([interface](../../designing/references/interface.md)).
 
 ## Instructions for agents
 

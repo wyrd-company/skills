@@ -32,3 +32,4 @@ Size the work, not the order. A small change may need only a frame the operator 
 - [Documents](references/documents.md): to choose the document a decision belongs in, and where it goes.
 - [Technical](references/technical.md): when the design shapes code: modules, interfaces, data structures and state.
 - [Product](references/product.md): when the design shapes what users get: their jobs, who they are, and trade-offs between scope and experience.
+- [Interface](references/interface.md): when the design shapes what a person sees and operates: screens, sites, native applications and terminal tools, and their visual language.
