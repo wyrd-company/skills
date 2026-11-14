@@ -17,13 +17,13 @@ A check that runs in a worktree, such as tests or a linter, stays there: a sandb
 ## Before you start
 
 - `boat` on `PATH` is a wrapper that reads the API key from OpenBao on each call, as [Boat](https://github.com/wyrd-company/workspace-dotfiles/blob/main/docs/boat.md) in the dotfiles describes. A 403 is the Wyrwood policy: report it, as for any secret.
-- **Cost.** A sandbox uses the plan's included hours while it runs; time beyond them, and a start past the plan's limits, is paid from the wallet. Bound how long it can run: `--timeout` for `boat run`, `--ttl` for `boat new`. Then run `boat limits --json`, before each start and again before each `boat extend`. Go ahead only when `canStart` is `true`, `nextStartDollars` is `0`, and `planIncluded.vmHoursRemaining` covers the whole bound at the machine's rate: the hours are `default` machine hours, `small` uses half as many and `large` twice as many. When it would cost money, or you cannot tell, that is spending money: [ask first](../executing/SKILL.md#when-to-decide-and-when-to-ask).
+- **Cost.** A sandbox uses the plan's included hours while it runs; time beyond them, and a start past the plan's limits, is paid from the wallet. Budget the sandbox's whole lifetime, not only your command: its bound (`--timeout` for `boat run`, `--ttl` for `boat new`) plus 15 minutes for starting, copying, deleting, and the auto-stop when a run is cut off before it deletes the sandbox. Then run `boat limits --json`, before each start and again before each `boat extend`. Go ahead only when `canStart` is `true`, `nextStartDollars` is `0`, and `planIncluded.vmHoursRemaining` covers that budget at the machine's rate: the hours are `default` machine hours, `small` uses half as many and `large` twice as many. When it would cost money, or you cannot tell, that is spending money: [ask first](../executing/SKILL.md#when-to-decide-and-when-to-ask).
 - **Size.** Use `--type small` unless the check needs more.
 - **Secrets.** The sandbox is a machine outside the workspace. Pass `--no-env`, so the account's stored secrets stay off it, and never send it a secret with `-e`, `--file` or a pushed file. A check that cannot run without a secret is not a sandbox check: run it in the workspace, or ask the operator.
 
 ## One command: `boat run`
 
-Prefer `boat run` when one command proves the claim. It creates a sandbox, copies a directory in, runs the command, prints its output and cost, and deletes the sandbox. It exits with the command's exit code, so there is nothing to clean up.
+Prefer `boat run` when one command proves the claim. It creates a sandbox, copies a directory in, runs the command, prints its output and cost, and deletes the sandbox. It exits with the command's exit code, so there is nothing to clean up. If its last line does not end with `deleted`, the run was cut off: find the sandbox in `boat list` and delete it.
 
 ```sh
 boat run --no-env --type small --timeout 900 --push . ./install.sh
