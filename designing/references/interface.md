@@ -42,7 +42,7 @@ Read what exists first: `DESIGN.md`, the tokens, the components and the rendered
 
 ### A new language
 
-A new visual language comes from the product: its people, its scene, and what success is on its surfaces. It does not come from a framework's defaults or from the habits of generated interfaces. Identity is a decision about the goal, so it is the operator's. Present two or three directions as rendered [prototypes](charting.md), with your recommendation. When the operator has given an aesthetic, an era, a font or a palette, it holds even where you would choose otherwise.
+A new visual language comes from the product: its people, its scene, and what success is on its surfaces. It does not come from a framework's defaults or from the habits of generated interfaces. Identity is a decision about the goal, so it is the operator's. Present two or three directions as rendered [alternatives](#alternatives-to-choose-from), with your recommendation. When the operator has given an aesthetic, an era, a font or a palette, it holds even where you would choose otherwise.
 
 ### By platform
 
@@ -58,6 +58,17 @@ The references and what to take from each are linked from the `feature` or the d
 ## Prototype to decide
 
 How an interface should look or behave is a [prototype](charting.md) question. Render the variants and look at them at the sizes they will ship at, side by side. Show the operator what the decision is between. A prototype is thrown away: it is linked from the decision, and never merged.
+
+### Alternatives to choose from
+
+When the look and the words are both open, as for a new site, a new visual language or a redesign, build alternatives and let the judge choose between them rendered.
+
+- **Each alternative is whole, and different.** A complete page or flow that differs from the others in layout, palette, type, visual style and copy, not one design in several colours. Each meets the brief: its audience, its call to action, its constraints. Write the copy afresh for each, from the concept and the persona.
+- **Each has its own address,** and every one carries a switcher: a small control, plainly not part of any design, that takes the judge to any other alternative. A repository template provides the routes and the switcher where it has them, as [astro-template](https://github.com/wyrd-company/astro-template) does.
+- **Check them before you show them:** each loads without errors at a phone width and a desktop width, and the switcher reaches every one.
+- **Recommend,** for the design and for the copy apart. The strongest copy may sit on a weaker design, and the judge may combine them.
+- **Iterate.** The judge may ask for new alternatives, for variations of one, or for one's copy on another's design. Keep the numbers stable, so "3 with the copy of 1" means the same thing a round later.
+- **The judge chooses:** the one named in the task's `hitl`, or the operator. The winner's visual language goes into `DESIGN.md`, and its structure and copy become the interface. The alternatives are deleted before the work merges.
 
 ## Where it lands
 

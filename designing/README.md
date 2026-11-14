@@ -12,7 +12,7 @@ It covers technical design (modules, interfaces, data and state), product design
 | [references/documents.md](references/documents.md) | Which document a decision belongs in, and where it goes |
 | [references/technical.md](references/technical.md) | Designs that shape code |
 | [references/product.md](references/product.md) | Designs that shape what users get |
-| [references/interface.md](references/interface.md) | Designs that shape an interface, and `DESIGN.md` |
+| [references/interface.md](references/interface.md) | Designs that shape an interface, alternatives for a judge to choose from, and `DESIGN.md` |
 
 ## Sources
 
@@ -24,6 +24,7 @@ The skill is written in our own words. These works shaped it; nothing is copied 
 | [theoklitosBam7/pstack-portable](https://github.com/theoklitosBam7/pstack-portable/tree/ca3b1f2ee559fa15c3e9d2fbda01ac98560ade84/skills): `architect`, `principle-foundational-thinking`, `principle-model-the-domain`, `principle-redesign-from-first-principles`, `principle-experience-first` | MIT | Technical and product: usage before signatures, the data's shape before the logic, the domain in structure, redesigning rather than bolting on, and experience first. |
 | [Leonxlnx/cook](https://github.com/Leonxlnx/cook/tree/b23cac6fd9439dfddcab61b14808e7bf72549b46) | MIT | Interface: references as the floor the work must reach, not inspiration, with what to take from each. |
 | [benjitaylor/skills](https://github.com/benjitaylor/skills/tree/299140fafd08df55a9c234e610c3f64af3f45531/stageshow): `stageshow` | MIT | Interface: the best existing examples as the bar, held beside the work. |
+| `wyrd-company/astro-template`: `design-prototyping` | Ours | Interface: alternatives of style and copy, each at its own address with a switcher, for a judge to choose from. |
 | [mattpocock/skills](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering): `codebase-design`, `improve-codebase-architecture`, `wayfinder` | MIT | Technical: deep modules and designing it twice. Charting: a design tracked as a map of decision tasks. |
 
 Formats and tools the skill uses, rather than drew on:
