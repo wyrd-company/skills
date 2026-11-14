@@ -1,7 +1,7 @@
 ---
 name: executing
 description: >
-  Use whenever you are performing work, of any kind. Covers understanding the work, working in verifiable units, when to decide and when to ask, proving the result, and handing it over. Hint words from the user or task: `complete`, `do`, `execute`, `implement`, `perform`. Not for just answering questions.
+  Use whenever you do work of any kind. Covers verifiable units and their commits, scope and authority, when to decide and when to ask, being blocked, proof that the work is done, and handing it over for review, merge and finalizing. Not for answering a question without doing work.
 ---
 
 Complete the work end to end: from understanding why it exists to a result that someone else can check without asking you.

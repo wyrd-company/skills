@@ -1,6 +1,7 @@
 ---
 name: task-authoring
-description: Use when writing a task, the ticket to do a piece of work, or when deciding whether work needs a task, a GitHub issue or both.
+description: >
+  Use when writing a task, the ticket for one executor's piece of work, or deciding whether work needs a task, a GitHub issue or both. Covers the boundary between issue, task and pull request, the task's contract, its size, its Definition of Done, its context and its metadata. Not for claiming or working a task (`task-ownership`), planning an epic's tasks (`epic-planning`), or briefing a delegate whose result comes back to you (`standards`).
 ---
 
 A task is the ticket to do a piece of work. It says what one executor will deliver, how completion is judged, and where the work stands. It does not define the goal: a GitHub issue or the operator's prompt does that.

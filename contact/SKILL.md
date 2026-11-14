@@ -1,6 +1,7 @@
 ---
 name: contact
-description: Use whenever you need to contact the user outside of the thread
+description: >
+  Use when you need to reach a person outside the thread: an alert, a notification, or a reply you wait for. Covers `pushover` for alerts to a named person, and `ntfy` for notifications and replies. Not for messaging another agent or thread.
 ---
 
 You have 2 tools at your disposal for contacting the user outside of your conversation/thread:

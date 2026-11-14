@@ -1,6 +1,7 @@
 ---
 name: designing
-description: Use when deciding what to build or how to build it, before it is built. Covers framing the outcome with the operator, charting the decisions between a goal and a plan, and recording them in the repository's design documents. Not for splitting the work into tasks (`epic-planning`), for reviewing a design someone delivered (`review`), or for how a document is worded (`standards`).
+description: >
+  Use when deciding what to build or how to build it, before it is built. Covers the outcome's frame, the decisions between a goal and a plan, and the design documents that record them. Not for splitting the work into tasks (`epic-planning`), reviewing a design someone delivered (`review`), or how a document is worded (`standards`).
 ---
 
 Design settles what to build and how while a change is still cheap: in a conversation or a document, not in code. What it produces is the decisions that planning and executing start from, written where they will still be found once the work is done: the repository's design documents.

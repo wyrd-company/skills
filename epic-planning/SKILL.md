@@ -1,6 +1,7 @@
 ---
 name: epic-planning
-description: Use when work needs more than one task. Covers choosing how an epic will be run, setting it up as tasks, issues and a GitHub project, and handing it over for dispatch. Not for ordering the units of a single task; `executing` covers that.
+description: >
+  Use when work needs more than one task. Covers the patterns an epic can run on (arena, chain, map-reduce, project, swarm) and what a planned epic delivers: its board, tasks, issues and GitHub project. Not for ordering the units of a single task (`executing`) or running an epic (`epic-orchestration`).
 ---
 
 An epic is work that needs more than one task. As the planner you do not do the work. You choose the pattern or patterns the epic will run on, set up the conditions for it and for the agent that orchestrates it, and hand it over.
