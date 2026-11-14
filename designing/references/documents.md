@@ -19,6 +19,8 @@ objective: >-
 
 Other documents refer to it by that slug, under `relationships`, with the relationship's name as the key. When the repository already has a document of the same type, follow its shape.
 
+One design document is not YAML: a product's visual language is `DESIGN.md`, in its own format. [Interface](interface.md#the-visual-language) covers it.
+
 ## Where it goes
 
 - **A component's documents** go in its repository, under `docs/<folder>/<slug>.yml`.
@@ -43,6 +45,7 @@ Other documents refer to it by that slug, under `relationships`, with the relati
 | Something believed but not proven | `assumption` | `assumptions/` | `description`, `evidence`, and `end-descendant-type`: the type of document that will replace it once proven |
 | A threat to the outcome | `risk` | `risks/` | `slug`, `title`, `description`, `categories`, `likelihood` and `impact` from 1 to 5, the response, `status` |
 | A word with one meaning here | `term` | `terms/` | `title`, `description` |
+| A product's visual language and its tokens | `DESIGN.md` | The repository root | Tokens in the front matter; sections in the order the [format](https://github.com/google-labs-code/design.md/blob/main/docs/spec.md) sets |
 
 ## Decisions land where they shape the work
 

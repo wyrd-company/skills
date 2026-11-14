@@ -36,5 +36,8 @@ Lenses are the most expensive part of a review, so they are reserved for `high`,
 | False compromise | Designs | Where does it accept a trade-off as unavoidable that is not? What would the alternative cost? |
 | Zoom out | Any | Does this solve the problem the issue states, at the right altitude, or a nearby problem? |
 | Economy | Documents, instructions | What can be removed without the reader losing anything they need? |
+| Visual | Interfaces | Shot by shot, how far is the render from its reference, on each dimension of the rubric, and what are the largest gaps? |
+
+The Visual lens sees the rendered result and nothing else: the shots the [interface standard](../../standards/references/interface.md#proving-it) describes, each beside its reference, and the rubric with its bar. It gets no code, no task history and no one's opinion of the work, including who built it. Run at least two, one from a provider other than the builder's, and take the median score per dimension. When two scores differ widely, run a third.
 
 When a review needs a question this catalogue does not have, write it, and record the lens and what it found as an observation in memory tagged `review` and `lenses`.
