@@ -53,16 +53,7 @@ Commit when a small, logical step is complete. Use the conventional commit forma
 
 ## Keep track of resources
 
-As you provision resources to implement the work, keep track of what you have provisioned:
-
-- Temp files and folders
-- Docker artifacts (containers, volumes, networks, etc)
-- VMs, including [boat](../boat/SKILL.md) sandboxes (record their ids)
-- Running processes (record the process IDs)
-- Worktrees and branches
-- Threads you have launched
-
-Log to the task. When available, use your built-in todo tracking tools to remind you to cleanup later.
+Record each resource you create in your thread's [ledger](../ledger/SKILL.md) as soon as it exists, with the command that removes it: temp files and folders, Docker artifacts, VMs and [boat](../boat/SKILL.md) sandboxes, running processes, worktrees and branches, threads you launched. When the work has a task, also log to the task what you provisioned.
 
 ## When to decide and when to ask
 
@@ -222,16 +213,7 @@ Do not change the branch between approval and merge: a rebase or a late commit m
 
 When available, check your plan/todo/task built-in tool for outstanding items.
 
-Cean up what you provisioned that is no longer needed: 
-
-- settle launched threads
-- remove local branches
-- remove worktrees
-- stop processes
-- remove docker artifacts
-- delete boat sandboxes
-- delete scratch files
-- Anything else not covered that is no longer needed.
+Clean up what you provisioned, as [ledger](../ledger/SKILL.md#clean-up) says: hand off what other work still needs, clean up the rest, and settle the threads you launched. Your ledger is empty when you are done.
 
 If it is needed beyond your work, it probably should be checked in or documented and provisioned as part of our workspace definition through a raised PR.
 

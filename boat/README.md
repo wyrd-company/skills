@@ -1,6 +1,6 @@
 # boat
 
-The skill an agent uses to run a check on a clean, disposable machine: a [Boat](https://boat.dev) sandbox. It covers when a sandbox proves more than the workspace can, `boat run` for one command and `boat new` for several steps or a URL a person can try, the plan's cost, keeping secrets off the sandbox, and deleting every sandbox it made. `executing` and `review` point to it from proving work, user-acceptance testing and cleanup.
+The skill an agent uses to run a check on a clean, disposable machine: a [Boat](https://boat.dev) sandbox. It covers when a sandbox proves more than the workspace can, `boat run` for one command and `boat new` for several steps or a URL a person can try, the plan's cost, keeping secrets off the sandbox, and deleting every sandbox it made. It records sandboxes through [ledger](../ledger/SKILL.md). `executing` and `review` point to it from proving work, user-acceptance testing and cleanup.
 
 The workspace installs the CLI and its OpenBao-backed wrapper through `workspace-dotfiles`; see its [Boat](https://github.com/wyrd-company/workspace-dotfiles/blob/main/docs/boat.md) document.
 

@@ -40,7 +40,7 @@ boat new --no-env --type small --no-snapshots --ttl 3600 --name <task-or-branch>
 ```
 
 - **Use the sandbox's id everywhere.** Take it from the `created` line of the JSON output and pass it to every later command. Your shell does not keep state between tool calls, so `current` and `BOAT_CURRENT_ID` do not reach the next call.
-- **Record the id on the task now,** as a provisioned resource (see [executing](../executing/SKILL.md#keep-track-of-resources)), before anything else can fail.
+- **The wrapper records the sandbox in your thread's [ledger](../ledger/SKILL.md)** as `boat:sandbox/<id>`. Check `ledger list`; when it warns that it could not, record it yourself. When the work has a task, log the id there too.
 - **Get the work on it:** `boat push <id> <dir>`.
 - **Run commands:** `boat exec --timeout <secs> <id> <command>`, with options before the id: anything after the command goes to the command. The default timeout is 30 seconds. For a long run, start it with `--detach` and follow it with `--attach <pid>`. Use `boat ssh -t <id> <command>` when the command needs a terminal.
 - `--ttl` is a backstop for a sandbox you forget, not cleanup.
@@ -60,8 +60,7 @@ Hand over the command, the machine type, the commit, the output and the cost `bo
 ## Clean up
 
 - Delete each sandbox you created once its check is done: `boat delete <id> --yes`. `boat stop` is not cleanup: it keeps a snapshot for 14 days.
-- Before you hand over, compare `boat list --json` with the ids you recorded, and delete any of yours that remain. Delete only your own: other sandboxes on the account belong to other work.
-- Record each deletion on the task.
+- Before you hand over, `ledger list` shows each sandbox of yours that remains: delete it, or hand it off if other work still needs it. `boat delete` releases it from the ledger. Delete only your own: other sandboxes on the account belong to other work.
 
 ## Reference
 
