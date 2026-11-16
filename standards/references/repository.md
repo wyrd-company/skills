@@ -2,7 +2,7 @@
 
 Read this when creating a repository, adding or reviewing one of the files every repository has, or bringing a repository or a fork up to the standard. It applies to every git repository we own, public and private. The repository's own `AGENTS.md` and docs win over it for that repository.
 
-Most files below have a template in [`assets/repository/`](../assets/repository/). Copy it to the path in the table, and fill in every `{slot}`. In a Markdown template, the `<!-- -->` comments tell whoever fills it in what each section holds, and when to leave one out. A finished Markdown file has no `{slot}` and no `<!-- -->` comment left from its template. A configuration template keeps its comments, and drops the lines that do not apply to the repository.
+Most files below have a template in [`assets/repository/`](../assets/repository/). Copy it to the path in the table, and fill in every `{slot}`. In a Markdown template, the `<!-- -->` comments tell whoever fills it in what each section holds, and when to leave one out. A finished Markdown file has no `{slot}` and no `<!-- -->` comment left from its template. A configuration template keeps its comments, drops the lines and tasks that do not apply to the repository, and has no `{slot}` left.
 
 ## Files
 
@@ -15,8 +15,8 @@ Most files below have a template in [`assets/repository/`](../assets/repository/
 | `.gitignore` | Every repository | None, as [below](#gitignore) |
 | `.gitattributes` | Every repository | [`gitattributes`](../assets/repository/gitattributes) |
 | `.editorconfig` | Every repository | [`editorconfig`](../assets/repository/editorconfig) |
-| `Taskfile.yml` | Every repository | None yet; as [below](#automation) |
-| `.config/lefthook.yml` | Every repository | None yet; as [below](#automation) |
+| `Taskfile.yml` | Every repository | [`Taskfile.yml`](../assets/repository/Taskfile.yml), as [below](#automation) |
+| `.config/lefthook.yml` | Every repository | [`lefthook.yml`](../assets/repository/lefthook.yml), as [below](#automation) |
 | `renovate.json` | Every repository, at the root | [`renovate.json`](../assets/repository/renovate.json) |
 | `.devcontainer/devcontainer.json` | Every repository | None yet |
 
@@ -80,8 +80,32 @@ A public repository without a `LICENSE` is all rights reserved, and nobody may l
 
 ## Automation
 
-- **Task runs everything.** Every command a person or agent runs in the repository, to build, test, lint, format or run it, is a task in `Taskfile.yml`, from [Task](https://taskfile.dev). CI, hooks, `CONTRIBUTING.md` and `AGENTS.md` call the tasks, so how anything runs is defined in one place.
-- **Lefthook runs the git hooks,** from `.config/lefthook.yml`, through [Lefthook](https://lefthook.dev). A hook calls a task, not a raw command.
+Task runs everything. Every command a person or agent runs in the repository is a task in `Taskfile.yml`, from [Task](https://taskfile.dev). CI, hooks, `CONTRIBUTING.md` and `AGENTS.md` call the tasks, so how anything runs is defined in one place.
+
+The same task name means the same thing in every repository, so anyone can work in one without reading its `Taskfile.yml` first:
+
+| Task | Does | When |
+|---|---|---|
+| `default` | Lists the tasks | Every repository |
+| `test` | Runs the full test suite | Every repository |
+| `lint` | Checks the code, formatting included, and changes nothing | Every repository |
+| `format` | Rewrites files to the repository's formatting | Every repository |
+| `check` | Runs everything CI runs: the one command to run before pushing | Every repository |
+| `build` | Produces what the repository delivers | When it delivers an artifact: a package, a binary, an image, a site |
+| `dev` | Runs it locally, rebuilding on change | When it runs: a site, an app, a service |
+
+A repository with nothing else to check still lints its Markdown and YAML. Other tasks are the repository's own; name them for what they do.
+
+**A monorepo's root `Taskfile.yml` includes each component's.** The root has every task in the table, running the components' tasks. Each component's `Taskfile.yml` sits in its folder. Every include sets `dir:` to the component's folder, because without it the component's tasks run from the root, and tests that depend on their working directory fail or pass for the wrong reason. The include's name is the component's name, so `task <component>:test` runs one component's tests.
+
+**Lefthook runs the git hooks,** from `.config/lefthook.yml`, through [Lefthook](https://lefthook.dev). A hook calls a task, not a raw command.
+
+| Hook | Runs |
+|---|---|
+| `pre-commit` | `format`, adding what it changes to the commit, and `lint` |
+| `commit-msg` | `lint:commit-msg`, which checks the message follows [Conventional Commits](https://www.conventionalcommits.org) |
+
+No `pre-push` hook. A slow hook teaches people to pass `--no-verify`, which skips every hook. CI runs `check` on every pull request, and is the gate.
 
 ## .gitignore
 

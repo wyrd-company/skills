@@ -1,0 +1,15 @@
+# Hooks call tasks, never raw commands, so Taskfile.yml is the one place that
+# says how anything runs. There is no pre-push hook: CI runs `task check`.
+
+pre-commit:
+  jobs:
+    - name: format
+      run: task format
+      stage_fixed: true
+    - name: lint
+      run: task lint
+
+commit-msg:
+  jobs:
+    - name: conventional-commit
+      run: task lint:commit-msg -- {1}

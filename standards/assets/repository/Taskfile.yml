@@ -1,0 +1,60 @@
+version: "3"
+
+# The same task name means the same thing in every repository. The table of
+# names is in the repository standard, under Automation. Replace each
+# '{command}' with the repository's own; delete build and dev when they do
+# not apply.
+
+tasks:
+  default:
+    desc: List the tasks
+    cmds:
+      - task --list
+    silent: true
+
+  test:
+    desc: Run the full test suite
+    cmds:
+      - '{command}'
+
+  lint:
+    desc: Check the code and its formatting, changing nothing
+    cmds:
+      - '{command}'
+
+  lint:commit-msg:
+    desc: Check a commit message follows Conventional Commits
+    # The commit-msg hook passes the path of the message file as CLI_ARGS.
+    cmds:
+      - '{command} {{.CLI_ARGS}}'
+
+  format:
+    desc: Rewrite files to the repository's formatting
+    cmds:
+      - '{command}'
+
+  build:
+    desc: Produce what the repository delivers
+    cmds:
+      - '{command}'
+
+  dev:
+    desc: Run locally, rebuilding on change
+    cmds:
+      - '{command}'
+
+  check:
+    desc: Run everything CI runs, before pushing
+    cmds:
+      - task: lint
+      - task: test
+      - task: build
+
+# A monorepo includes each component's Taskfile.yml. Every include sets dir:,
+# or the component's tasks run from the root. The include's name is the
+# component's name.
+#
+# includes:
+#   {component}:
+#     taskfile: ./{path}
+#     dir: ./{path}
