@@ -1,6 +1,6 @@
 # Workspace
 
-Read this when understanding, configuring, extending or troubleshooting a workspace's environment: what one workspace can change for itself, where a piece of configuration belongs, how it is applied, and how to make a change last. Not for an application's own configuration inside a product repository.
+Read this when understanding, configuring, extending or troubleshooting a workspace's environment: how project and repo folders are made, what one workspace can change for itself, where a piece of configuration belongs, how it is applied, and how to make a change last. Not for an application's own configuration inside a product repository.
 
 A workspace is a devcontainer for one product or theme. Agents, and people connecting over SSH or VS Code, all run as the shared `vscode` account, and its home-directory configuration is part of the standard environment. The operator chosen for a thread decides who commits and pushes; it does not select another account or another configuration. The workspace's own `AGENTS.md` gives its paths and limits.
 
@@ -19,6 +19,15 @@ Decide first who needs the change.
 - **Web access.** The ingress's Caddy proxies requests for `*.$HOSTNAME` to this devcontainer, and Caddy inside it routes them. A snippet in `/etc/caddy/conf.d/<name>.caddy` gives a user access to a dev server or similar. A watcher validates the whole configuration and reloads Caddy; an invalid snippet leaves the running configuration as it was, so check that the new route answers.
 - **Workflows.** Local Dagu workflows go in `/workflows/local/dags`, as `/workflows/local/AGENTS.md` describes.
 - **Secrets.** A secret only this workspace needs is added to OpenBao and bound to this workspace alone. Adding it takes access the container does not have: ask the operator, naming the path and what reads it.
+
+## Projects and repositories
+
+`/workspace` holds project folders, and a project folder holds repo folders. Make each with its Toha template, which `workspace-ansible` installs. Never make one by hand.
+
+- **Project folder:** `toha apply project <folder>` in `/workspace`. It checks out the project's `memory` and `tasks`, and registers the folder as a T3 Code project named `$WORKSPACE_NAME <folder>`, such as `Toolchain apps`. Then give that T3 project an icon that fits it: a Lucide icon, or an emoji or a monogram when no Lucide icon fits. Set it with the T3 tool `t3_project_update` (`projectIcon`).
+- **Repo folder:** `toha apply repo <repo>` in a project folder. It makes a bare clone, a `main` worktree (`fork` for a fork) and `worktrees/`, and registers the repo folder as a T3 Code project named for the repository. When `main` ships an icon, the template records it as `iconPath` in the repo folder's `t3.json`, and T3 Code shows it. When it does not, give the T3 project an icon as for a project folder.
+
+Both templates call `ensure-t3-project`, which registers a folder only when no T3 project has it yet. Run it to repair a folder made before the templates did this; its options are in the header of `/usr/local/bin/ensure-t3-project`. A T3 project belongs to the project folder or the repo folder, never to a worktree inside one.
 
 ## Where configuration belongs
 
