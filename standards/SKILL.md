@@ -1,7 +1,7 @@
 ---
 name: standards
 description: >
-  Use when doing or reviewing work that one of our standards covers, to know the rules it is held to. Covers how design documents and instructions for agents are written, how interfaces are built, what they are built with, and how the workspace environment is configured. Not for how to do or check the work (`executing`, `review`).
+  Use when doing or reviewing work that one of our standards covers, to know the rules it is held to. Covers how design documents and instructions for agents are written, how interfaces are built, what they are built with, what every repository holds, and how the workspace environment is configured. Not for how to do or check the work (`executing`, `review`).
 ---
 
 A standard is a rule the work is held to. The executor follows it and the reviewer checks it, so both read the same text here instead of each keeping their own copy.
@@ -12,6 +12,7 @@ Read the standard for the work at hand:
 - [Instructions for agents](references/instructions.md): how skills, `AGENTS.md` files and briefs to delegates are written, and which home each kind of instruction belongs in.
 - [Interface](references/interface.md): how an interface a person uses is built: usability, accessibility, states, layout, colour, type, motion, copy, and terminal output.
 - [Stack](references/stack.md): what a website or a web application is built with, and the template it starts from.
+- [Repository](references/repository.md): what every repository holds, and the templates it starts from: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, configuration and layout, and how a fork is treated.
 - [Workspace](references/workspace.md): fitting one workspace to its needs, where configuration shared by every workspace belongs, how it is applied, and how a change to it is made to last.
 
 A repository's own `AGENTS.md` and docs win over a standard here for that repository.

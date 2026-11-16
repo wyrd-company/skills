@@ -1,0 +1,20 @@
+# Store text with LF line endings in the repository.
+* text=auto
+
+# Scripts keep LF on every platform, or they fail to run.
+*.sh text eol=lf
+
+# Generated output and lockfiles are written by tools. Marking them collapses
+# them in pull request diffs, so nobody reviews them as if they were written by
+# hand. List the repository's own generated paths; delete lines that do not apply.
+dist/** linguist-generated=true
+package-lock.json linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
+Cargo.lock linguist-generated=true
+go.sum linguist-generated=true
+
+# Binary files are never diffed or converted.
+*.png binary
+*.jpg binary
+*.gif binary
+*.woff2 binary

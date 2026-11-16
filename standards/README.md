@@ -9,6 +9,8 @@ The rules our work is held to. The agent doing the work follows them, and the ag
 | [references/instructions.md](references/instructions.md) | How skills, `AGENTS.md` files and briefs to delegates are written |
 | [references/interface.md](references/interface.md) | How an interface a person uses is built: usability, accessibility, states, layout, colour, type, motion, copy, platforms and terminal tools |
 | [references/stack.md](references/stack.md) | What websites and web applications are built with, and the template a site starts from |
+| [references/repository.md](references/repository.md) | What every repository holds: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, configuration and layout, and how a fork is treated |
+| [assets/repository/](assets/repository/) | Templates for those files |
 | [references/workspace.md](references/workspace.md) | How the workspace environment is configured, and fitted to one workspace's needs |
 
 ## Sources
@@ -29,4 +31,4 @@ The standards are written in our own words. These works shaped them; nothing is 
 | [benjitaylor/skills](https://github.com/benjitaylor/skills/tree/299140fafd08df55a9c234e610c3f64af3f45531/stageshow): `stageshow` | MIT | Interface, proving it: a handover that says what was not checked. |
 | [google-labs-code/design.md](https://github.com/google-labs-code/design.md) | Apache-2.0 | Interface: the `DESIGN.md` linter as one of the checks. |
 
-The documentation standard comes from our earlier `authoring-specifications` skill, the workspace standard from our own workspace repositories, and the stack from our own templates and choices. None has an outside source.
+The documentation standard comes from our earlier `authoring-specifications` skill, the repository standard from our earlier drafts of it and the files in our repositories, the workspace standard from our own workspace repositories, and the stack from our own templates and choices. None has an outside source.
