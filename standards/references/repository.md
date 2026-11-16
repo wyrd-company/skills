@@ -15,6 +15,8 @@ Most files below have a template in [`assets/repository/`](../assets/repository/
 | `.gitignore` | Every repository | None, as [below](#gitignore) |
 | `.gitattributes` | Every repository | [`gitattributes`](../assets/repository/gitattributes) |
 | `.editorconfig` | Every repository | [`editorconfig`](../assets/repository/editorconfig) |
+| `Taskfile.yml` | Every repository | None yet; as [below](#automation) |
+| `.config/lefthook.yml` | Every repository | None yet; as [below](#automation) |
 | `renovate.json` | Every repository, at the root | [`renovate.json`](../assets/repository/renovate.json) |
 | `.devcontainer/devcontainer.json` | Every repository | None yet |
 
@@ -55,7 +57,7 @@ An `AGENTS.md` in a folder is loaded every time an agent works there, while read
 
 ## CONTRIBUTING.md
 
-Every repository has its own, because how a change is set up and checked differs between repositories. It covers how to report an issue, how to propose a change, how to set up the development environment, and how to run the checks. The commands it gives are the repository's own, such as its task verbs. It does not copy their implementation.
+Every repository has its own, because how a change is set up and checked differs between repositories. It covers how to report an issue, how to propose a change, how to set up the development environment, and how to run the checks. The commands it gives are the repository's tasks, such as `task test`. It does not copy what they run.
 
 ## LICENSE
 
@@ -75,6 +77,11 @@ A public repository without a `LICENSE` is all rights reserved, and nobody may l
 - **A published package declares its license in its metadata,** such as the `license` field of `package.json` or `Cargo.toml`. Registries read the metadata, not the file.
 - **Plumbing says what its license covers.** The README of a tap or a wrapper says that the license covers the packaging, not what it installs.
 - **Third-party licenses go in `LICENSES/`,** one file for each component whose code or assets the repository includes, named for the component and its license, such as `Microsoft-devcontainers-features-MIT.txt`.
+
+## Automation
+
+- **Task runs everything.** Every command a person or agent runs in the repository, to build, test, lint, format or run it, is a task in `Taskfile.yml`, from [Task](https://taskfile.dev). CI, hooks, `CONTRIBUTING.md` and `AGENTS.md` call the tasks, so how anything runs is defined in one place.
+- **Lefthook runs the git hooks,** from `.config/lefthook.yml`, through [Lefthook](https://lefthook.dev). A hook calls a task, not a raw command.
 
 ## .gitignore
 

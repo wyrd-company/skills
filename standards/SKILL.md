@@ -12,7 +12,7 @@ Read the standard for the work at hand:
 - [Instructions for agents](references/instructions.md): how skills, `AGENTS.md` files and briefs to delegates are written, and which home each kind of instruction belongs in.
 - [Interface](references/interface.md): how an interface a person uses is built: usability, accessibility, states, layout, colour, type, motion, copy, and terminal output.
 - [Stack](references/stack.md): what a website or a web application is built with, and the template it starts from.
-- [Repository](references/repository.md): what every repository holds, and the templates it starts from: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, configuration and layout, and how a fork is treated.
+- [Repository](references/repository.md): what every repository holds, and the templates it starts from: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, automation with Task and Lefthook, configuration and layout, and how a fork is treated.
 - [Workspace](references/workspace.md): fitting one workspace to its needs, where configuration shared by every workspace belongs, how it is applied, and how a change to it is made to last.
 
 A repository's own `AGENTS.md` and docs win over a standard here for that repository.

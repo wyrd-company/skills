@@ -24,7 +24,7 @@
 
 ## Orient
 
-<!-- A tree of what is not standard, each entry with what it holds. Then how to run things, by the repository's own commands, and what an agent must not edit. -->
+<!-- A tree of what is not standard, each entry with what it holds. Then how to run things, by the repository's tasks, and what an agent must not edit. -->
 
 ```tree
 .
@@ -32,7 +32,7 @@
 └── {file}      # {what it does}
 ```
 
-- Checks: `{command}`. [CONTRIBUTING.md](CONTRIBUTING.md) has the rest.
+- Checks: `task {name}`. [CONTRIBUTING.md](CONTRIBUTING.md) has the rest.
 - {A path an agent must not edit, such as generated output or vendored code, and why.}
 
 ## Thar be Dragons

@@ -9,7 +9,7 @@ The rules our work is held to. The agent doing the work follows them, and the ag
 | [references/instructions.md](references/instructions.md) | How skills, `AGENTS.md` files and briefs to delegates are written |
 | [references/interface.md](references/interface.md) | How an interface a person uses is built: usability, accessibility, states, layout, colour, type, motion, copy, platforms and terminal tools |
 | [references/stack.md](references/stack.md) | What websites and web applications are built with, and the template a site starts from |
-| [references/repository.md](references/repository.md) | What every repository holds: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, configuration and layout, and how a fork is treated |
+| [references/repository.md](references/repository.md) | What every repository holds: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, automation with Task and Lefthook, configuration and layout, and how a fork is treated |
 | [assets/repository/](assets/repository/) | Templates for those files |
 | [references/workspace.md](references/workspace.md) | How the workspace environment is configured, and fitted to one workspace's needs |
 
