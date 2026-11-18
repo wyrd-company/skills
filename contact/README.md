@@ -1,12 +1,12 @@
 # contact
 
-The skill an agent uses to reach a person outside its thread: to ask a question, send a notification, or wait for a reply. People are reached in Discord through the `deck` CLI. The skill says where to post, whom to address, how long to wait for an answer, and how to treat the reply; `deck skill` and `deck --help` hold the CLI's own usage. `executing` points to it when work is blocked on a person.
+The skill an agent uses to reach a person outside its thread: to ask a question, send a notification, or wait for a reply. People are reached in Discord through the `deck` CLI. The skill says where to post, whom to mention, and how to treat the reply that wakes the thread; `deck skill` and `deck --help` hold the CLI's own usage. `executing` points to it when work is blocked on a person.
 
 The workspace installs `deck` and writes its configuration through `workspace-dotfiles`; see its [deck](https://github.com/wyrd-company/workspace-dotfiles/blob/main/docs/deck.md) document.
 
 | File | What it is for |
 |---|---|
-| [SKILL.md](SKILL.md) | Sending through `deck`, and waiting for a reply |
+| [SKILL.md](SKILL.md) | Sending through `deck`, and replies |
 
 ## Sources
 
