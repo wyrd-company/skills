@@ -125,7 +125,8 @@ Start from the ignore file for the repository's stack in [github/gitignore](http
 
 ## Forks
 
-A fork is either kept to send changes upstream, or made to diverge from upstream on purpose.
+A fork is kept to send changes upstream, kept to track upstream with additions of its own, or made to diverge from upstream on purpose.
 
 - **A fork that sends changes upstream follows upstream's standards,** not these. Follow its `CONTRIBUTING.md` and documentation. Where they are silent, follow the practice its code, issues, pull requests and documentation show. The description of each pull request you send upstream lists the unwritten conventions it follows and where each was observed.
+- **A fork that tracks upstream carries its additions only in the overlay upstream provides for them,** and takes upstream's changes by rebase. The workspace repositories are forked this way: see [Workspace](workspace.md#a-workspace-on-forks).
 - **A fork that diverges meets this standard.** Change what contradicts it when the change is cheap and safe. Otherwise open an issue for each gap.

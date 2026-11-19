@@ -19,6 +19,16 @@ Decide first who needs the change.
 - **Web access.** The ingress's Caddy proxies requests for `*.$HOSTNAME` to this devcontainer, and Caddy inside it routes them. A snippet in `/etc/caddy/conf.d/<name>.caddy` gives a user access to a dev server or similar. A watcher validates the whole configuration and reloads Caddy; an invalid snippet leaves the running configuration as it was, so check that the new route answers.
 - **Workflows.** Local Dagu workflows go in `/workflows/local/dags`, as `/workflows/local/AGENTS.md` describes.
 - **Secrets.** A secret only this workspace needs is added to OpenBao and bound to this workspace alone. Adding it takes access the container does not have: ask the operator, naming the path and what reads it.
+- **Fork overlays.** On a workspace that runs on forks, changes to the workspace repositories go in their overlays: see [A workspace on forks](#a-workspace-on-forks).
+
+## A workspace on forks
+
+A workspace may run on its own forks of the workspace repositories: `workspace-ansible`, `workspace-dotfiles`, `skills` and `workflows`. `org` in `/etc/workspace/config.yml` names the fork's owner, and `upstream_org` names the organisation they were forked from. A fork tracks upstream and carries only what is its own.
+
+- **The fork's own changes go in its overlay.** Each workspace repository reserves overlay paths that upstream never commits to, and loads what it finds there on top of upstream. Its `docs/fork-overlay.md` names the paths and how each one combines with upstream: merged, replacing or added. A fork never edits an upstream file. When the overlay cannot express a change, add the extension point upstream, then use it.
+- **What the overlay holds:** what is particular to this workspace and its operators. That includes who the operators are and how they work (the dotfiles' instructions overlay, appended to `CORE-INSTRUCTIONS.md`), which operators the workspace has, and its own relays and workflows. Skill changes for one workspace stay in its [skill overlay](#skill-overlays), not in a `skills` fork.
+- **Upstream changes arrive by `fork-sync`.** With `upstream_org` set, Trowel queues the `fork-sync` workflow for each push to an upstream repository's default branch. `fork-sync` pushes a backup tag, rebases the fork's commits onto upstream and force-pushes with a lease. The fork's push then applies like any other. On a conflict it opens an issue on the fork and notifies the workspace, and the fork waits for a person.
+- **What every workspace can use goes upstream,** as an option or an extension point, never as fork content.
 
 ## Projects and repositories
 
