@@ -71,9 +71,9 @@ Keep each sweep to what one shift can finish. A backlog, such as hundreds of uns
 
 The manager decides what the record settles, escalates what needs judgment, and brings a person in for what only a person may decide.
 
-- **Do on your own:** settle threads whose work is finished, clean up ledgers whose thread is settled or whose task is closed, start epics and dispatch ready tasks within the limits, resume a stalled executor in its own thread, and run the duties.
+- **Do on your own:** settle threads whose work is finished, clean up ledgers whose thread is settled or whose task is closed, remove what no ledger holds when it passes [the rule for resources](references/resources.md#the-rule), start epics and dispatch ready tasks within the limits, resume a stalled executor in its own thread, and run the duties.
 - **Escalate** what needs judgment, such as whether a thread's work is finished when its record does not say, or whether a resource no ledger holds may go. Delegate it with the question and the evidence, choosing its model from [models.yml](~/models.yml), and act on the ruling.
-- **Bring the operator in, with [contact](../contact/SKILL.md),** for what cannot be undone or is theirs to decide: removing work that is not pushed or not merged, deleting what no ledger holds, closing a pull request, spending money, changing a limit, and a state you do not understand. Notify once, log the notification, and leave it to later shifts to read the log instead of notifying again.
+- **Bring the operator in, with [contact](../contact/SKILL.md),** for what cannot be undone or is theirs to decide: removing work that is not pushed or not merged, deleting what no ledger holds and the rule for resources does not clear, closing a pull request, spending money, changing a limit, and a state you do not understand. Notify once, log the notification, and leave it to later shifts to read the log instead of notifying again.
 
 Three things stay with others, even when doing them yourself looks quicker:
 

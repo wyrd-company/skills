@@ -2,7 +2,7 @@
 
 Read this when a duty in the manager task's **Duties** section is due. A duty with an interval is due when the log has no `Duty <name>: done` entry within it. Log that entry when you finish a duty, and log a duty you could not finish with what stopped it, so the next shift does not read silence as success.
 
-The duties that run on each sweep (settling threads, checking running work and dispatch) are in [threads](threads.md) and [dispatch](dispatch.md). A duty that operators add without a section here says in its own row what to do. When it does not, ask the operator who added it.
+The duties that run on each sweep (settling threads, checking running work and dispatch) are in [threads](threads.md) and [dispatch](dispatch.md). The duty **Resources no ledger holds** is in [resources](resources.md). A duty that operators add without a section here or a reference says in its own row what to do. When it does not, ask the operator who added it.
 
 ## Health
 

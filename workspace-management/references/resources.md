@@ -4,7 +4,7 @@ Read this when the **Resources no ledger holds** duty is due. Ledgers are the fi
 
 ## The rule
 
-Remove a resource yourself only when it holds nothing that exists nowhere else, and nothing live uses it. Anything else goes to the operator in one report for the shift, with what holds each one back. A worktree removed with an unpushed commit or an untracked file in it is lost for good, and a list costs the operator a minute to read.
+Remove a resource yourself only when it holds nothing that exists nowhere else, and nothing live uses it: the sections below say how to tell, for each kind. This is the only removal of what no ledger holds that the manager's [authority](../SKILL.md#authority) allows. Anything else goes to the operator in one report for the shift, with what holds each one back. A worktree removed with an unpushed commit or an untracked file in it is lost for good, and a list costs the operator a minute to read.
 
 Before removing anything, check that no ledger holds it (`ledger list --all`), and leave it to its ledger when one does.
 
