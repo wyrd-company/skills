@@ -43,4 +43,4 @@ Use one or more of these to shape the epic. Each reference says when to choose t
 
 In an epic of any size, the merge from the epic branch into the default branch is too large to review line by line. Quality rests on the review of each child into the epic branch. The final merge checks the combined result: the full checks on the merged state, acceptance, and that nothing reached the epic branch unreviewed. Plan for that: every child gets its own review, and the acceptance plan covers the whole.
 
-Hand the epic to the workspace manager, which dispatches it.
+Hand the epic to the workspace manager, which starts it within the workspace's limits: leave the epic task in `todo`, unclaimed, and tell the manager, as [workspace-management](../workspace-management/SKILL.md#reach-the-manager) says.

@@ -10,6 +10,8 @@ Read the record yourself, not a summary of it: the status, the claim, the blocke
 
 Confirm that any handoff before this one is complete and that the previous agent has stopped.
 
+Check the workspace's thread limit, as the workspace manager's [limits](../../workspace-management/references/dispatch.md#limits) say. While the workspace is at it, leave the task in `todo` and record the hold on the epic task. Remediation sent back to an executor's own session does not count as a new thread.
+
 ## The prompt
 
 Dispatch each task to its own agent session, which outlives the pass. Keep the prompt minimal and do not paste the task into it:
