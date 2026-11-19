@@ -11,6 +11,8 @@
 #   SURVEY_LIMIT  rows listed per group (default 25); counts are always complete
 #   TASK_ROOTS    space-separated folders holding boards
 #                 (default: /tasks and every /workspace/*/tasks)
+# jq programs are single-quoted on purpose: q passes them to jq.
+# shellcheck disable=SC2016
 set -uo pipefail
 
 LIMIT=${SURVEY_LIMIT:-25}
@@ -22,6 +24,10 @@ FAILED=0
 unavailable() {
   echo "UNAVAILABLE: $*"
   FAILED=1
+}
+
+q() { # jq for a section's output; a failed query marks the survey incomplete
+  jq "$@" || unavailable "jq query failed in the section above"
 }
 
 # --- Threads -----------------------------------------------------------------
@@ -37,9 +43,9 @@ if t3c --json thread list >"$TMP/threads.json" 2>"$TMP/threads.err" &&
         last: (.latestRunCompletedAt // .updatedAt),
         open_prs: ([.pullRequests[]? | select(.snapshot.state == "open")] | length),
         self: (.id == $self)
-      })' "$TMP/threads.json" >"$TMP/live.json"
+      })' "$TMP/threads.json" >"$TMP/live.json" || unavailable "reading the thread list"
 
-  jq -r '
+  q -r '
     (map(select(.settled | not))) as $u
     | "unsettled: \($u | length) of \(length)",
       "by status: \($u | group_by(.status) | map("\(.[0].status)=\(length)") | join(" "))",
@@ -50,15 +56,15 @@ if t3c --json thread list >"$TMP/threads.json" 2>"$TMP/threads.err" &&
 
   echo
   echo "## Waiting on a person: a pending question or approval"
-  jq -r "map(select(.pendingRuntimeRequest != null)) | sort_by(.pendingRuntimeRequest.createdAt) | .[] | \"\(.pendingRuntimeRequest.createdAt) \(.pendingRuntimeRequest.kind) \(.id) \(.title)\"" "$TMP/live.json"
+  q -r "map(select(.pendingRuntimeRequest != null)) | sort_by(.pendingRuntimeRequest.createdAt) | .[] | \"\(.pendingRuntimeRequest.createdAt) \(.pendingRuntimeRequest.kind) \(.id) \(.title)\"" "$TMP/live.json"
 
   echo
   echo "## Failed or interrupted, not settled"
-  jq -r "map(select((.settled | not) and (.status | IN(\"failed\", \"interrupted\")))) | sort_by(.last) | .[] | $row + \" \(.lastError // \"\" | tostring | .[0:120])\"" "$TMP/live.json"
+  q -r "map(select((.settled | not) and (.status | IN(\"failed\", \"interrupted\")))) | sort_by(.last) | .[] | $row + \" \(.lastError // \"\" | tostring | .[0:120])\"" "$TMP/live.json"
 
   echo
   echo "## Candidates to settle: completed or idle, not settled, pinned, snoozed or waiting (oldest $LIMIT)"
-  jq -r "map(select((.settled | not) and (.pinned | not) and (.snoozed | not) and (.self | not)
+  q -r "map(select((.settled | not) and (.pinned | not) and (.snoozed | not) and (.self | not)
       and .pendingRuntimeRequest == null and (.pendingBackgroundTasks | length) == 0
       and (.status | IN(\"completed\", \"idle\")))) as \$c
     | \"count: \(\$c | length)\", (\$c | sort_by(.last) | .[:$LIMIT][] | $row)" "$TMP/live.json"
@@ -85,8 +91,8 @@ else
   while read -r dir; do
     if kanban-md --json list --dir "$dir" >"$TMP/board.json" 2>"$TMP/board.err"; then
       case "$dir" in */epics/*) kind=epic ;; *) kind=board ;; esac
-      jq -c --arg dir "$dir" --arg kind "$kind" '.[] | . + {dir: $dir, kind: $kind}' "$TMP/board.json" >>"$TMP/tasks.jsonl"
-      jq -r --arg dir "$dir" '
+      jq -c --arg dir "$dir" --arg kind "$kind" '.[] | . + {dir: $dir, kind: $kind}' "$TMP/board.json" >>"$TMP/tasks.jsonl" || unavailable "reading $dir"
+      q -r --arg dir "$dir" '
         "\($dir): " + (group_by(.status) | map("\(.[0].status)=\(length)") | join(" "))
         + " | todo unclaimed=\(map(select(.status == "todo" and .claimed_by == null)) | length)"' "$TMP/board.json"
     else
@@ -94,30 +100,30 @@ else
     fi
   done <"$TMP/boards.txt"
 
-  jq -s '.' "$TMP/tasks.jsonl" >"$TMP/tasks.json"
+  jq -s '.' "$TMP/tasks.jsonl" >"$TMP/tasks.json" || unavailable "combining the boards"
   [ -f "$TMP/live.json" ] || echo '[]' >"$TMP/live.json"
 
   echo
   echo "## Epics: tasks without a parent on boards under epics/"
-  jq -r 'map(select(.kind == "epic" and .parent == null)) | sort_by(.status)
+  q -r 'map(select(.kind == "epic" and .parent == null)) | sort_by(.status)
     | .[] | "\(.status) \(.dir) #\(.id) \(.title) claim=\(.claimed_by // "none")"' "$TMP/tasks.json"
-  jq -r '"epics in progress (for limits): \(map(select(.kind == "epic" and .parent == null and (.status | IN("in-progress", "review")))) | length)"' "$TMP/tasks.json"
+  q -r '"epics in progress (for limits): \(map(select(.kind == "epic" and .parent == null and (.status | IN("in-progress", "review")))) | length)"' "$TMP/tasks.json"
 
   echo
   echo "## Ready to dispatch: todo, unclaimed, not blocked, dependencies done (boards outside epics/)"
-  jq -r '
+  q -r '
     (map({key: "\(.dir)#\(.id)", value: .status}) | from_entries) as $st
     | map(select(.kind == "board" and .status == "todo" and .claimed_by == null and (.blocked // false | not)
-        and all((.depends_on // [])[]; $st["\(.dir)#\(.)"] == "done")))
+        and (.dir as $d | all((.depends_on // [])[]; $st["\($d)#\(.)"] == "done"))))
     | sort_by(.dir, .id) | .[] | "\(.dir) #\(.id) [\(.priority)] \(.title)"' "$TMP/tasks.json"
 
   echo
   echo "## Tasks in progress per board outside epics/ (for limits)"
-  jq -r 'map(select(.kind == "board" and .status == "in-progress")) | group_by(.dir) | .[] | "\(.[0].dir): \(length)"' "$TMP/tasks.json"
+  q -r 'map(select(.kind == "board" and .status == "in-progress")) | group_by(.dir) | .[] | "\(.[0].dir): \(length)"' "$TMP/tasks.json"
 
   echo
   echo "## Claims whose thread is not running: in-progress or review tasks, epic tasks left out"
-  jq -r --slurpfile live "$TMP/live.json" '
+  q -r --slurpfile live "$TMP/live.json" '
     ($live[0] | map({key: (.id | ascii_downcase), value: .status}) | from_entries) as $th
     | map(select(.claimed_by != null and (.status | IN("in-progress", "review"))
         and ((.kind == "epic" and .parent == null) | not)))
@@ -131,7 +137,7 @@ echo
 echo "# Ledgers"
 if ledger list --all --json >"$TMP/ledgers.json" 2>"$TMP/ledgers.err"; then
   [ -f "$TMP/live.json" ] || echo '[]' >"$TMP/live.json"
-  jq -r --slurpfile live "$TMP/live.json" '
+  q -r --slurpfile live "$TMP/live.json" '
     ($live[0] | map({key: (.id | ascii_downcase), value: (if .settled then "settled" else .status end)}) | from_entries) as $th
     | group_by(.db) | map({db: .[0].db, n: length, thread: ($th[.[0].db] // (if (.[0].db | startswith("task-")) then "task" else "unknown" end))})
     | "ledgers with resources: \(length)",
