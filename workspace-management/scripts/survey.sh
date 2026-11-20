@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Survey the workspace for a shift of the workspace manager.
 #
-# Prints threads, boards, dependency updates, ledgers, the budget and health as
+# Prints threads, boards, dependency updates, issues, ledgers, the budget and health as
 # plain text, in that order. Each
 # section either lists what it found or says UNAVAILABLE with the reason. The
 # last line is "survey complete" only when every section ran; otherwise it is
@@ -181,6 +181,25 @@ if compgen -G "$TMP/deps/*.json" >/dev/null; then
     (sort_by(-.security, .oldest) | .[] | "\(.repo): open=\(.n) security=\(.security) failing=\(.failing) oldest=\(.oldest) | \(.order | join(" "))")' "$TMP/deps.jsonl"
 fi
 
+# --- Issues ------------------------------------------------------------------
+echo
+echo "# Issues: the workspace's issues project"
+MANAGER_BODY=$(jq -r '.task_id // empty' "${MANAGER_BOARD:-/tasks}/manager.json" 2>/dev/null |
+  xargs -r -I{} kanban-md --json show {} --dir "${MANAGER_BOARD:-/tasks}" 2>/dev/null | jq -r '.body // ""')
+PROJECT=$(sed -nE 's#^- Issues project: ([A-Za-z0-9_.-]+)/([0-9]+)$#\1 \2#p' <<<"$MANAGER_BODY" | head -1)
+if [ -z "$PROJECT" ]; then
+  echo "no issues project in the manager task"
+elif gh project item-list "${PROJECT#* }" --owner "${PROJECT% *}" --format json --limit 2000 >"$TMP/items.json" 2>"$TMP/items.err"; then
+  q -r --argjson limit "$LIMIT" '
+    [.items[] | select(.content.type == "Issue")] as $i
+    | "items: \($i | length) | " + ($i | group_by(.priority // "unset") | map("\(.[0].priority // "unset")=\(length)") | join(" "))
+      + " | " + ($i | group_by(.status // "unset") | map("\(.[0].status // "unset")=\(length)") | join(" ")),
+      "## High and Todo: ready to start",
+      ($i | map(select(.priority == "High" and .status == "Todo")) | .[:$limit][] | "\(.content.repository)#\(.content.number) \(.title)")' "$TMP/items.json"
+else
+  unavailable "gh project item-list $PROJECT: $(head -c 200 "$TMP/items.err")"
+fi
+
 # --- Ledgers -----------------------------------------------------------------
 echo
 echo "# Ledgers"
@@ -202,9 +221,7 @@ TODAY=$(date -u +%F)
 WEEK=$(date -u -d '6 days ago' +%F)
 if t3c --json usage summary --since-day "$WEEK" --until-day "$TODAY" --time-zone Etc/UTC >"$TMP/usage.json" 2>"$TMP/usage.err" &&
   jq -e '.data.buckets | type == "array"' "$TMP/usage.json" >/dev/null 2>&1; then
-  BUDGET=$(kanban-md --json list --tag workspace-manager --dir "${MANAGER_BOARD:-/tasks}" 2>/dev/null | jq -r 'if type == "array" then .[0].id // empty else empty end' |
-    xargs -r -I{} kanban-md --json show {} --dir "${MANAGER_BOARD:-/tasks}" 2>/dev/null |
-    jq -r '.body // ""' | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9.]+) *\|.*/\1/p' | head -1)
+  BUDGET=$(sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9.]+) *\|.*/\1/p' <<<"$MANAGER_BODY" | head -1)
   ELAPSED=$(( $(date -u +%s) % 86400 ))
   q -r --arg today "$TODAY" --arg budget "${BUDGET:-}" --argjson elapsed "$ELAPSED" '
     def usd: . * 100 | round / 100;
@@ -214,7 +231,7 @@ if t3c --json usage summary --since-day "$WEEK" --until-day "$TODAY" --time-zone
     | "today so far: $\($spent | usd) (" + ($b | map(select(.day == $today)) | group_by(.provider) | map("\(.[0].provider) $\(map(.costUsd) | add | usd)") | join(", ")) + ")",
       "previous 6 days: average $\(if ($days | length) > 0 then ($days | add / length | usd) else 0 end) a day",
       "day elapsed: \($elapsed * 100 / 86400 | round)%",
-      (if $budget == "" then "daily budget: not set in the manager task"
+      (if $budget == "" then "daily budget: not set, or no manager task in manager.json"
        else ($budget | tonumber) as $bud | ($bud * $elapsed / 86400) as $pace
          | "daily budget: $\($bud), pace now: $\($pace | usd), spent: \(if $spent >= $bud then "at the budget" elif $spent > $pace then "above the pace" else "below the pace" end)"
        end)' "$TMP/usage.json"

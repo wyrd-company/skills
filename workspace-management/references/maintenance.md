@@ -1,8 +1,8 @@
 # Maintenance
 
-Read this when a duty in the manager task's **Duties** section is due. A duty with an interval is due when the log has no `Duty <name>: done` entry within it. Log that entry when you finish a duty, and log a duty you could not finish with what stopped it, so the next shift does not read silence as success.
+Read this when a duty in the manager task's **Duties** section is due. A duty with an interval is due when its **Last done** is older than the interval. When you finish a duty, set its **Last done** to now and log what it found. When you could not finish one, leave **Last done** as it was and log what stopped it, so the next shift does not read silence as success.
 
-The duties that run on each sweep (settling threads, checking running work and dispatch) are in [threads](threads.md) and [dispatch](dispatch.md). The duty **Resources no ledger holds** is in [resources](resources.md), and **Automations** is in [automations](automations.md#check-the-automations). When an automation does a duty's work, the duty's row names it: check that it ran instead of doing the work. A duty that operators add without a section here or a reference says in its own row what to do. When it does not, ask the operator who added it.
+The duties that run on each sweep (settling threads, checking running work and dispatch) are in [threads](threads.md) and [dispatch](dispatch.md). The duty **Resources no ledger holds** is in [resources](resources.md), and **Automations** is in [automations](automations.md#check-the-automations), and **Issue triage** and **Issue review** are in [issues](issues.md). When an automation does a duty's work, the duty's row names it: check that it ran instead of doing the work. A duty that operators add without a section here or a reference says in its own row what to do. When it does not, ask the operator who added it.
 
 ## Health
 
@@ -43,4 +43,4 @@ Agents record what they learn about the process, the tools and the skills as obs
 Review the observations recorded in memory since <date of the last review>: notes tagged `observation`, across every vault. Group the related ones, and for each group decide whether it calls for a change to a skill, an instruction or a check, or for nothing yet. Propose each change as a pull request or an issue in the repository it belongs to, linking the observations. Return the list of groups, with what you proposed for each. Copy the git operator from thread <your thread id>.
 ```
 
-Log the dispatch, and the duty as done when its report comes back.
+Log the dispatch, and set the duty's **Last done** when its report comes back.

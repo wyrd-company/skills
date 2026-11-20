@@ -39,4 +39,4 @@ Add a technique here, by a pull request to this skill, once an automation built 
 
 ## Check the automations
 
-For each row of the manager task's **Automations** section, check that it ran within its interval and its last runs did not fail. For a Dagu workflow: `dagu history <workflow> --last <interval>`, and `--status failed`. For a schedule: `t3c schedule show <id>`. Report what did not run or failed to the operator once, and do its work by hand meanwhile when it is a duty. Log `Duty Automations: done`.
+For each row of the manager task's **Automations** section, check that it ran within its interval and its last runs did not fail. For a Dagu workflow: `dagu history <workflow> --last <interval>`, and `--status failed`. For a schedule: `t3c schedule show <id>`. Report what did not run or failed to the operator once, and do its work by hand meanwhile when it is a duty. Set the duty's **Last done**, and log what you found.

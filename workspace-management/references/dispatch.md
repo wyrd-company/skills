@@ -6,7 +6,7 @@ Read this for the budget and the WIP limits every dispatch in the workspace is h
 
 The workspace has a budget of usage for each period, set in the manager task's **Budget** section. The manager spends it: work left unstarted while budget remains is work the workspace could have done, and spending past it takes from the next period. The survey's **Budget** section shows what the workspace has spent in the period so far, and the pace: the budget times the share of the period that has passed.
 
-- **Below the pace,** start what is ready, in the order of [the work](../SKILL.md#the-work), until the limits stop you or nothing ready is left. When nothing is left and the spend stays below half the pace, the workspace has more budget than work: tell the operators in [the channel](../SKILL.md#the-channel), once for the period, so they can bring work to it.
+- **Below the pace,** start what is ready, in the order of [the work](../SKILL.md#the-work), until the limits stop you or nothing ready is left. When nothing is left, `Medium` issues included, and the spend stays below half the pace, the workspace has more budget than work: tell the operators in [the channel](../SKILL.md#the-channel), once for the period, so they can bring work to it.
 - **Above the pace,** start only operators' work and security updates. The rest waits for the pace to catch up.
 - **At the budget,** start nothing new. Record the hold in the **Holds** section, and tell the operators once for the period: only an operator may spend past the budget. Work already running continues.
 
@@ -55,14 +55,14 @@ A task outside an epic has no orchestrator to queue its review. Its executor dis
 
 ## Standing work
 
-The manager task's **Standing work** section lists what this workspace does on its own, one row each: what it is, how often it runs, and what does it, which is a prompt, a task to create, or an automation. A row is due when the log has no entry `Standing <name>: dispatched` within its interval.
+The manager task's **Standing work** section lists what this workspace does on its own, one row each: what it is, how often it runs, and what does it, which is a prompt, a task to create, or an automation. A row is due when its **Last dispatched** is older than its interval.
 
 1. Check the budget and the thread limit.
 2. Dispatch it as its row says:
    - **A prompt:** send it with `delegate_task`, adding `Copy the git operator from thread <your thread id>.`, on the model the row names, or the cheapest in [models.yml](~/models.yml) that lists the row's complexity, `normal` when unset.
    - **A task to create:** write it on the board the row names, with [task-authoring](../../task-authoring/SKILL.md), then dispatch it as a [ready task](#tasks-ready-to-dispatch).
    - **An automation:** dispatch nothing. Check that it ran, as [automations](automations.md#check-the-automations) says.
-3. Log `Standing <name>: dispatched`, with the thread.
+3. Set the row's **Last dispatched** to now, and log the dispatch with the thread.
 
 A row that runs the same steps every time, with no judgment in them, is a candidate for an [automation](automations.md#propose-an-automation).
 

@@ -1,8 +1,8 @@
 # workspace-management
 
-The skill an agent uses to run a workspace's manager: the role that keeps a workspace productive within its budget of usage. It starts operators' epics and tasks, dependency updates and the workspace's standing work, within the budget and the WIP limits; it settles threads whose work is finished, cleans up what they left behind, and keeps the workspace healthy. It also tells other agents how to reach the manager, such as a planner handing over an epic.
+The skill an agent uses to run a workspace's manager: the role that keeps a workspace productive within its budget of usage. It starts operators' epics and tasks, dependency updates, high-priority issues and the workspace's standing work, within the budget and the WIP limits; it settles threads whose work is finished, cleans up what they left behind, and keeps the workspace healthy. It also tells other agents how to reach the manager, such as a planner handing over an epic.
 
-The manager is a session and a set of automations. The session runs as shifts: a T3 schedule starts each one in a new thread every 6 hours, so no context lives long enough to drift from the record. The record is a kanban-md task on the workspace board at `/tasks`: its claim names the current shift, its body holds the budget, limits, standing work, duties and automations, and its log carries what each shift did to the next. Operators talk to it in the workspace's Discord channel. The automations (Dagu workflows, Trowel and Vector events, T3 schedules) take over what runs the same way every time. It follows the pattern of `epic-orchestration`'s passes, applied to the whole workspace instead of one epic.
+The manager is a session and a set of automations. The session runs as shifts: a T3 schedule starts each one in a new thread every 6 hours, so no context lives long enough to drift from the record. The record is a kanban-md task on the workspace board at `/tasks`: its claim names the current shift, its body holds the budget, limits, standing work, duties and automations, and its log carries what each shift did to the next. The task rolls forward daily, so no task grows without end, and `/tasks/manager.json` names the current shift for scripts and workflows. Open issues are ranked in a GitHub project for the workspace. Operators talk to it in the workspace's Discord channel. The automations (Dagu workflows, Trowel and Vector events, T3 schedules) take over what runs the same way every time. It follows the pattern of `epic-orchestration`'s passes, applied to the whole workspace instead of one epic.
 
 | File | What it is for |
 |---|---|
@@ -11,11 +11,13 @@ The manager is a session and a set of automations. The session runs as shifts: a
 | [references/threads.md](references/threads.md) | Settling finished threads, threads waiting on a person, failed threads, stalled work and ledgers |
 | [references/dispatch.md](references/dispatch.md) | The budget and the WIP limits, starting epics, dispatching ready tasks and standing work, and requests |
 | [references/dependencies.md](references/dependencies.md) | Renovate pull requests in the workspace's repositories: release notes, fixing CI, merging |
+| [references/issues.md](references/issues.md) | Ranking open issues in the workspace's project, reviewing the ranking, and starting high-priority issues |
 | [references/resources.md](references/resources.md) | Worktrees, sandboxes, containers and scratch files that no ledger holds |
 | [references/maintenance.md](references/maintenance.md) | Health, fast-forwarding default branches, skills sync, the event path and the observation review |
 | [references/automations.md](references/automations.md) | The automations alongside the session: the parts, proven techniques, proposing one and checking they ran |
-| [assets/manager-task.md](assets/manager-task.md) | The manager task's body: schedule, channel, budget, limits, standing work, duties, automations, requests and holds |
-| [scripts/survey.sh](scripts/survey.sh) | The survey each sweep starts from: threads, boards, dependency updates, ledgers, the budget and health |
+| [assets/manager-task.md](assets/manager-task.md) | The manager task's body: schedule, channel, budget, limits, standing work, duties, automations, requests, holds, notices and the log |
+| [scripts/survey.sh](scripts/survey.sh) | The survey each sweep starts from: threads, boards, dependency updates, issues, ledgers, the budget and health |
+| [scripts/takeover.sh](scripts/takeover.sh) | A shift's takeover: the claim, rolling the manager task forward, and the pointer file |
 
 ## Sources
 

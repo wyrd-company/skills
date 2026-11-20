@@ -26,4 +26,4 @@ Remove it with `git worktree remove <path>`, then delete its local branch only w
 
 ## Done
 
-Log on the manager task what you removed, as one entry, and send the operator the report of what you kept, once. Log `Duty Resources no ledger holds: done`.
+Log on the manager task what you removed, as one entry, and send the operator the report of what you kept, once. Set the duty's **Last done**.
