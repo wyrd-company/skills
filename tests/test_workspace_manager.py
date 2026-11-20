@@ -196,7 +196,9 @@ class TakeoverTests(unittest.TestCase):
     def test_later_shift_settles_a_cut_short_takeover(self):
         self.b.takeover("a")
         self.b.progress(status="running", thread="b", previous=["a"], rolled_from=None)
-        code, out = self.b.takeover("c", "a")
+        # b's cut-short takeover makes b the manager: c waits on b, not a.
+        self.assertEqual(self.b.takeover("c", "a"), (3, {"holder": "b"}))
+        code, out = self.b.takeover("c", "b")
         self.assertEqual((code, out["previous_threads"]), (0, ["a", "b"]))
 
     def test_closed_but_unarchived_manager_task_is_archived(self):
@@ -208,6 +210,39 @@ class TakeoverTests(unittest.TestCase):
         code, out = self.b.takeover("b", "-")
         self.assertEqual((code, out["task"]), (0, new))
         self.assertEqual([t["id"] for t in self.b.kb("list", "--archived")], [self.b.first])
+
+    def test_previous_task_changes_only_in_role(self):
+        quoted = "## Requests\n\n```text\n- Previous task: #485\n```\n"
+        b = Board(self, TEMPLATE.read_text().replace("## Requests\n", quoted, 1))
+        b.takeover("a")
+        b.set_roll_interval(b.first, 0)
+        _, out = b.takeover("b", "a")
+        body = b.body(out["task"])
+        self.assertIn(f"- Previous task: #{b.first}", body)
+        self.assertIn("- Previous task: #485", body)
+
+    def test_an_inline_code_line_opens_no_fence(self):
+        text = "## Requests\n\n```inline``` is code\n\n```\nexample\n```\n"
+        b = Board(self, TEMPLATE.read_text().replace("## Requests\n", text, 1))
+        b.takeover("a")
+        b.set_roll_interval(b.first, 0)
+        code, out = b.takeover("b", "a")
+        self.assertEqual((code, out["roll_skipped"]), (0, None))
+        self.assertIn("## Notices", b.body(out["task"]))
+
+    def test_replay_repairs_a_wrong_pointer(self):
+        self.b.takeover("a")
+        (self.b.dir / "manager.json").write_text(json.dumps({"thread_id": "a", "task_id": 999}))
+        code, out = self.b.takeover("a")
+        self.assertEqual((code, self.b.pointer()["task_id"]), (0, self.b.first))
+
+    def test_a_log_line_mentioning_a_takeover_does_not_hide_the_entry(self):
+        self.b.takeover("a")
+        self.b.run(
+            "manager.sh", "a", "log", "Takeover by b from a failed before changing ownership"
+        )
+        self.b.takeover("b", "a")
+        self.assertIn("Takeover by b from a.\n", self.b.body(self.b.first) + "\n")
 
     def test_takeover_text_in_the_standing_state_does_not_hide_the_log_entry(self):
         b = Board(
@@ -252,28 +287,109 @@ class ManagerTests(unittest.TestCase):
         self.assertEqual(json.loads(a.stdout.read()), {"holder": "b"})
         self.assertNotIn("late request", self.b.body(self.b.first))
 
+    def read_state(self):
+        _, state = self.b.run("manager.sh", "a", "state")
+        old = self.b.dir / "old.md"
+        old.write_text(state)
+        return state, old
+
+    def set_state(self, text, old):
+        new = self.b.dir / "new.md"
+        new.write_text(text)
+        return self.b.run("manager.sh", "a", "set-state", str(new), str(old))[0]
+
     def test_set_state_keeps_the_log(self):
         self.b.run("manager.sh", "a", "log", "kept entry")
-        _, state = self.b.run("manager.sh", "a", "state")
-        new = self.b.dir / "state.md"
-        new.write_text(state.replace("## Requests\n", "## Requests\n\n- a request\n"))
-        code, _ = self.b.run("manager.sh", "a", "set-state", str(new))
+        state, old = self.read_state()
+        code = self.set_state(state.replace("## Requests\n", "## Requests\n\n- a request\n"), old)
         self.assertEqual(code, 0)
         body = self.b.body(self.b.first)
         self.assertIn("- a request", body)
         self.assertIn("kept entry", body)
 
     def test_set_state_refuses_a_missing_section(self):
-        _, state = self.b.run("manager.sh", "a", "state")
-        new = self.b.dir / "state.md"
-        new.write_text(state.replace("## Notices", "## Other"))
-        code, _ = self.b.run("manager.sh", "a", "set-state", str(new))
-        self.assertEqual(code, 1)
+        state, old = self.read_state()
+        self.assertEqual(self.set_state(state.replace("## Notices", "## Other"), old), 1)
+
+    def test_set_state_refuses_a_stale_read(self):
+        state, old = self.read_state()
+        self.assertEqual(
+            self.set_state(state.replace("## Holds\n", "## Holds\n\n- hold\n"), old), 0
+        )
+        # A second edit made from the first read would drop the hold.
+        stale = state.replace("## Requests\n", "## Requests\n\n- request\n")
+        self.assertEqual(self.set_state(stale, old), 6)
+        self.assertIn("- hold", self.b.body(self.b.first))
+
+    def test_set_state_refuses_an_unclosed_fence(self):
+        self.b.run("manager.sh", "a", "log", "kept entry")
+        state, old = self.read_state()
+        self.assertEqual(self.set_state(state + "\n```\nunclosed\n", old), 1)
+        self.assertIn("kept entry", self.b.body(self.b.first))
+
+    def test_own_unfinished_takeover_blocks_writes(self):
+        self.b.progress(status="running", thread="a", previous=[], rolled_from=None)
+        self.assertEqual(self.b.run("manager.sh", "a", "log", "x")[0], 5)
+
+    def test_holder_during_an_unfinished_first_takeover(self):
+        (self.b.dir / "manager.json").unlink()
+        self.b.progress(status="running", thread="b", previous=[], rolled_from=None)
+        code, out = self.b.run("manager.sh", "z", "holder")
+        self.assertEqual((code, json.loads(out)), (0, {"holder": "b"}))
 
     def test_holder_during_a_cut_short_takeover(self):
         self.b.progress(status="running", thread="b", previous=["a"], rolled_from=None)
         code, out = self.b.run("manager.sh", "a", "holder")
         self.assertEqual((code, json.loads(out)), (0, {"holder": "b"}))
+
+
+@needs_tools
+class AdmitTests(unittest.TestCase):
+    def setUp(self):
+        body = TEMPLATE.read_text().replace(
+            "| Agent threads running at once, across the workspace | 12 |",
+            "| Agent threads running at once, across the workspace | 3 |",
+        )
+        self.b = Board(self, body)
+        self.b.takeover("a")
+        self.bin = self.b.dir / "bin"
+        self.bin.mkdir()
+        threads = {"data": [{"status": "running"}, {"status": "idle"}]}
+        (self.b.dir / "threads.json").write_text(json.dumps(threads))
+        t3c = self.bin / "t3c"
+        t3c.write_text(f"#!/bin/sh\ncat {self.b.dir / 'threads.json'}\n")
+        t3c.chmod(0o755)
+
+    def admit(self, *args):
+        env = {
+            **os.environ,
+            "PATH": f"{self.bin}:{os.environ['PATH']}",
+            "MANAGER_BOARD": str(self.b.dir),
+        }
+        cmd = ["bash", str(SCRIPTS / "admit.sh"), *args]
+        return subprocess.run(cmd, env=env, text=True, capture_output=True).returncode
+
+    def test_places_count_until_released(self):
+        # One thread running, limit 3: two places, then the limit.
+        self.assertEqual(self.admit("take", "x"), 0)
+        self.assertEqual(self.admit("take", "y"), 0)
+        self.assertEqual(self.admit("take", "z"), 3)
+        self.assertEqual(self.admit("release", "x"), 0)
+        self.assertEqual(self.admit("take", "z"), 0)
+
+    def test_concurrent_takers_share_the_last_place(self):
+        self.admit("take", "x")
+        env = {
+            **os.environ,
+            "PATH": f"{self.bin}:{os.environ['PATH']}",
+            "MANAGER_BOARD": str(self.b.dir),
+        }
+        procs = [
+            subprocess.Popen(["bash", str(SCRIPTS / "admit.sh"), "take", f"p{i}"], env=env)
+            for i in range(4)
+        ]
+        codes = sorted(p.wait(timeout=60) for p in procs)
+        self.assertEqual(codes, [0, 3, 3, 3])
 
 
 @needs_tools
@@ -327,6 +443,13 @@ class BudgetTests(unittest.TestCase):
         body += "\n" + example.replace("5", "1000")
         self.b.set_body(self.b.first, body)
         self.assertEqual(self.budget([{"costUsd": 1}]), (0, "budget: unset"))
+
+    def test_a_fenced_example_row_is_ignored(self):
+        example = "```\n| Daily budget (USD at list price, all providers) | 5 |\n```\n"
+        body = TEMPLATE.read_text().replace("{amount}", "100")
+        body = body.replace("## Budget\n", "## Budget\n\n" + example, 1)
+        self.b.set_body(self.b.first, body)
+        self.assertEqual(self.budget([{"costUsd": 50}]), (0, "budget: above"))
 
     def test_a_pointer_to_another_task_is_no_budget(self):
         other = self.b.create(TEMPLATE.read_text().replace("{amount}", "1000"), tags="")

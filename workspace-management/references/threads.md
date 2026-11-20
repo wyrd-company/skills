@@ -20,7 +20,7 @@ Read each candidate with `t3c thread read <id>`, or its last messages when the t
 For each thread id in <file>, read its last messages with `t3c thread read <id>`. Return one line per thread: id, finished | open | unclear, and the line of the thread that shows it. Change nothing.
 ```
 
-Settle each finished thread with `t3_thread_organize` (`settle`), then clean up its ledger, as [below](#ledgers). Log each batch on the manager task as one entry: how many you settled, and the threads you left open and why.
+Settle each finished thread with `t3_thread_organize` (`settle`), then clean up its ledger, as [below](#ledgers). Log each batch on the manager task as one entry: how many you settled, and the threads you left open and why. Snooze each thread you leave open for 7 days, with `t3_thread_organize` (`snooze`), so the next survey's list moves past it instead of showing it again.
 
 ## Threads waiting on a person
 

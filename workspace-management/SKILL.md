@@ -37,9 +37,9 @@ Every write to the manager task goes through `bash scripts/manager.sh`, from thi
 | `manager.sh holder` | Prints the manager now, as `{"holder": "<thread>"}` |
 | `manager.sh state` | Prints the standing state |
 | `manager.sh log "<text>"` | Appends an entry to the log |
-| `manager.sh set-state <file>` | Replaces the standing state with the file's, keeping the log. To change a section, write `state`'s output to a file, edit it, and set it. It refuses a state that lacks a section. |
+| `manager.sh set-state <new> <old>` | Replaces the standing state with file `<new>`'s, keeping the log. Write `state`'s output to `<old>`, copy it to `<new>` and edit that. It refuses when the state is no longer `<old>`'s (exit 6: read it again and redo your change), and a state that lacks a section or would not read back, such as one with an unclosed code fence. |
 
-When `log` or `set-state` exits 3, you are no longer the manager: forward what you meant to record, in full, to the thread it prints, with `t3_thread_send`. Never edit the manager task with `kanban-md` directly.
+When `log` or `set-state` exits 3, you are no longer the manager: forward what you meant to record, in full, to the thread it prints, with `t3_thread_send`. Exit 5 means your own takeover is unfinished: run `takeover.sh` again, then retry. Never edit the manager task with `kanban-md` directly.
 
 ## The work
 

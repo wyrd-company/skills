@@ -10,7 +10,7 @@ Read the record yourself, not a summary of it: the status, the claim, the blocke
 
 Confirm that any handoff before this one is complete and that the previous agent has stopped.
 
-Check the workspace's thread limit and budget, as the workspace manager's [limits](../../workspace-management/references/dispatch.md#limits) and [budget](../../workspace-management/references/dispatch.md#budget) say: run the `budget.sh` script in the workspace-management skill's folder, and read its first line. While the workspace is at the thread limit, or the first line is `budget: at` or `budget: unavailable`, leave the task in `todo` and record the hold on the epic task. Remediation sent back to an executor's own session needs a free place under the thread limit too.
+Check the workspace's budget and take a place under its thread limit, as the workspace manager's [budget](../../workspace-management/references/dispatch.md#budget) and [limits](../../workspace-management/references/dispatch.md#limits) say, with the `budget.sh` and `admit.sh` scripts in the workspace-management skill's folder. When `budget.sh`'s first line is `budget: at` or `budget: unavailable`, or `admit.sh take` exits 3, leave the task in `todo` and record the hold on the epic task. Give the place back with `admit.sh release` once the dispatch has returned. Remediation sent back to an executor's own session takes a place too.
 
 ## The prompt
 

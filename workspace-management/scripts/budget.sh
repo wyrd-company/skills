@@ -20,6 +20,8 @@ set -uo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/manager-lib.sh"
 
 BOARD=${MANAGER_BOARD:-/tasks}
+# Wait out a takeover under way, so a half-made roll is not read as no budget.
+if [ -d "$BOARD" ]; then manager_lock "$BOARD" 2>/dev/null || true; fi
 TODAY=$(date -u +%F)
 WEEK=$(date -u -d '6 days ago' +%F)
 TMP=$(mktemp -d)

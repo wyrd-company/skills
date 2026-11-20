@@ -55,14 +55,21 @@ manager_lock "$BOARD" || {
 
 progress='{}'
 [ ! -f "$PROGRESS" ] || progress=$(cat "$PROGRESS")
-if jq -e --arg self "$SELF" '.thread == $self and .status == "done"' >/dev/null <<<"$progress"; then
+# Run again after finishing: repeat the summary, if the pointer still agrees.
+if jq -e --arg self "$SELF" '.thread == $self and .status == "done"' >/dev/null <<<"$progress" &&
+  jq -e --arg self "$SELF" --argjson task "$(jq '.summary.task' <<<"$progress")" \
+    '.thread_id == $self and .task_id == $task' "$POINTER" >/dev/null 2>&1; then
   jq '.summary' <<<"$progress"
   exit 0
 fi
-# A takeover another thread left running: that thread, and the shifts it was
-# taking over from, are ours to settle. A finished one settled its own.
-cut=$(jq -c --arg self "$SELF" 'if .status == "running" and .thread != $self then [.thread] + (.previous // []) else [] end' <<<"$progress")
-own=$(jq -c --arg self "$SELF" 'if .status == "running" and .thread == $self then . else {} end' <<<"$progress")
+# Another thread's takeover, finished or not: that thread and the shifts it took
+# over from are ours to settle. It may have stopped before settling them, and
+# settling a thread twice does no harm. A takeover it left running is the
+# manager until this one replaces it.
+other=$(jq -c --arg self "$SELF" 'if .thread != null and .thread != $self then . else {} end' <<<"$progress")
+cut=$(jq -c '[(.thread // empty), (.previous // [])[]]' <<<"$other")
+own=$(jq -c --arg self "$SELF" 'if .thread == $self then . else {} end' <<<"$progress")
+running=$(jq -r 'select(.status == "running") | .thread // empty' <<<"$other")
 
 # A manager task closed by a cut-short roll but not archived.
 closed=$(kb --json list --tag workspace-manager --status "done" | jq -r '.[].id')
@@ -76,6 +83,7 @@ fi
 current=$(jq -r '.[-1].id' <<<"$tasks")
 older=$(jq -r '.[:-1][].id' <<<"$tasks")
 holder=$(jq -r --arg self "$SELF" '[.[] | .claimed_by // empty | select(. != $self)] | last // ""' <<<"$tasks")
+[ -z "$running" ] || holder=$running
 
 if [ -n "$holder" ] && [ "$holder" != "$EXPECTED" ]; then
   echo "the claim is held by $holder, not ${EXPECTED:-nobody}: another shift took over" >&2
@@ -86,12 +94,15 @@ fi
 previous=$(jq -nc --arg self "$SELF" --arg holder "$holder" --argjson cut "$cut" --argjson own "$own" \
   '[($own.previous // [])[], $cut[], $holder] | map(select(. != "" and . != $self)) | unique')
 rolled_from=$(jq -r '.rolled_from // "null"' <<<"$own")
+[ "$rolled_from" != null ] || [ -z "$running" ] || rolled_from=$(jq -r '.rolled_from // "null"' <<<"$other")
 [ -z "$older" ] || rolled_from=$(tail -1 <<<"$older") # a roll cut short after the successor was made
 
+logged=$(jq -r '.logged // false' <<<"$own")
 save_progress() { # status, then the summary when done
   jq -n --arg status "$1" --arg thread "$SELF" --argjson previous "$previous" --argjson rolled "$rolled_from" \
-    --argjson summary "${2:-null}" \
-    '{status: $status, thread: $thread, previous: $previous, rolled_from: $rolled, summary: $summary}' >"$PROGRESS.tmp"
+    --argjson logged "$logged" --argjson summary "${2:-null}" \
+    '{status: $status, thread: $thread, previous: $previous, rolled_from: $rolled, logged: $logged, summary: $summary}' \
+    >"$PROGRESS.tmp"
   mv "$PROGRESS.tmp" "$PROGRESS"
 }
 save_progress running
@@ -108,7 +119,7 @@ if [ -z "$older" ]; then
     elif missing=$(missing_sections <<<"$state") && [ -n "$missing" ]; then
       roll_skipped=$(jq -Rn --arg m "$missing" '"the standing state lacks: " + ($m | split("\n") | join(", "))')
     else
-      state=$(sed -E "s/^- Previous task: .*/- Previous task: #$current/" <<<"$state")
+      state=$(set_previous "$current" <<<"$state")
       successor=$(kb --json create "Workspace manager $TODAY" --status todo --tags workspace-manager \
         --body "$(printf '%s\n## Log\n' "$state")" | jq -r .id)
       [ -n "$successor" ] && [ "$successor" != null ] || {
@@ -139,10 +150,12 @@ for id in $older; do
   kb archive "$id" >/dev/null
 done
 
-if ! kb --json show "$current" | jq -r .body | log_part | grep -qF "Takeover by $SELF from"; then
+if [ "$logged" != true ]; then
   entry="Takeover by $SELF from $(jq -r 'if length == 0 then "no previous shift" else join(", ") end' <<<"$previous")."
   [ "$rolled_from" = null ] || entry="$entry Rolled forward from #$rolled_from."
   kb edit "$current" --append-body "$entry" --timestamp --claim "$SELF" >/dev/null
+  logged=true
+  save_progress running
 fi
 
 if ! jq -e --arg self "$SELF" --argjson task "$current" '.thread_id == $self and .task_id == $task' "$POINTER" >/dev/null 2>&1; then

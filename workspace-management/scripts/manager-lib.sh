@@ -5,14 +5,20 @@
 STANDING_SECTIONS=(Role Schedule Channel Budget Limits "Standing work" Duties Automations "In flight" Requests Holds Notices)
 
 # The awk function that tracks code fences in a Markdown body. fence_check
-# returns 1 for a line inside a fence or on one of its fence lines. A fence
-# closes only with the same character, at least as long, as CommonMark says.
+# returns 1 for a line inside a fence or on one of its fence lines. As
+# CommonMark says, a fence closes only with the same character, at least as
+# long, and a backtick fence's info string has no backtick, so a line such as
+# ```code``` is an inline code span and opens nothing.
+# shellcheck disable=SC2016 # an awk program: its $ are awk's
 FENCE_AWK='
-  function fence_check(line,   m, ch, len) {
+  function fence_check(line,   m, ch, len, rest) {
     if (match(line, /^ {0,3}(`{3,}|~{3,})/)) {
-      m = substr(line, RSTART, RLENGTH); sub(/^ +/, "", m)
+      m = substr(line, RSTART, RLENGTH); rest = substr(line, RSTART + RLENGTH); sub(/^ +/, "", m)
       ch = substr(m, 1, 1); len = length(m)
-      if (!open) { open = 1; open_ch = ch; open_len = len; return 1 }
+      if (!open) {
+        if (ch == "`" && index(rest, "`")) return 0
+        open = 1; open_ch = ch; open_len = len; return 1
+      }
       if (ch == open_ch && len >= open_len && line ~ /^ {0,3}(`+|~+)[[:space:]]*$/) { open = 0; return 1 }
     }
     return open
@@ -37,12 +43,38 @@ log_part() {
     !fenced && /^## Log[[:space:]]*$/ { found = 1 }'
 }
 
-# Print one section of a standing state read on stdin, without its heading.
+# Print one section of a standing state read on stdin, without its heading or
+# anything inside code fences, which holds examples, not settings.
 section() {
   awk -v name="$1" "$FENCE_AWK"'
     { fenced = fence_check($0) }
-    !fenced && /^## / { inside = ($0 ~ "^## " name "[[:space:]]*$"); next }
+    fenced { next }
+    /^## / { inside = ($0 ~ "^## " name "[[:space:]]*$"); next }
     inside { print }'
+}
+
+# Print a standing state read on stdin with its Role section's first
+# "- Previous task:" line, outside code fences, set to task $1.
+set_previous() {
+  awk -v id="$1" "$FENCE_AWK"'
+    { fenced = fence_check($0) }
+    !fenced && /^## / { role = ($0 ~ /^## Role[[:space:]]*$/) }
+    !fenced && role && !done && /^- Previous task: / { print "- Previous task: #" id; done = 1; next }
+    { print }'
+}
+
+# Print the thread that is the manager now: the thread finishing a takeover
+# that was cut short, or else the holder of the claim on the newest open
+# manager task. Prints nothing when there is none.
+current_holder() {
+  local board=$1 cut
+  cut=$(jq -r 'select(.status == "running") | .thread // empty' "$board/.takeover.json" 2>/dev/null) || true
+  if [ -n "$cut" ]; then
+    echo "$cut"
+    return
+  fi
+  kanban-md --json list --tag workspace-manager --status backlog,todo,in-progress,review --sort id --dir "$board" 2>/dev/null |
+    jq -r '[.[] | .claimed_by // empty] | last // empty'
 }
 
 # Print the sections a standing state on stdin lacks, one per line.

@@ -11,6 +11,7 @@ The workspace has a budget of usage for each period, set in the manager task's *
 - **At the budget,** start nothing new. Record the hold in the **Holds** section, and tell the operators once for the period: only an operator may spend past the budget. Work already running continues.
 - **Unknown,** because some of today's usage has no price yet: act as above the pace. When it stays unknown for a day, tell the operators once.
 - **Unset:** the manager task has no budget. Start only operators' work, and ask the operator for a budget once.
+- **Unavailable:** usage could not be read. Start nothing new until it can, and tell the operators once when it stays unavailable for a day.
 
 Epic orchestrators check the budget too, before each dispatch, and hold at the budget.
 
@@ -26,10 +27,14 @@ The workspace shares one machine. Work started past its capacity does not finish
 | Epics in progress at once | Epic tasks in `in-progress` or `review` | `epics in progress` |
 | Tasks in progress on one board | Tasks in `in-progress` on a board outside `epics/` | `Tasks in progress per board` |
 
-- **Start a thread only while the count is below the limit.** Your own thread counts, as it runs while you dispatch. The limit is soft: two dispatchers that count at the same moment can each start one, and the next count corrects it. It protects the machine from a pile-up, not from one thread more.
-- **Count before each dispatch, not once a sweep.** Threads start and finish while you work, and other dispatchers start them too.
+- **Take a place before you start a thread,** with `bash scripts/admit.sh take <label>`, from this skill's folder, where the label names the work, such as `renovate:<owner>/<repo>`. Under a lock, it counts the threads running, yours included, and the places other dispatchers have taken, so two dispatchers cannot both take the last place. Exit 3 means the workspace is at the limit. Once `delegate_task` has returned, or the start failed, give the place back with `admit.sh release <label>`: the new thread counts itself from then on.
+- **Count the epic and board limits before each dispatch, not once a sweep,** from a fresh survey or `kanban-md list`: tasks start and finish while you work.
 - **A dispatch that would reach past a limit waits.** Record it in the manager task's **Holds** section once, with the limit that holds it, and take it up on the first sweep under the limit. A hold that lasts is how operators learn to change a limit.
-- **Resuming takes a thread, not a new start.** Remediation sent back to an executor's own session, and a stalled executor resumed in its thread, make that thread run: they need a free place under the thread limit, but not under the epic or board limits, which already count their task.
+- **Resuming takes a thread, not a new start.** Remediation sent back to an executor's own session, and a stalled executor resumed in its thread, make that thread run: take a place for them as for a start, but they need none under the epic or board limits, which already count their task.
+
+## Record before you launch
+
+A shift can lose the manager's claim between checking it and starting work. So when work is recorded only in the manager task, such as a dependency update or an issue triage, write its **In flight** line first, with `manager.sh set-state`, and launch only when that write succeeds. When it exits 3, you are no longer the manager: give back the place you took, and forward the work to the new manager instead. Then add the delegate's thread to the line. Work whose record is its own task, such as an epic or a ready task, needs no line: the executor's claim on the task records it.
 
 ## Epics waiting to start
 
@@ -43,7 +48,7 @@ An epic is waiting when its epic task, the task without a parent on a board unde
    Start epic task <id> on board <dir>, with the epic-orchestration skill. Copy the git operator from thread <your thread id>.
    ```
 
-4. Log the dispatch and the orchestrator's thread on the manager task. A planner starting the epic because the workspace has no manager checks the limits from the survey's counts, and logs on the epic task instead.
+4. Log the dispatch and the orchestrator's thread on the manager task. A planner starting the epic because the workspace has no manager takes a place with `admit.sh`, checks the epic limit against the survey's count and the value in [the template](../assets/manager-task.md)'s **Limits** section, and logs on the epic task instead.
 
 From here the epic runs itself. You check that it keeps running, as [threads](threads.md#stalled-work) says, and its orchestrator reports to you when it has finished.
 

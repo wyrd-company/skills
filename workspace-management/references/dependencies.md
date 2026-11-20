@@ -22,7 +22,7 @@ When its checks fail, fix them on the pull request's branch, with the smallest c
 Return, for each pull request: merged or held, and why when held, and the notes worth knowing: the bug fixes and security fixes that concern us, and the breaking changes. Copy the git operator from thread <your thread id>.
 ```
 
-Add a line to the **In flight** section, with the repository and the delegate's thread, and log the dispatch.
+Write the repository's **In flight** line before you send it, and add the delegate's thread once it has started, as [record before you launch](dispatch.md#record-before-you-launch) says. Log the dispatch.
 
 ## When the report comes back
 

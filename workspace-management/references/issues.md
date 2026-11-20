@@ -38,7 +38,7 @@ Post the list of issues that look finished or unwanted in [the channel](../SKILL
 
 The survey lists the project's items with Priority `High` and Status `Todo`. They are the third kind of [work](../SKILL.md#the-work), after operators' work and dependency updates.
 
-1. **Check that nobody has started it:** no open pull request links it, and no task on a board names it in its `issue` field.
+1. **Check that nobody has started it:** no open pull request links it, and no task on a board names it in its `issue` field. When one has, or you will not start it, set the item's Status to match, `In Progress` or `Backlog`, so it leaves the list.
 2. **Check the budget and the limits.**
 3. **Write a task for it** on the board of the project its repository belongs to, with [task-authoring](../../task-authoring/SKILL.md): the task links the issue, which owns the goal. An issue too large for one task needs an epic: write a request for a planner in the **Requests** section instead, and notify the operator.
 4. **Dispatch the task** as a [ready task](dispatch.md#tasks-ready-to-dispatch), and set the item's Status to `In Progress`, so the next sweep does not start it again.
