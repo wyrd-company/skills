@@ -4,7 +4,7 @@ Read this when `/tasks` has no manager task or no rotation schedule, or to chang
 
 ## Before you start
 
-- **`/tasks` is the workspace's tasks checkout.** `git -C /tasks branch --show-current` prints `workspace/<workspace>`, where `<workspace>` is `workspace` in `/etc/workspace/config.yml`. The workspace definition mounts it. When it is missing, stop and ask the operator: a board made anywhere else is not found by the survey or by other agents.
+- **`/tasks` is the workspace's tasks checkout.** `git -C /tasks branch --show-current` prints `workspace/<workspace>`, where `<workspace>` is `workspace` in `/etc/workspace/config.yml`. Every workspace gets this branch, and the mount, from `workspace-template`, whose `docs/workspaces.md` describes them. When it is missing, stop and ask the operator: a board made anywhere else is not found by the survey or by other agents.
 - **This thread has a git operator,** shown by `git operator`. The shifts copy it, so it must be the operator the manager works for.
 - **No manager task exists yet:** `kanban-md --json list --tag workspace-manager --dir /tasks` lists none, archived tasks aside. When one exists, change it instead, as [below](#change-the-schedule).
 
