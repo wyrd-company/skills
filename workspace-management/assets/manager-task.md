@@ -9,6 +9,18 @@ The workspace manager's record. The thread that holds this task's claim is the c
 - Model: {provider instance} {model}
 - Git operator: copied from thread {setup thread id}
 
+## Channel
+
+- Workspace channel: {bot}/{channel id}, as `deck --json channels` lists it
+
+## Budget
+
+Operators set the budget here. The survey reads the daily figure from the row below, in the unit the survey reports spend in.
+
+| Budget | Value |
+|---|---|
+| Daily budget (USD at list price, all providers) | {amount} |
+
 ## Limits
 
 Every dispatch in the workspace is held to these, by the manager and by epic orchestrators alike. Operators change them here.
@@ -19,6 +31,13 @@ Every dispatch in the workspace is held to these, by the manager and by epic orc
 | Epics in progress at once | 3 |
 | Tasks in progress on one board outside `epics/` | 2 |
 
+## Standing work
+
+Work this workspace does on its own. A row is due when the log has no entry `Standing <name>: dispatched` within its interval. Operators add, remove and retime rows here.
+
+| Name | Every | Complexity | What does it |
+|---|---|---|---|
+
 ## Duties
 
 A duty that runs each sweep is part of every sweep, and is not logged as done. Any other duty is due when the log has no entry `Duty <name>: done` within its interval. Operators add, remove and retime duties here.
@@ -28,12 +47,21 @@ A duty that runs each sweep is part of every sweep, and is not logged as done. A
 | Settle threads and clean up their ledgers | Each sweep |
 | Check running work | Each sweep |
 | Dispatch | Each sweep |
+| Dependency updates | Each sweep |
 | Health | Each sweep |
 | Resources no ledger holds | 1 day |
 | Fast-forward default branches | 1 day |
 | Skills sync | 1 day |
 | Event path | 1 day |
+| Automations | 1 day |
 | Observation review | 7 days |
+
+## Automations
+
+The automations that do part of the manager's work, one row each. The **Automations** duty checks that each ran within its interval.
+
+| Name | What it does | Where it lives | Runs every |
+|---|---|---|---|
 
 ## Requests
 
@@ -41,4 +69,4 @@ Work an operator or agent asked the manager for that is not finished yet. One li
 
 ## Holds
 
-Work held back, one line each: what is held, why, and what releases it, such as a limit or an operator's answer.
+Work held back, one line each: what is held, why, and what releases it, such as the budget, a limit or an operator's answer.

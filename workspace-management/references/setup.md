@@ -1,12 +1,12 @@
 # Setup
 
-Read this when `/tasks` has no manager task or no rotation schedule, or to change the interval, the model or the git operator. Setting up is done once for each workspace, by an operator's thread or an agent working for one: the shifts copy their git operator from that thread.
+Read this when `/tasks` has no manager task or no rotation schedule, or to change the interval, the model, the git operator, the budget or the channel. Setting up is done once for each workspace, by an operator's thread or an agent working for one: the shifts copy their git operator from that thread.
 
 ## Before you start
 
 - **`/tasks` is the workspace's tasks checkout.** `git -C /tasks branch --show-current` prints `workspace/<workspace>`, where `<workspace>` is `workspace` in `/etc/workspace/config.yml`. The workspace definition mounts it. When it is missing, stop and ask the operator: a board made anywhere else is not found by the survey or by other agents.
 - **This thread has a git operator,** shown by `git operator`. The shifts copy it, so it must be the operator the manager works for.
-- **No manager task exists yet:** `kanban-md --json list --tags workspace-manager --dir /tasks` lists none. When one exists, change it instead, as [below](#change-the-schedule).
+- **No manager task exists yet:** `kanban-md --json list --tag workspace-manager --dir /tasks` lists none. When one exists, change it instead, as [below](#change-the-schedule).
 
 ## Set up
 
@@ -27,14 +27,16 @@ Read this when `/tasks` has no manager task or no rotation schedule, or to chang
      --prompt "Run a shift of the workspace manager, with the workspace-management skill. Copy the git operator from thread $T3CODE_THREAD_ID."
    ```
 
-4. **Create the manager task** from [the template](../assets/manager-task.md), with the schedule's id, this thread's id and the model filled in. Keep the template's limits and duties unless the operator gave others. Leave it unclaimed: the first shift claims it.
+4. **Find the workspace channel:** the text channel in `deck --json channels` named for the workspace. When there is none, ask the operator: without it the manager can reach people only in T3 Code.
+5. **Ask the operator for the daily budget.** It is theirs to set: the manager spends up to it. The unit is the one the survey reports spend in.
+6. **Create the manager task** from [the template](../assets/manager-task.md), with the schedule's id, this thread's id, the model, the channel and the budget filled in. Keep the template's limits and duties unless the operator gave others, and add the standing work the operator names. Leave it unclaimed: the first shift claims it.
 
    ```bash
    kanban-md create "Workspace manager" --dir /tasks --status todo \
      --tags workspace-manager --body "$(cat manager-task.md)"
    ```
 
-5. **Commit and push the board,** staging its paths by name:
+7. **Commit and push the board,** staging its paths by name:
 
    ```bash
    git -C /tasks add config.yml activity.jsonl tasks
@@ -42,7 +44,7 @@ Read this when `/tasks` has no manager task or no rotation schedule, or to chang
    git -C /tasks push
    ```
 
-6. **Start the first shift now,** with `t3c schedule run <id>`, instead of waiting for the interval. When its first turn ends, check that the manager task's claim names the new thread and its log has the takeover. The first shift has no previous shift to take over from: it moves the task to `in-progress` as it claims it.
+8. **Start the first shift now,** with `t3c schedule run <id>`, instead of waiting for the interval. When its first turn ends, check that the manager task's claim names the new thread and its log has the takeover. The first shift has no previous shift to take over from: it moves the task to `in-progress` as it claims it.
 
 Setup is done when the manager task names the schedule, a shift holds its claim, and the board is pushed.
 
@@ -53,5 +55,7 @@ Change the schedule with `t3c schedule update <id>`, then change the manager tas
 - **The interval:** `--every <interval>`. Keep the board's `claim_timeout` longer than it.
 - **The model:** `--provider` and `--model`.
 - **The git operator:** the shifts copy it from the thread the prompt names. When that thread's registration is lost, such as after the container is rebuilt, the shifts cannot commit. Register the operator again in that thread, or update `--prompt` to name a thread that has one.
+
+The budget, the limits, the standing work, the duties and the channel live only in the manager task: change them there, and log the change.
 
 To stop the manager, disable the schedule with `t3c schedule disable <id>`, and log why on the manager task. The last shift's claim lapses, and other agents then leave what they hand over in its place, as [Reach the manager](../SKILL.md#reach-the-manager) says.

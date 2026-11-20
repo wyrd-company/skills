@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Survey the workspace for a shift of the workspace manager.
 #
-# Prints threads, boards, ledgers and health as plain text, in that order. Each
+# Prints threads, boards, dependency updates, ledgers, the budget and health as
+# plain text, in that order. Each
 # section either lists what it found or says UNAVAILABLE with the reason. The
 # last line is "survey complete" only when every section ran; otherwise it is
 # "survey incomplete" and the exit status is 1. Never read a missing section as
@@ -11,6 +12,8 @@
 #   SURVEY_LIMIT  rows listed per group (default 25); counts are always complete
 #   TASK_ROOTS    space-separated folders holding boards
 #                 (default: /tasks and every /workspace/*/tasks)
+#   REPO_ROOT     folder holding the project folders (default: /workspace)
+#   MANAGER_BOARD the workspace board holding the manager task (default: /tasks)
 # jq programs are single-quoted on purpose: q passes them to jq.
 # shellcheck disable=SC2016
 set -uo pipefail
@@ -132,6 +135,52 @@ else
     | .[] | "\(.dir) #\(.id) \(.status) claim=\(.claimed_by) thread=\(.thread) \(.title)"' "$TMP/tasks.json"
 fi
 
+# --- Dependency updates ------------------------------------------------------
+echo
+echo "# Dependency updates: open Renovate pull requests in the workspace's repositories"
+REPO_ROOT=${REPO_ROOT:-/workspace}
+for d in "$REPO_ROOT"/*/*/; do
+  for w in main fork; do
+    [ -e "$d$w/.git" ] || continue
+    git -C "$d$w" remote get-url origin 2>/dev/null | sed -E 's#^.*github\.com[:/]##; s#\.git$##'
+  done
+done | sort -u >"$TMP/repos.txt"
+mkdir -p "$TMP/deps"
+renovate_prs() { # one repository's open Renovate pull requests, or an .err file
+  local out="$2/${1//\//__}" fields=number,title,createdAt,labels
+  # Some repositories do not let the App read checks: list them without, as unknown.
+  gh pr list --repo "$1" --author app/renovate --state open --limit 100 \
+    --json "$fields,statusCheckRollup" >"$out.json" 2>"$out.err" ||
+    gh pr list --repo "$1" --author app/renovate --state open --limit 100 \
+      --json "$fields" --jq 'map(. + {checks_unknown: true})' >"$out.json" 2>>"$out.err" ||
+    return 0
+  rm -f "$out.err"
+}
+export -f renovate_prs
+xargs -P 8 -I{} bash -c 'renovate_prs "$1" "$2"' _ {} "$TMP/deps" <"$TMP/repos.txt"
+for err in "$TMP"/deps/*.err; do
+  [ -e "$err" ] || continue
+  unavailable "gh pr list for $(basename "$err" .err | sed 's#__#/#'): $(head -c 200 "$err")"
+done
+echo "repositories: $(wc -l <"$TMP/repos.txt")"
+if compgen -G "$TMP/deps/*.json" >/dev/null; then
+  for f in "$TMP"/deps/*.json; do
+    q -c --arg repo "$(basename "$f" .json | sed 's#__#/#')" '
+      map(. + {
+        security: ((.title | test("\\[security\\]"; "i")) or any(.labels[]?; .name | test("security"; "i"))),
+        failing: any(.statusCheckRollup[]?; (.conclusion // .state // "") | IN("FAILURE", "TIMED_OUT", "CANCELLED", "ERROR", "ACTION_REQUIRED"))
+      })
+      | select(length > 0)
+      | {repo: $repo, n: length, security: map(select(.security)) | length,
+         failing: (if any(.[]; .checks_unknown) then "unknown" else map(select(.failing)) | length end),
+         oldest: (map(.createdAt) | min | .[:10]),
+         order: (sort_by((.security | not), .createdAt) | map("#\(.number)"))}' "$f"
+  done >"$TMP/deps.jsonl"
+  q -r -s '
+    "pull requests: \(map(.n) | add // 0) in \(length) repositories, security: \(map(.security) | add // 0), failing checks: \(map(.failing | numbers) | add // 0)",
+    (sort_by(-.security, .oldest) | .[] | "\(.repo): open=\(.n) security=\(.security) failing=\(.failing) oldest=\(.oldest) | \(.order | join(" "))")' "$TMP/deps.jsonl"
+fi
+
 # --- Ledgers -----------------------------------------------------------------
 echo
 echo "# Ledgers"
@@ -144,6 +193,33 @@ if ledger list --all --json >"$TMP/ledgers.json" 2>"$TMP/ledgers.err"; then
       (.[] | "\(.db) resources=\(.n) owner=\(.thread)")' "$TMP/ledgers.json"
 else
   unavailable "ledger list --all: $(head -c 200 "$TMP/ledgers.err")"
+fi
+
+# --- Budget ------------------------------------------------------------------
+echo
+echo "# Budget: spend in USD at list price, all providers, days in UTC"
+TODAY=$(date -u +%F)
+WEEK=$(date -u -d '6 days ago' +%F)
+if t3c --json usage summary --since-day "$WEEK" --until-day "$TODAY" --time-zone Etc/UTC >"$TMP/usage.json" 2>"$TMP/usage.err" &&
+  jq -e '.data.buckets | type == "array"' "$TMP/usage.json" >/dev/null 2>&1; then
+  BUDGET=$(kanban-md --json list --tag workspace-manager --dir "${MANAGER_BOARD:-/tasks}" 2>/dev/null | jq -r 'if type == "array" then .[0].id // empty else empty end' |
+    xargs -r -I{} kanban-md --json show {} --dir "${MANAGER_BOARD:-/tasks}" 2>/dev/null |
+    jq -r '.body // ""' | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9.]+) *\|.*/\1/p' | head -1)
+  ELAPSED=$(( $(date -u +%s) % 86400 ))
+  q -r --arg today "$TODAY" --arg budget "${BUDGET:-}" --argjson elapsed "$ELAPSED" '
+    def usd: . * 100 | round / 100;
+    .data.buckets as $b
+    | ($b | map(select(.day == $today)) | map(.costUsd) | add // 0) as $spent
+    | ($b | map(select(.day != $today)) | group_by(.day) | map(map(.costUsd) | add)) as $days
+    | "today so far: $\($spent | usd) (" + ($b | map(select(.day == $today)) | group_by(.provider) | map("\(.[0].provider) $\(map(.costUsd) | add | usd)") | join(", ")) + ")",
+      "previous 6 days: average $\(if ($days | length) > 0 then ($days | add / length | usd) else 0 end) a day",
+      "day elapsed: \($elapsed * 100 / 86400 | round)%",
+      (if $budget == "" then "daily budget: not set in the manager task"
+       else ($budget | tonumber) as $bud | ($bud * $elapsed / 86400) as $pace
+         | "daily budget: $\($bud), pace now: $\($pace | usd), spent: \(if $spent >= $bud then "at the budget" elif $spent > $pace then "above the pace" else "below the pace" end)"
+       end)' "$TMP/usage.json"
+else
+  unavailable "t3c usage summary failed: $(head -c 300 "$TMP/usage.err")"
 fi
 
 # --- Health ------------------------------------------------------------------
