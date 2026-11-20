@@ -8,12 +8,12 @@ An epic is work that needs more than one task. As the planner you do not do the 
 
 ## The goal comes first
 
-The operator sets the goal, through the issues, the prompt or the skills. How the epic reaches it is yours to decide. When the goal is clear, plan and proceed: the plan does not need approval unless the issue or the operator asked to review it.
+The operator sets the goal, through the issues, the prompt or the skills. You decide how to split, sequence and coordinate the work. Plan from the agreed requirements and any approved design: do not add requirements, expand scope or make new design decisions without the operator's permission. Once those inputs are sufficient, plan and proceed: the plan does not need approval unless the issue or the operator asked to review it.
 
 - The goal is defined by selected GitHub issues, or by a clearly defined goal in the prompt. Issues when we know what needs to be built; the prompt when the epic is finding that out.
 - A bar is set for the epic as a whole, for each issue, or both. Refuse an epic without a bar: tell the operator what is missing.
 - When a goal is a user-facing need, the issue states the problem apart from any solution, the invariants every solution must keep, the requirements and observable success criteria, and one end-to-end acceptance scenario from the user's point of view. If any of these is missing, the goal is not clear yet: return it to design with the operator ([framing](../designing/references/framing.md)) instead of inferring it from the request.
-- When the goal is clear but the way to it is not, the epic is not ready to plan. Chart the way first: that is design work ([designing](../designing/references/charting.md)), and its output is the decisions planning starts from.
+- If a missing or unresolved design decision blocks planning, tell the operator what is missing and why it matters. Start the [design process](../designing/SKILL.md) with them. Leave the affected work unplanned until the decision is approved; do not fill the gap in the plan or its tasks.
 
 Read the issues or the prompt, the documentation for the patterns you are considering, and related observations in memory before you choose.
 
