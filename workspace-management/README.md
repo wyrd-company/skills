@@ -17,18 +17,20 @@ The manager is a session and a set of automations. The session runs as shifts: a
 | [references/automations.md](references/automations.md) | The automations alongside the session: the parts, proven techniques, proposing one and checking they ran |
 | [assets/manager-task.md](assets/manager-task.md) | The manager task's body: schedule, channel, budget, limits, standing work, duties, automations, requests, holds, notices and the log |
 | [scripts/survey.sh](scripts/survey.sh) | The survey each sweep starts from: threads, boards, dependency updates, issues, ledgers, the budget and health |
-| [scripts/takeover.sh](scripts/takeover.sh) | A shift's takeover: the claim, rolling the manager task forward, and the pointer file |
+| [scripts/takeover.sh](scripts/takeover.sh) | A shift's takeover, one at a time: the claim, rolling the manager task forward, and the pointer file |
+| [scripts/budget.sh](scripts/budget.sh) | Today's spend against the budget, for the survey and for epic orchestrators |
+| [scripts/manager-lib.sh](scripts/manager-lib.sh) | What the scripts share: reading the manager task and its standing state |
 
 ## Sources
 
-The skill is written in our own words. It draws on no third-party skill. It applies the passes of `epic-orchestration` (a fresh context for each run, the record as memory, one actor at a time by claim) to the workspace, and draws its cleanup rules from what the workspace's worktree reviews and stalled epics recorded in memory.
+The skill is written in our own words. It draws on no third-party skill. It applies the passes of [epic-orchestration](../epic-orchestration/SKILL.md), in this repository, to the workspace: a fresh context for each run, the record as memory, one actor at a time by claim. Its cleanup and dispatch rules draw on observations recorded in memory up to 2026-11-20, from the workspace's worktree reviews, stalled epics and a survey of its threads; its budget, dependency, issue and rotation rules are the operator's decisions of that date.
 
 Formats and tools the skill uses, rather than drew on:
 
 | Source | License | Use |
 |---|---|---|
 | [antopolskiy/kanban-md](https://github.com/antopolskiy/kanban-md), version 0.39.0 | MIT | The workspace board, the manager task, its claim and log. |
-| [wyrd-company/t3code-client](https://github.com/wyrd-company/t3code-client): `t3c` | MIT | Thread lists, status and reads, the rotation schedule, and usage for the budget. |
-| [wyrd-company/deck](https://github.com/wyrd-company/deck) | Ours | The workspace channel in Discord. |
+| [wyrd-company/t3code-client](https://github.com/wyrd-company/t3code-client): `t3c`, version 0.2.3 | MIT | Thread lists, status and reads, the rotation schedule, and usage for the budget. |
+| [wyrd-company/deck](https://github.com/wyrd-company/deck), version 0.1.2 | Apache-2.0 | The workspace channel in Discord. |
 | [Renovate](https://github.com/renovatebot/renovate) | AGPL-3.0 | The dependency update pull requests the manager has checked and merged. Used, not run or bundled. |
 | `wyrd-company/workspace-dotfiles`: `docs/ledger.md` | Ours | The `ledger` CLI the cleanup works from. |

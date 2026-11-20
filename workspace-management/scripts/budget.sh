@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Report the workspace's spend today against its daily budget.
+#
+# The first line is the state, for scripts and for agents that must check the
+# budget before starting work:
+#   budget: below        below the pace (the budget times the share of the day gone)
+#   budget: above        above the pace, below the budget
+#   budget: at           at or past the budget
+#   budget: unknown      some of today's usage has no price, so the spend is not known
+#   budget: unset        no budget: no manager task, or no "Daily budget" row
+#   budget: unavailable  usage could not be read (exit 1)
+# The lines after it give the figures. Spend is in USD at list price across all
+# providers, as `t3c usage summary` prices it, and days are in UTC.
+#
+# Environment:
+#   MANAGER_BOARD  the workspace board (default: /tasks)
+set -uo pipefail
+# shellcheck source=manager-lib.sh source-path=SCRIPTDIR
+source "$(dirname "${BASH_SOURCE[0]}")/manager-lib.sh"
+
+BOARD=${MANAGER_BOARD:-/tasks}
+TODAY=$(date -u +%F)
+WEEK=$(date -u -d '6 days ago' +%F)
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+if ! t3c --json usage summary --since-day "$WEEK" --until-day "$TODAY" --time-zone Etc/UTC >"$TMP/usage.json" 2>"$TMP/usage.err" ||
+  ! jq -e '.data.buckets | type == "array"' "$TMP/usage.json" >/dev/null 2>&1; then
+  echo "budget: unavailable"
+  echo "t3c usage summary failed: $(head -c 300 "$TMP/usage.err")"
+  exit 1
+fi
+
+budget=""
+reason=""
+if body=$(manager_body "$BOARD" 2>"$TMP/body.err"); then
+  budget=$(standing_state <<<"$body" | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9]+(\.[0-9]+)?) *\|.*/\1/p' | head -1)
+  [ -n "$budget" ] || reason="the manager task has no Daily budget row with a number"
+else
+  reason=$(cat "$TMP/body.err")
+fi
+
+jq -r --arg today "$TODAY" --arg budget "$budget" --arg reason "$reason" \
+  --argjson elapsed "$(($(date -u +%s) % 86400))" '
+  def usd: . * 100 | round / 100;
+  .data.buckets as $b
+  | ($b | map(select(.day == $today))) as $t
+  | ($t | map(.costUsd // 0) | add // 0) as $spent
+  | ($t | map((.unpricedTokens // 0) + (.unpricedRecords // 0)) | add // 0) as $unpriced
+  | ($b | map(select(.day != $today)) | group_by(.day) | map(map(.costUsd // 0) | add)) as $days
+  | (if $budget == "" then null else ($budget | tonumber) end) as $bud
+  | (if $bud == null then null else $bud * $elapsed / 86400 end) as $pace
+  | "budget: " + (
+      if $bud == null then "unset"
+      elif $spent >= $bud then "at"
+      elif $unpriced > 0 then "unknown"
+      elif $spent > $pace then "above"
+      else "below" end),
+    "today so far: $\($spent | usd) (" + ($t | group_by(.provider) | map("\(.[0].provider) $\(map(.costUsd // 0) | add | usd)") | join(", ")) + ")",
+    (if $unpriced > 0 then "unpriced today: \($t | map(.unpricedTokens // 0) | add) tokens in \($t | map(.unpricedRecords // 0) | add) records" else empty end),
+    "previous 6 days: average $\(if ($days | length) > 0 then ($days | add / length | usd) else 0 end) a day",
+    "day elapsed: \($elapsed * 100 / 86400 | round)%",
+    (if $bud == null then "daily budget: none (\($reason))"
+     else "daily budget: $\($bud), pace now: $\($pace | usd)" end)' "$TMP/usage.json"

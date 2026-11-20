@@ -13,7 +13,8 @@ The manager is two things: a session that runs in shifts and decides, and a set 
 The manager's record is the manager task: the open task tagged `workspace-manager` on the workspace board at `/tasks`. `/tasks` is the workspace's own checkout of the tasks repository, on its `workspace/<workspace>` branch, beside the projects' `tasks` folders.
 
 - **Its claim names the current shift.** Whichever thread holds it is the manager.
-- **Its body holds the standing state,** above its **Log** heading: the rotation schedule, the channel, the budget, the WIP limits, the standing work and the duties with when each last ran, the automations, the open requests, the holds and the notices. Operators change these there.
+- **Its body holds the standing state,** above its **Log** heading: the rotation schedule, the channel, the budget, the WIP limits, the standing work and the duties with when each last ran, the automations, the delegates in flight, the open requests, the holds and the notices. Operators change the first of these there.
+- **Each delegate you wait on for a report has a line in In flight** until its report comes back: a dependency update, an issue triage or review, an observation review. A later shift neither dispatches that work again nor forgets the report it waits for.
 - **Its log is the history,** below the heading: each takeover, dispatch, settlement batch, duty run, notification and ruling, as it happens. A later shift reads the log for what happened. What it must act on is in the standing state.
 - **It rolls forward every day.** A task that every shift appends to would grow without end, and every shift would pay to read it. So the first takeover after the task's **Roll forward every** interval creates a successor that carries the standing state but not the log, then closes and archives the old task. The archived tasks are the manager's history, one day each, and each successor names its predecessor in **Previous task**.
 
@@ -56,15 +57,19 @@ The manager runs for as long as the workspace does. No context lasts that long, 
 
 1. **Register the git operator** the schedule's prompt names, with `git operator set --from <thread>`. When that fails, carry on without committing and notify the operator: the board is on a persistent mount, so the commit is the backup and not the record.
 2. **Read the manager task:** its body, and its log back to the previous takeover.
-3. **Wait for the previous shift.** The previous shift is the thread that holds the claim. Check it with `t3c thread status <id>`. While it is running, wait for its turn to end with `t3c thread wait <id> --timeout 30m`. If it is still running after that, stop and notify the operator: interrupting it could cut off a dispatch half made.
-4. **Take over** with `bash scripts/takeover.sh`, from this skill's folder. It takes the claim, rolls the manager task forward when the roll is due, writes the pointer file and logs the takeover. It prints the task it left you on, the previous shift's thread (empty for the first shift) and the task it rolled from. It is safe to run again: when a roll was cut short, it finishes it. Exit 2 means `/tasks` has no manager task, which [setup](references/setup.md) creates.
-5. **Settle the previous shift,** unless there was none. Move what its ledger still holds to yours, as [ledger](../ledger/SKILL.md#hand-off) says: `ledger --db <its thread id> list`, then `ledger --db <its thread id> handoff --to "$T3CODE_THREAD_ID" <keys>`. Then settle its thread. The delegates it dispatched, and the people it wrote to in the channel, reply to its thread, which forwards what arrives to you (see [each wake](#each-wake)).
+3. **Wait for the previous shift.** The previous shift is the thread that holds the claim on the task `/tasks/manager.json` names, or none when nobody holds it. Check it with `t3c thread status <id>`. While it is running, wait for its turn to end with `t3c thread wait <id> --timeout 30m`. If it is still running after that, stop and notify the operator: interrupting it could cut off a dispatch half made.
+4. **Take over** with `bash scripts/takeover.sh <previous shift>`, from this skill's folder, passing `-` when there was none. It takes the claim, rolls the manager task forward when the roll is due, logs the takeover and writes the pointer file, one takeover at a time. It prints the task it left you on, the shifts to settle, the task it rolled from, and why a due roll was skipped. Its exit status says what else happened:
+   - **0:** you are the manager. When `roll_skipped` gives a reason, the task's standing state is damaged: notify the operator once, and record it in **Notices**.
+   - **1 or 4:** it stopped part-way, or another takeover held the lock. Run it again. It finishes what it started.
+   - **2:** `/tasks` has no manager task, which [setup](references/setup.md) creates.
+   - **3:** another shift took over while you waited. It is the manager: stop.
+5. **Settle each shift in `previous_threads`.** Move what its ledger still holds to yours, as [ledger](../ledger/SKILL.md#hand-off) says: `ledger --db <its thread id> list`, then `ledger --db <its thread id> handoff --to "$T3CODE_THREAD_ID" <keys>`. Then settle its thread. The delegates it dispatched, and the people it wrote to in the channel, reply to its thread, which forwards what arrives to you (see [each wake](#each-wake)).
 6. **Commit and push the board,** staging its paths by name: `git -C /tasks add config.yml activity.jsonl manager.json tasks`, then commit with `chore: manager shift <thread id>` and push.
 7. **Run a sweep.**
 
 ### Each wake
 
-On each message, first check that `/tasks/manager.json` still names you. When it does not, a later shift has taken over: forward the message to the thread it names with `t3_thread_send`, and stop. For a notice from the channel, run `deck read <thread>` first and forward what it shows, since the new shift's session cannot read your unread messages.
+On each message, first check that you are still the manager: `/tasks/manager.json` names you, and the claim on the task it names is yours (`kanban-md --json show "$MANAGER" --dir /tasks`, field `claimed_by`). When the claim is another thread's, a later shift has taken over: forward the message to that thread with `t3_thread_send`, and stop. When the pointer and the claim disagree in any other way, a takeover is under way or was cut short: stop, and leave the message for the next shift to find in the record. For a notice from the channel, run `deck read <thread>` first and forward what it shows, since the new shift's session cannot read your unread messages.
 
 Otherwise, handle what the message asks within your [authority](#authority), log it, and stop. Write a request you cannot finish now into the task's **Requests** section, so it survives the rotation. Run a sweep when the message asks for one.
 
@@ -85,7 +90,7 @@ A shift sweeps once when it starts. Each sweep:
 1. **Survey** with `bash scripts/survey.sh`, from this skill's folder. It lists threads, boards, dependency updates, issues, ledgers, the budget and the workspace's health. Read its last line: anything but `survey complete` means a section is missing, and a missing section is not "nothing to do". Read the reference for each section only when the section lists something.
 2. **Settle the threads whose work is finished, and clean up after them,** as [threads](references/threads.md) says.
 3. **Check that the running work is moving:** each epic has a live schedule, and each claim's thread is working, as [threads](references/threads.md#stalled-work) says.
-4. **Check the budget,** as [dispatch](references/dispatch.md#budget) says. It sets how much new work this sweep may start.
+4. **Check the budget and the health,** as [dispatch](references/dispatch.md#budget) and [maintenance](references/maintenance.md#health) say. They set how much new work this sweep may start.
 5. **Dispatch what is ready,** in the order of [the work](#the-work), within the budget and the limits.
 6. **Run each duty that is due,** as [maintenance](references/maintenance.md) says, including the check that the automations ran.
 7. **Log what you did.** A sweep that changed nothing writes nothing.
@@ -112,7 +117,7 @@ Read this section when another skill sends you to the manager, such as to hand i
 
 1. Find the current shift: `jq -r .thread_id /tasks/manager.json`.
 2. Message that thread with `t3_thread_send`, saying what you hand it: the epic task's id and board, the request, or the result.
-3. When `/tasks/manager.json` does not exist, the workspace has no manager: do the step yourself, as the skill that sent you says. When the thread it names is not running and does not answer, the manager may be stopped: the next shift reads the record and acts. Leave what you hand over in its place, such as the epic task in `todo`, and log that you did.
+3. When `/tasks/manager.json` does not exist, the workspace has no manager: do the step yourself, as the skill that sent you says for that case. When the thread it names is not running and does not answer, the manager may be stopped: the next shift reads the record and acts. Leave what you hand over in its place, such as the epic task in `todo`, and log that you did.
 
 ## What to read
 

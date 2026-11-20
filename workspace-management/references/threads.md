@@ -24,7 +24,7 @@ Settle each finished thread with `t3_thread_organize` (`settle`), then clean up 
 
 ## Threads waiting on a person
 
-A pending question or approval is addressed to that thread's operator, and the manager does not answer it, as [authority](../SKILL.md#authority) says. Notify them once, with [contact](../../contact/SKILL.md): link the thread, quote the question, and say how long it has waited. Log the notification with the thread's id, so later shifts read it and do not notify again.
+A pending question or approval is addressed to that thread's operator, and the manager does not answer it, as [authority](../SKILL.md#authority) says. Notify them once, in [the channel](../SKILL.md#the-channel): link the thread, quote the question, and say how long it has waited. Record it in the **Notices** section with the thread's id, so later shifts do not notify again, and remove the line once the question is answered.
 
 ## Failed and interrupted threads
 

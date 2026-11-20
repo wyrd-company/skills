@@ -22,7 +22,7 @@ Remove it with `git worktree remove <path>`, then delete its local branch only w
 
 - **Boat sandboxes** are shared by the account across workspaces. List them with `boat list`, and report those no ledger holds instead of deleting them: another workspace may be using one.
 - **Docker:** remove dangling images and build cache with `docker image prune -f` and `docker builder prune -f`. Report stopped containers and named volumes: their data may be wanted.
-- **Scratch files** in `/tmp` older than 7 days and no longer open, `find /tmp -mindepth 1 -maxdepth 1 -mtime +7`: remove those owned by `vscode` that no process holds open (`fuser`), and report the rest.
+- **Scratch files** in `/tmp` older than 7 days, `find /tmp -mindepth 1 -maxdepth 1 -mtime +7`: report them, with their size. A scratch file can be the only copy of something, and a directory can hold a file a process has open, so the operator decides.
 
 ## Done
 

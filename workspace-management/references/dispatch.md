@@ -4,11 +4,15 @@ Read this for the budget and the WIP limits every dispatch in the workspace is h
 
 ## Budget
 
-The workspace has a budget of usage for each period, set in the manager task's **Budget** section. The manager spends it: work left unstarted while budget remains is work the workspace could have done, and spending past it takes from the next period. The survey's **Budget** section shows what the workspace has spent in the period so far, and the pace: the budget times the share of the period that has passed.
+The workspace has a budget of usage for each period, set in the manager task's **Budget** section. The manager spends it: work left unstarted while budget remains is work the workspace could have done, and spending past it takes from the next period. `bash scripts/budget.sh`, from this skill's folder, shows what the workspace has spent today and the pace: the budget times the share of the day that has passed. Its first line is the state, which the survey's **Budget** section repeats:
 
 - **Below the pace,** start what is ready, in the order of [the work](../SKILL.md#the-work), until the limits stop you or nothing ready is left. When nothing is left, `Medium` issues included, and the spend stays below half the pace, the workspace has more budget than work: tell the operators in [the channel](../SKILL.md#the-channel), once for the period, so they can bring work to it.
 - **Above the pace,** start only operators' work and security updates. The rest waits for the pace to catch up.
 - **At the budget,** start nothing new. Record the hold in the **Holds** section, and tell the operators once for the period: only an operator may spend past the budget. Work already running continues.
+- **Unknown,** because some of today's usage has no price yet: act as above the pace. When it stays unknown for a day, tell the operators once.
+- **Unset:** the manager task has no budget. Start only operators' work, and ask the operator for a budget once.
+
+Epic orchestrators check the budget too, before each dispatch, and hold at the budget.
 
 Count the budget before each dispatch, as the limits are counted.
 
@@ -18,13 +22,14 @@ The workspace shares one machine. Work started past its capacity does not finish
 
 | Limit | Counted as | The survey line |
 |---|---|---|
-| Agent threads running at once | Threads in `running`, `starting`, `preparing` or `queued`, except your own | `agent threads running now` |
+| Agent threads running at once | Threads in `running`, `starting`, `preparing` or `queued`, your own included | `agent threads running now` |
 | Epics in progress at once | Epic tasks in `in-progress` or `review` | `epics in progress` |
 | Tasks in progress on one board | Tasks in `in-progress` on a board outside `epics/` | `Tasks in progress per board` |
 
+- **Start a thread only while the count is below the limit.** Your own thread counts, as it runs while you dispatch.
 - **Count before each dispatch, not once a sweep.** Threads start and finish while you work, and other dispatchers start them too.
 - **A dispatch that would reach past a limit waits.** Record it in the manager task's **Holds** section once, with the limit that holds it, and take it up on the first sweep under the limit. A hold that lasts is how operators learn to change a limit.
-- **Resuming does not count as starting.** Remediation sent back to an executor's own session, and a stalled executor resumed in its thread, continue work already counted.
+- **Resuming takes a thread, not a new start.** Remediation sent back to an executor's own session, and a stalled executor resumed in its thread, make that thread run: they need a free place under the thread limit, but not under the epic or board limits, which already count their task.
 
 ## Epics waiting to start
 

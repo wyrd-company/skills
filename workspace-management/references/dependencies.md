@@ -8,7 +8,7 @@ The workspace's repositories are the ones made with Toha's repo template: each r
 
 ## Dispatch the updates
 
-Dispatch one delegate for each repository with open updates, and at most one at a time for a repository: each merge changes the lock files, and Renovate rebases the rest after it. A delegate counts against the thread limit and the budget, as any dispatch does, and a repository with a security update goes first.
+Dispatch one delegate for each repository with open updates, and at most one at a time for a repository: each merge changes the lock files, and Renovate rebases the rest after it. The manager task's **In flight** section lists the repositories that have one: skip those. A delegate counts against the thread limit and the budget, as any dispatch does, and a repository with a security update goes first. Above the pace, list only a repository's security updates in the prompt.
 
 Choose the model from [models.yml](~/models.yml): the cheapest entry that lists `low` complexity. Reading release notes and fixing a failing check is narrow work. Send it with `delegate_task`, listing the pull requests from the survey:
 
@@ -22,10 +22,11 @@ When its checks fail, fix them on the pull request's branch, with the smallest c
 Return, for each pull request: merged or held, and why when held, and the notes worth knowing: the bug fixes and security fixes that concern us, and the breaking changes. Copy the git operator from thread <your thread id>.
 ```
 
-Log the dispatch and the delegate's thread on the manager task.
+Add a line to the **In flight** section, with the repository and the delegate's thread, and log the dispatch.
 
 ## When the report comes back
 
+- **Remove the repository's line from In flight.**
 - **Log what merged and what was held,** in one entry for the repository.
 - **Tell the operators what is worth knowing,** in [the channel](../SKILL.md#the-channel): a security fix, a bug fix the workspace may have been hitting, or a breaking change. One post for the report, not one for each pull request. A report with nothing worth knowing posts nothing.
 - **A held update goes to the operator** with what holds it, once, as [authority](../SKILL.md#authority) says. Leave it out of later dispatches until the operator answers, and record it in the **Holds** section. A later Renovate pull request for the same dependency replaces it.

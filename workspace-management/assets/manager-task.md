@@ -71,6 +71,10 @@ The automations that do part of the manager's work, one row each. The **Automati
 | Name | What it does | Where it lives | Runs every |
 |---|---|---|---|
 
+## In flight
+
+Delegates the manager is waiting on for a report, such as a repository's dependency updates or an issue triage, one line each: what, the thread, and since when. Remove a line when its report comes back. A later shift does not dispatch the same work again while its line is here.
+
 ## Requests
 
 Work an operator or agent asked the manager for that is not finished yet. One line each: who asked, when, the request, and where it stands. Remove a line when the request is done, and log that it is done.

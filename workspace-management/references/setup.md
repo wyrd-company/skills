@@ -30,22 +30,23 @@ Read this when `/tasks` has no manager task or no rotation schedule, or to chang
 4. **Find the workspace channel:** the text channel in `deck --json channels` named for the workspace. When there is none, ask the operator: without it the manager can reach people only in T3 Code.
 5. **Create the workspace's issues project,** unless the operator names one: `gh project create --owner <org> --title "<Workspace name> workspace"`, then add the priority field with `gh project field-create <number> --owner <org> --name Priority --data-type SINGLE_SELECT --single-select-options "High,Medium,Low"`. Its built-in **Status** field needs the options `Backlog`, `Todo`, `In Progress` and `Done`: add the ones it lacks in the project's settings, or ask the operator to. The first issue triage fills it.
 6. **Ask the operator for the daily budget.** It is theirs to set: the manager spends up to it. The unit is the one the survey reports spend in.
-7. **Create the manager task** from [the template](../assets/manager-task.md), with the schedule's id, this thread's id, the model, the channel, the issues project and the budget filled in. Keep the template's limits and duties unless the operator gave others, and add the standing work the operator names. Leave it unclaimed: the first shift claims it.
+7. **Keep the takeover's working files out of the board's history:** add `.manager.lock` and `.takeover.json` to `/tasks/.gitignore`.
+8. **Create the manager task** from [the template](../assets/manager-task.md), with the schedule's id, this thread's id, the model, the channel, the issues project and the budget filled in. Keep the template's limits and duties unless the operator gave others, and add the standing work the operator names. Leave it unclaimed: the first shift claims it.
 
    ```bash
    kanban-md create "Workspace manager $(date -u +%F)" --dir /tasks --status todo \
      --tags workspace-manager --body "$(cat manager-task.md)"
    ```
 
-8. **Commit and push the board,** staging its paths by name:
+9. **Commit and push the board,** staging its paths by name:
 
    ```bash
-   git -C /tasks add config.yml activity.jsonl tasks
+   git -C /tasks add .gitignore config.yml activity.jsonl tasks
    git -C /tasks commit -m "chore: set up the workspace manager"
    git -C /tasks push
    ```
 
-9. **Start the first shift now,** with `t3c schedule run <id>`, instead of waiting for the interval. When its first turn ends, check that `/tasks/manager.json` names the new thread, the manager task's claim does too, and its log has the takeover.
+10. **Start the first shift now,** with `t3c schedule run <id>`, instead of waiting for the interval. When its first turn ends, check that `/tasks/manager.json` names the new thread, the manager task's claim does too, and its log has the takeover.
 
 Setup is done when the manager task names the schedule, a shift holds its claim, `/tasks/manager.json` names that shift, and the board is pushed.
 
