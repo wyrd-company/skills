@@ -6,7 +6,8 @@
 #   budget: below        below the pace (the budget times the share of the day gone)
 #   budget: above        above the pace, below the budget
 #   budget: at           at or past the budget
-#   budget: unknown      some of today's usage has no price, so the spend is not known
+#   budget: unknown      some of today's usage has no price, or a usage source failed,
+#                        so the spend is not known
 #   budget: unset        no budget: no manager task, or no "Daily budget" row
 #   budget: unavailable  usage could not be read (exit 1)
 # The lines after it give the figures. Spend is in USD at list price across all
@@ -34,8 +35,8 @@ fi
 budget=""
 reason=""
 if body=$(manager_body "$BOARD" 2>"$TMP/body.err"); then
-  budget=$(standing_state <<<"$body" | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9]+(\.[0-9]+)?) *\|.*/\1/p' | head -1)
-  [ -n "$budget" ] || reason="the manager task has no Daily budget row with a number"
+  budget=$(standing_state <<<"$body" | section Budget | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9]+(\.[0-9]+)?) *\|.*/\1/p' | head -1)
+  [ -n "$budget" ] || reason="the manager task's Budget section has no Daily budget row with a number"
 else
   reason=$(cat "$TMP/body.err")
 fi
@@ -47,16 +48,19 @@ jq -r --arg today "$TODAY" --arg budget "$budget" --arg reason "$reason" \
   | ($b | map(select(.day == $today))) as $t
   | ($t | map(.costUsd // 0) | add // 0) as $spent
   | ($t | map((.unpricedTokens // 0) + (.unpricedRecords // 0)) | add // 0) as $unpriced
+  | ([.data.sources[]? | select(.status | IN("ok", "missing") | not)
+      | "\(.fingerprint.provider // "?") \(.status)\(if .message then ": \(.message)" else "" end)"]) as $failed
   | ($b | map(select(.day != $today)) | group_by(.day) | map(map(.costUsd // 0) | add)) as $days
   | (if $budget == "" then null else ($budget | tonumber) end) as $bud
   | (if $bud == null then null else $bud * $elapsed / 86400 end) as $pace
   | "budget: " + (
       if $bud == null then "unset"
       elif $spent >= $bud then "at"
-      elif $unpriced > 0 then "unknown"
+      elif $unpriced > 0 or ($failed | length) > 0 then "unknown"
       elif $spent > $pace then "above"
       else "below" end),
     "today so far: $\($spent | usd) (" + ($t | group_by(.provider) | map("\(.[0].provider) $\(map(.costUsd // 0) | add | usd)") | join(", ")) + ")",
+    (if ($failed | length) > 0 then "usage sources failed: \($failed | join("; "))" else empty end),
     (if $unpriced > 0 then "unpriced today: \($t | map(.unpricedTokens // 0) | add) tokens in \($t | map(.unpricedRecords // 0) | add) records" else empty end),
     "previous 6 days: average $\(if ($days | length) > 0 then ($days | add / length | usd) else 0 end) a day",
     "day elapsed: \($elapsed * 100 / 86400 | round)%",

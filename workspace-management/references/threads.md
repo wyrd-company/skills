@@ -31,8 +31,8 @@ A pending question or approval is addressed to that thread's operator, and the m
 Read the end of the thread. Then:
 
 - **It holds a task's claim:** handle it as [stalled work](#stalled-work).
-- **It failed for a reason that a retry clears,** such as a provider error or the workspace running out of processes, and its work matters still: send `Continue` to the same thread, once, and log it.
-- **Otherwise:** notify the operator the thread works for, once, and log it.
+- **It failed for a reason that a retry clears,** such as a provider error or the workspace running out of processes, and its work matters still: send `Continue` to the same thread, once, and add a line to **In flight** with the thread, so a later shift does not send it again.
+- **Otherwise:** notify the operator the thread works for, once, in [the channel](../SKILL.md#the-channel), and record it in **Notices**.
 
 A provider that refused the content, as a safety flag does, will refuse it again. Do not retry: notify.
 

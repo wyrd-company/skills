@@ -26,7 +26,7 @@ The workspace shares one machine. Work started past its capacity does not finish
 | Epics in progress at once | Epic tasks in `in-progress` or `review` | `epics in progress` |
 | Tasks in progress on one board | Tasks in `in-progress` on a board outside `epics/` | `Tasks in progress per board` |
 
-- **Start a thread only while the count is below the limit.** Your own thread counts, as it runs while you dispatch.
+- **Start a thread only while the count is below the limit.** Your own thread counts, as it runs while you dispatch. The limit is soft: two dispatchers that count at the same moment can each start one, and the next count corrects it. It protects the machine from a pile-up, not from one thread more.
 - **Count before each dispatch, not once a sweep.** Threads start and finish while you work, and other dispatchers start them too.
 - **A dispatch that would reach past a limit waits.** Record it in the manager task's **Holds** section once, with the limit that holds it, and take it up on the first sweep under the limit. A hold that lasts is how operators learn to change a limit.
 - **Resuming takes a thread, not a new start.** Remediation sent back to an executor's own session, and a stalled executor resumed in its thread, make that thread run: they need a free place under the thread limit, but not under the epic or board limits, which already count their task.
@@ -43,7 +43,7 @@ An epic is waiting when its epic task, the task without a parent on a board unde
    Start epic task <id> on board <dir>, with the epic-orchestration skill. Copy the git operator from thread <your thread id>.
    ```
 
-4. Log the dispatch and the orchestrator's thread on the manager task.
+4. Log the dispatch and the orchestrator's thread on the manager task. A planner starting the epic because the workspace has no manager checks the limits from the survey's counts, and logs on the epic task instead.
 
 From here the epic runs itself. You check that it keeps running, as [threads](threads.md#stalled-work) says, and its orchestrator reports to you when it has finished.
 

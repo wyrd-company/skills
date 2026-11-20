@@ -87,12 +87,15 @@ if t3c --json thread list >"$TMP/threads.json" 2>"$TMP/threads.err" &&
   q -r "map(select((.settled | not) and (.status | IN(\"failed\", \"interrupted\")))) | sort_by(.last) | .[] | $row + \" \(.lastError // \"\" | tostring | .[0:120])\"" "$TMP/live.json"
 
   echo
-  echo "## Candidates to settle: completed or idle, not settled, pinned, snoozed, waiting or with open PRs (oldest $LIMIT)"
+  echo "## Candidates to settle: completed or idle, not settled, pinned, snoozed or waiting (oldest $LIMIT of each)"
   q -r "map(select((.settled | not) and (.pinned | not) and (.snoozed | not) and (.self | not)
       and .pendingRuntimeRequest == null and (.pendingBackgroundTasks | length) == 0
       and (.status | IN(\"completed\", \"idle\")))) as \$c
     | (\$c | map(select(.open_prs == 0))) as \$s
-    | \"count: \(\$s | length), and \(\$c | length - (\$s | length)) more held by open PRs\", (\$s | sort_by(.last) | .[:$LIMIT][] | $row)" "$TMP/live.json"
+    | (\$c | map(select(.open_prs > 0))) as \$p
+    | \"without open PRs: \(\$s | length)\", (\$s | sort_by(.last) | .[:$LIMIT][] | $row),
+      \"with open PRs, settled once each PR is merged, closed or handed to a ledger: \(\$p | length)\",
+      (\$p | sort_by(.last) | .[:$LIMIT][] | $row)" "$TMP/live.json"
 else
   unavailable "t3c thread list failed: $(head -c 300 "$TMP/threads.err")"
 fi
@@ -210,7 +213,7 @@ fi
 # --- Issues ------------------------------------------------------------------
 echo
 echo "# Issues: the workspace's issues project"
-PROJECT=$(sed -nE 's#^- Issues project: ([A-Za-z0-9_.-]+)/([0-9]+)[[:space:]]*$#\1 \2#p' <<<"$STATE" | head -1)
+PROJECT=$(section Channel <<<"$STATE" | sed -nE 's#^- Issues project: ([A-Za-z0-9_.-]+)/([0-9]+)[[:space:]]*$#\1 \2#p' | head -1)
 OWNER=${PROJECT% *}
 # The gh shim needs a repository to choose the App's installation.
 CONTEXT_REPO=$(grep -m1 "^$OWNER/" "$TMP/repos.txt" 2>/dev/null)

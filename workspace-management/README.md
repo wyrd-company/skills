@@ -19,11 +19,12 @@ The manager is a session and a set of automations. The session runs as shifts: a
 | [scripts/survey.sh](scripts/survey.sh) | The survey each sweep starts from: threads, boards, dependency updates, issues, ledgers, the budget and health |
 | [scripts/takeover.sh](scripts/takeover.sh) | A shift's takeover, one at a time: the claim, rolling the manager task forward, and the pointer file |
 | [scripts/budget.sh](scripts/budget.sh) | Today's spend against the budget, for the survey and for epic orchestrators |
-| [scripts/manager-lib.sh](scripts/manager-lib.sh) | What the scripts share: reading the manager task and its standing state |
+| [scripts/manager.sh](scripts/manager.sh) | Every read of the manager and write to the manager task, under the takeover's lock |
+| [scripts/manager-lib.sh](scripts/manager-lib.sh) | What the scripts share: the lock, reading the manager task, and parsing its standing state |
 
 ## Sources
 
-The skill is written in our own words. It draws on no third-party skill. It applies the passes of [epic-orchestration](../epic-orchestration/SKILL.md), in this repository, to the workspace: a fresh context for each run, the record as memory, one actor at a time by claim. Its cleanup and dispatch rules draw on observations recorded in memory up to 2026-11-20, from the workspace's worktree reviews, stalled epics and a survey of its threads; its budget, dependency, issue and rotation rules are the operator's decisions of that date.
+The skill is written in our own words. It draws on no third-party skill. It applies the passes of [epic-orchestration](../epic-orchestration/SKILL.md), in this repository, to the workspace: a fresh context for each run, the record as memory, one actor at a time by claim. Its cleanup and dispatch rules draw on observations recorded in memory up to 2026-11-20 (notes `workspace-survey-2026-11-19-unanswered-thread-questions-unen-e559b0c0`, `toolchain-devcontainer-runs-vector-trowel-and-dagu-but-none--3f3ce247`, `epic-planning-hand-off-the-workspace-manager-is-undefined-an-54954b54` and `workspace-manager-gaps-2026-11-20-usage-limits-unsupported-d-8a3a802a`). Its budget, dependency, issue and rotation rules are the operator's decisions of that date (note `workspace-manager-decisions-renovate-via-release-note-review-8ddc5b9e`). Its takeover's lock and recovery answer the reviews of [#33](https://github.com/wyrd-company/skills/pull/33).
 
 Formats and tools the skill uses, rather than drew on:
 
