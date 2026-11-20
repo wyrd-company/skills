@@ -8,8 +8,10 @@
 #   budget: at           at or past the budget
 #   budget: unknown      some of today's usage has no price, or a usage source failed,
 #                        so the spend is not known
-#   budget: unset        no budget: no manager task, or no "Daily budget" row
-#   budget: unavailable  usage could not be read (exit 1)
+#   budget: unset        no budget: the workspace has no manager, or its task has
+#                        no "Daily budget" row
+#   budget: unavailable  usage or the manager task could not be read, such as
+#                        during a takeover that was cut short (exit 1)
 # The lines after it give the figures. Spend is in USD at list price across all
 # providers, as `t3c usage summary` prices it, and days are in UTC.
 #
@@ -39,6 +41,12 @@ reason=""
 if body=$(manager_body "$BOARD" 2>"$TMP/body.err"); then
   budget=$(standing_state <<<"$body" | section Budget | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9]+(\.[0-9]+)?) *\|.*/\1/p' | head -1)
   [ -n "$budget" ] || reason="the manager task's Budget section has no Daily budget row with a number"
+elif [ -f "$BOARD/manager.json" ] || jq -e '.status == "running"' "$BOARD/.takeover.json" >/dev/null 2>&1; then
+  # A manager exists but its task cannot be read: not knowing the budget is not
+  # having none.
+  echo "budget: unavailable"
+  echo "the manager task cannot be read: $(cat "$TMP/body.err")"
+  exit 1
 else
   reason=$(cat "$TMP/body.err")
 fi

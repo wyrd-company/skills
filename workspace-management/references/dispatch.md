@@ -34,7 +34,9 @@ The workspace shares one machine. Work started past its capacity does not finish
 
 ## Record before you launch
 
-A shift can lose the manager's claim between checking it and starting work. So when work is recorded only in the manager task, such as a dependency update or an issue triage, write its **In flight** line first, with `manager.sh set-state`, and launch only when that write succeeds. When it exits 3, you are no longer the manager: give back the place you took, and forward the work to the new manager instead. Then add the delegate's thread to the line. Work whose record is its own task, such as an epic or a ready task, needs no line: the executor's claim on the task records it.
+A shift can lose the manager's claim between checking it and starting work, and a dispatched executor claims its task only once it starts. So before every dispatch, write its **In flight** line first, with `manager.sh set-state`: what it is (for a task, `<board> #<id>`), and since when. Launch only when that write succeeds. When it exits 3, you are no longer the manager: give back the place you took, and forward the work to the new manager instead. Then add the delegate's thread to the line.
+
+Never dispatch what has an **In flight** line: the survey marks such a ready task `(in flight)`. Remove a task's line once its executor or orchestrator has claimed it, and any other line when its report comes back. A line older than a day with no claim and no report means the launch failed: check its thread, then remove the line and dispatch again.
 
 ## Epics waiting to start
 

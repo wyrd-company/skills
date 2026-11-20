@@ -143,11 +143,13 @@ else
 
   echo
   echo "## Ready to dispatch: todo, unclaimed, not blocked, dependencies done or archived (boards outside epics/)"
-  q -r --slurpfile archived "$TMP/archived.jsonl" '
+  q -r --slurpfile archived "$TMP/archived.jsonl" --arg flight "$(section "In flight" <<<"$STATE")" '
     (($archived + .) | map({key: "\(.dir)#\(.id)", value: .status}) | from_entries) as $st
     | map(select(.kind == "board" and .status == "todo" and .claimed_by == null and (.blocked // false | not)
         and (.dir as $d | all((.depends_on // [])[]; $st["\($d)#\(.)"] | IN("done", "archived")))))
-    | sort_by(.dir, .id) | .[] | "\(.dir) #\(.id) [\(.priority)] \(.title)"' "$TMP/tasks.json"
+    | sort_by(.dir, .id) | .[]
+    | ("(^|[^[:alnum:]/._-])" + (.dir | gsub("(?<c>[.^$*+?()\\[\\]{}|\\\\])"; "\\\(.c)")) + " #\(.id)([^0-9]|$)") as $mine
+    | "\(.dir) #\(.id) [\(.priority)] \(.title)" + (if $flight | test($mine; "m") then " (in flight)" else "" end)' "$TMP/tasks.json"
 
   echo
   echo "## Tasks in progress per board outside epics/ (for limits)"

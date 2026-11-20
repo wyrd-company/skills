@@ -451,10 +451,66 @@ class BudgetTests(unittest.TestCase):
         self.b.set_body(self.b.first, body)
         self.assertEqual(self.budget([{"costUsd": 50}]), (0, "budget: above"))
 
-    def test_a_pointer_to_another_task_is_no_budget(self):
+    def test_an_unreadable_manager_task_is_unavailable(self):
         other = self.b.create(TEMPLATE.read_text().replace("{amount}", "1000"), tags="")
         (self.b.dir / "manager.json").write_text(json.dumps({"task_id": other}))
+        self.assertEqual(self.budget([{"costUsd": 101}]), (1, "budget: unavailable"))
+
+    def test_a_roll_cut_short_before_the_pointer_is_unavailable(self):
+        # The pointer still names the old task, which the roll has archived.
+        self.b.kb("edit", str(self.b.first), "--release")
+        self.b.kb("archive", str(self.b.first))
+        self.b.progress(status="running", thread="b", previous=["a"], rolled_from=self.b.first)
+        self.assertEqual(self.budget([{"costUsd": 101}]), (1, "budget: unavailable"))
+
+    def test_no_manager_is_unset(self):
+        (self.b.dir / "manager.json").unlink()
         self.assertEqual(self.budget([{"costUsd": 1}]), (0, "budget: unset"))
+
+
+@needs_tools
+class SurveyTests(unittest.TestCase):
+    def test_a_ready_task_in_flight_is_marked(self):
+        b = Board(self)
+        b.takeover("a")
+        tasks = b.dir / "project"
+        subprocess.run(
+            ["kanban-md", "init", "--dir", str(tasks)], input="n\n", text=True, capture_output=True
+        )
+        for title in ("one", "two", "three"):
+            subprocess.run(
+                ["kanban-md", "create", title, "--status", "todo", "--dir", str(tasks)],
+                capture_output=True,
+                check=True,
+            )
+        _, state = b.run("manager.sh", "a", "state")
+        old = b.dir / "old.md"
+        old.write_text(state)
+        new = b.dir / "new.md"
+        new.write_text(
+            state.replace("## Requests\n", f"- {tasks} #2, since now\n\n## Requests\n", 1)
+        )
+        self.assertEqual(b.run("manager.sh", "a", "set-state", str(new), str(old))[0], 0)
+        bin_dir = b.dir / "bin"
+        bin_dir.mkdir()
+        (bin_dir / "t3c").write_text("#!/bin/sh\necho '{\"data\": []}'\n")
+        (bin_dir / "t3c").chmod(0o755)
+        repos = b.dir / "repos"
+        repos.mkdir()
+        env = {
+            **os.environ,
+            "PATH": f"{bin_dir}:{os.environ['PATH']}",
+            "MANAGER_BOARD": str(b.dir),
+            "TASK_ROOTS": str(tasks),
+            "REPO_ROOT": str(repos),
+        }
+        out = subprocess.run(
+            ["bash", str(SCRIPTS / "survey.sh")], env=env, text=True, capture_output=True
+        ).stdout
+        ready = [line for line in out.splitlines() if line.startswith(f"{tasks} #")]
+        self.assertEqual(
+            [line.endswith("(in flight)") for line in ready], [False, True, False], ready
+        )
 
 
 if __name__ == "__main__":
