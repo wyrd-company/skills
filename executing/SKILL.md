@@ -53,6 +53,8 @@ Commit when a small, logical step is complete. Use the conventional commit forma
 
 ## Keep track of resources
 
+Create disposable scratch files under `/tmp`. Use `mktemp /tmp/agent.XXXXXXXX` for one file or `mktemp -d /tmp/agent.XXXXXXXX` for a directory. Keep scratch files out of Git worktrees, even in ignored directories. If a session ends unexpectedly, the next agent can then remove the worktree without having to decide whether those files need saving.
+
 Record each resource you create in your thread's [ledger](../ledger/SKILL.md) as soon as it exists, with the command that removes it: temp files and folders, Docker artifacts, VMs and [boat](../boat/SKILL.md) sandboxes, running processes, worktrees and branches, threads you launched. When the work has a task, also log to the task what you provisioned.
 
 ## When to decide and when to ask
