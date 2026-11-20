@@ -97,7 +97,7 @@ rolled_from=$(jq -r '.rolled_from // "null"' <<<"$own")
 [ "$rolled_from" != null ] || [ -z "$running" ] || rolled_from=$(jq -r '.rolled_from // "null"' <<<"$other")
 [ -z "$older" ] || rolled_from=$(tail -1 <<<"$older") # a roll cut short after the successor was made
 
-logged=$(jq -r '.logged // false' <<<"$own")
+logged=$(jq -c '.logged // false' <<<"$own")
 save_progress() { # status, then the summary when done
   jq -n --arg status "$1" --arg thread "$SELF" --argjson previous "$previous" --argjson rolled "$rolled_from" \
     --argjson logged "$logged" --argjson summary "${2:-null}" \
@@ -150,9 +150,16 @@ for id in $older; do
   kb archive "$id" >/dev/null
 done
 
+entry="Takeover by $SELF from $(jq -r 'if length == 0 then "no previous shift" else join(", ") end' <<<"$previous")."
+[ "$rolled_from" = null ] || entry="$entry Rolled forward from #$rolled_from."
+# "pending" means the entry may have been written before a crash: look for the
+# exact line before writing it again.
+if [ "$logged" = '"pending"' ] && kb --json show "$current" | jq -r .body | log_part | grep -qxF "$entry"; then
+  logged=true
+fi
 if [ "$logged" != true ]; then
-  entry="Takeover by $SELF from $(jq -r 'if length == 0 then "no previous shift" else join(", ") end' <<<"$previous")."
-  [ "$rolled_from" = null ] || entry="$entry Rolled forward from #$rolled_from."
+  logged='"pending"'
+  save_progress running
   kb edit "$current" --append-body "$entry" --timestamp --claim "$SELF" >/dev/null
   logged=true
   save_progress running

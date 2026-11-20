@@ -236,6 +236,26 @@ class TakeoverTests(unittest.TestCase):
         code, out = self.b.takeover("a")
         self.assertEqual((code, self.b.pointer()["task_id"]), (0, self.b.first))
 
+    def test_a_takeover_entry_written_before_a_crash_is_not_repeated(self):
+        self.b.takeover("a")
+        self.b.kb("edit", str(self.b.first), "--release")
+        self.b.kb("edit", str(self.b.first), "--claim", "b")
+        self.b.kb(
+            "edit",
+            str(self.b.first),
+            "--append-body",
+            "Takeover by b from a.",
+            "--timestamp",
+            "--claim",
+            "b",
+        )
+        self.b.progress(
+            status="running", thread="b", previous=["a"], rolled_from=None, logged="pending"
+        )
+        code, _ = self.b.takeover("b", "a")
+        self.assertEqual(code, 0)
+        self.assertEqual(self.b.body(self.b.first).count("Takeover by b from a."), 1)
+
     def test_a_log_line_mentioning_a_takeover_does_not_hide_the_entry(self):
         self.b.takeover("a")
         self.b.run(
@@ -327,6 +347,23 @@ class ManagerTests(unittest.TestCase):
         self.assertEqual(self.set_state(state + "\n```\nunclosed\n", old), 1)
         self.assertIn("kept entry", self.b.body(self.b.first))
 
+    def test_state_before_the_first_takeover(self):
+        b = Board(self)
+        code, out = b.run("manager.sh", "a", "state")
+        self.assertEqual(code, 0)
+        self.assertIn("## Notices", out)
+
+    def test_set_state_refuses_a_damaged_log_boundary(self):
+        self.b.run("manager.sh", "a", "log", "history sentinel")
+        body = self.b.body(self.b.first).replace("## Log\n", "## Logbook\n")
+        self.b.set_body(self.b.first, body)
+        code, out = self.b.run("manager.sh", "a", "state")
+        self.assertEqual((code, out), (1, ""))
+        old = self.b.dir / "old.md"
+        old.write_text(body)
+        self.assertEqual(self.set_state(TEMPLATE.read_text().split("## Log")[0], old), 1)
+        self.assertIn("history sentinel", self.b.body(self.b.first))
+
     def test_own_unfinished_takeover_blocks_writes(self):
         self.b.progress(status="running", thread="a", previous=[], rolled_from=None)
         self.assertEqual(self.b.run("manager.sh", "a", "log", "x")[0], 5)
@@ -354,17 +391,18 @@ class AdmitTests(unittest.TestCase):
         self.b.takeover("a")
         self.bin = self.b.dir / "bin"
         self.bin.mkdir()
-        threads = {"data": [{"status": "running"}, {"status": "idle"}]}
+        threads = {"data": [{"id": "a", "status": "running"}, {"id": "i", "status": "idle"}]}
         (self.b.dir / "threads.json").write_text(json.dumps(threads))
         t3c = self.bin / "t3c"
         t3c.write_text(f"#!/bin/sh\ncat {self.b.dir / 'threads.json'}\n")
         t3c.chmod(0o755)
 
-    def admit(self, *args):
+    def admit(self, *args, thread="a"):
         env = {
             **os.environ,
             "PATH": f"{self.bin}:{os.environ['PATH']}",
             "MANAGER_BOARD": str(self.b.dir),
+            "T3CODE_THREAD_ID": thread,
         }
         cmd = ["bash", str(SCRIPTS / "admit.sh"), *args]
         return subprocess.run(cmd, env=env, text=True, capture_output=True).returncode
@@ -376,6 +414,31 @@ class AdmitTests(unittest.TestCase):
         self.assertEqual(self.admit("take", "z"), 3)
         self.assertEqual(self.admit("release", "x"), 0)
         self.assertEqual(self.admit("take", "z"), 0)
+
+    def test_the_same_label_cannot_take_two_places(self):
+        self.assertEqual(self.admit("take", "review:1"), 0)
+        self.assertEqual(self.admit("take", "review:1"), 5)
+
+    def age_places(self, seconds):
+        path = self.b.dir / ".admissions.json"
+        places = json.loads(path.read_text())
+        path.write_text(json.dumps([{**p, "at": p["at"] - seconds} for p in places]))
+
+    def test_a_live_dispatchers_place_does_not_lapse(self):
+        self.admit("take", "x")
+        self.admit("take", "y")
+        self.age_places(901)
+        self.assertEqual(self.admit("take", "z", thread="b"), 3)
+
+    def test_a_stopped_dispatchers_place_lapses(self):
+        self.admit("take", "x", thread="gone")
+        self.admit("take", "y", thread="gone")
+        self.age_places(601)
+        self.assertEqual(self.admit("take", "z"), 0)
+
+    def test_an_unreadable_limit_starts_nothing(self):
+        (self.b.dir / "manager.json").write_text(json.dumps({"thread_id": "a", "task_id": 999}))
+        self.assertEqual(self.admit("take", "x"), 1)
 
     def test_concurrent_takers_share_the_last_place(self):
         self.admit("take", "x")
@@ -465,7 +528,26 @@ class BudgetTests(unittest.TestCase):
 
     def test_no_manager_is_unset(self):
         (self.b.dir / "manager.json").unlink()
+        self.b.kb("edit", str(self.b.first), "--release")
+        self.b.kb("archive", str(self.b.first))
         self.assertEqual(self.budget([{"costUsd": 1}]), (0, "budget: unset"))
+
+    def test_before_the_first_takeover_the_setup_task_counts(self):
+        b = Board(self, TEMPLATE.read_text().replace("{amount}", "100"))
+        self.b = b
+        self.bin = b.dir / "bin"
+        self.bin.mkdir()
+        self.assertEqual(self.budget([{"costUsd": 101}]), (0, "budget: at"))
+
+    def test_a_pointer_to_an_unclaimed_duplicate_is_unavailable(self):
+        other = self.b.create(TEMPLATE.read_text().replace("{amount}", "1000"))
+        (self.b.dir / "manager.json").write_text(json.dumps({"thread_id": "a", "task_id": other}))
+        self.assertEqual(self.budget([{"costUsd": 101}]), (1, "budget: unavailable"))
+
+    def test_a_missing_log_boundary_is_unavailable(self):
+        body = TEMPLATE.read_text().replace("{amount}", "100").replace("## Log", "## Logbook")
+        self.b.set_body(self.b.first, body)
+        self.assertEqual(self.budget([{"costUsd": 1}]), (1, "budget: unavailable"))
 
 
 @needs_tools

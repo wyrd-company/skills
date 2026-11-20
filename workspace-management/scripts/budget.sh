@@ -38,10 +38,16 @@ fi
 
 budget=""
 reason=""
-if body=$(manager_body "$BOARD" 2>"$TMP/body.err"); then
+rc=0
+body=$(manager_body "$BOARD" 2>"$TMP/body.err") || rc=$?
+if [ "$rc" -eq 0 ] && ! standing_state <<<"$body" >/dev/null; then
+  echo "no ## Log heading outside a code block in the manager task" >"$TMP/body.err"
+  rc=1
+fi
+if [ "$rc" -eq 0 ]; then
   budget=$(standing_state <<<"$body" | section Budget | sed -nE 's/^\| *Daily budget[^|]*\| *\$?([0-9]+(\.[0-9]+)?) *\|.*/\1/p' | head -1)
   [ -n "$budget" ] || reason="the manager task's Budget section has no Daily budget row with a number"
-elif [ -f "$BOARD/manager.json" ] || jq -e '.status == "running"' "$BOARD/.takeover.json" >/dev/null 2>&1; then
+elif [ "$rc" -ne 2 ]; then
   # A manager exists but its task cannot be read: not knowing the budget is not
   # having none.
   echo "budget: unavailable"

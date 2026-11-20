@@ -89,20 +89,33 @@ missing_sections() {
   done
 }
 
-# Print the manager task, as the pointer file names it, as kanban-md JSON.
-# Fails, with the reason on stderr, when the pointer is missing or names a task
-# that is not an open manager task.
+# Print the manager task as kanban-md JSON: the task the pointer file names,
+# which must be open, tagged workspace-manager and claimed by the pointer's
+# thread; or, before the first takeover has written a pointer, the newest open
+# manager task. Returns 2 when the workspace has no manager task at all, and 1,
+# with the reason on stderr, when it has one that cannot be read as the pointer
+# says.
 manager_task() {
-  local board=$1 id json
+  local board=$1 id thread json
+  if [ ! -f "$board/manager.json" ]; then
+    json=$(kanban-md --json list --tag workspace-manager --status todo,in-progress --sort id --dir "$board" 2>/dev/null |
+      jq -ec 'last // empty' 2>/dev/null) || {
+      echo "no manager task on $board" >&2
+      return 2
+    }
+    printf '%s\n' "$json"
+    return 0
+  fi
   id=$(jq -r '.task_id // empty' "$board/manager.json" 2>/dev/null) || true
+  thread=$(jq -r '.thread_id // empty' "$board/manager.json" 2>/dev/null) || true
   if [ -z "$id" ]; then
-    echo "no manager task: $board/manager.json is missing or names none" >&2
+    echo "$board/manager.json names no task" >&2
     return 1
   fi
   if ! json=$(kanban-md --json show "$id" --dir "$board" 2>/dev/null) ||
-    ! jq -e '(.tags // [] | index("workspace-manager")) and (.status | IN("todo", "in-progress"))' \
-      >/dev/null 2>&1 <<<"$json"; then
-    echo "task #$id, named in $board/manager.json, is not an open manager task" >&2
+    ! jq -e --arg thread "$thread" '(.tags // [] | index("workspace-manager")) and .status == "in-progress"
+      and .claimed_by == $thread' >/dev/null 2>&1 <<<"$json"; then
+    echo "task #$id, named in $board/manager.json, is not the manager task claimed by thread ${thread:-none}" >&2
     return 1
   fi
   printf '%s\n' "$json"
@@ -110,8 +123,9 @@ manager_task() {
 
 # Print the manager task's body. Fails as manager_task does.
 manager_body() {
-  local json
-  json=$(manager_task "$1") || return 1
+  local json rc=0
+  json=$(manager_task "$1") || rc=$?
+  [ "$rc" -eq 0 ] || return "$rc"
   jq -r '.body // ""' <<<"$json"
 }
 

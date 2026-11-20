@@ -20,8 +20,8 @@
 # Environment:
 #   T3CODE_THREAD_ID  this thread's id (required for log and set-state)
 #   MANAGER_BOARD     the workspace board (default: /tasks)
-# Exit: 0 done; 1 failed, such as a state missing a section; 2 the workspace has
-# no manager; 3 you are not the manager; 4 the lock was not free within 10
+# Exit: 0 done; 1 failed, such as a state missing a section or a manager task
+# that cannot be read; 2 the workspace has no manager; 3 you are not the manager; 4 the lock was not free within 10
 # minutes; 5 your own takeover is unfinished: run takeover.sh again; 6 the state
 # changed since you read it: read it again and redo your change.
 set -euo pipefail
@@ -32,11 +32,14 @@ BOARD=${MANAGER_BOARD:-/tasks}
 COMMAND=${1:?usage: manager.sh holder | state | log <text> | set-state <new> <old>}
 
 if [ "$COMMAND" = state ]; then
-  body=$(manager_body "$BOARD") || exit 2
-  standing_state <<<"$body" || {
-    echo "the manager task has no ## Log heading outside a code block" >&2
+  rc=0
+  body=$(manager_body "$BOARD") || rc=$?
+  [ "$rc" -eq 0 ] || exit "$rc"
+  state=$(standing_state <<<"$body") || {
+    echo "the manager task has no ## Log heading outside a code block: ask an operator to repair it" >&2
     exit 1
   }
+  printf '%s\n' "$state"
   exit 0
 fi
 
@@ -80,7 +83,11 @@ set-state)
   new=${2:?usage: manager.sh set-state <new> <old>}
   old=${3:?usage: manager.sh set-state <new> <old>}
   body=$(jq -r '.body // ""' <<<"$task")
-  if [ "$(standing_state <<<"$body")" != "$(cat "$old")" ]; then
+  current=$(standing_state <<<"$body") || {
+    echo "the manager task has no ## Log heading outside a code block: ask an operator to repair it" >&2
+    exit 1
+  }
+  if [ "$current" != "$(cat "$old")" ]; then
     echo "the standing state changed since you read it: read it again and redo your change" >&2
     exit 6
   fi
