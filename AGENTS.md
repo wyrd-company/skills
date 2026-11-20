@@ -18,7 +18,7 @@ Skills are written in our own words. Third-party skills shape them, but are neve
 
 ## Committing
 
-Worktrees here often hold drafts and upstream copies. Stage only the paths you mean to commit, by name, never with `git add -A` or `git commit -a`, and check `git show --stat` before you push.
+Stage only the paths you mean to commit, by name, never with `git add -A` or `git commit -a`, and check `git show --stat` before you push.
 
 ## Checks
 
