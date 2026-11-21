@@ -8,7 +8,7 @@ Read this when the epic pull requests have merged into the default branch, or wh
 4. Bring the GitHub project up to date.
 5. Close the epic task with a final log entry naming the merge commits and pull requests, then commit and push its board.
 6. Archive the board, as below.
-7. Report to the workspace manager that the epic is finished.
+7. Report to the workspace manager that the epic is finished, as [workspace-management](../../workspace-management/SKILL.md#reach-the-manager) says.
 8. Delete the schedule. Do this last: this pass is one of its runs.
 
 ## Archive the board
