@@ -27,15 +27,17 @@ Drop the filters when an outdated thread may still be unanswered.
 
 ### Comment
 
-Post the round as one review:
+Post the round as one review, anchored to the commit you reviewed:
 
 ```bash
-gh pr-review review --start -R $REPO $PR
+gh pr-review review --start --commit "$REVIEWED_HEAD" -R $REPO $PR
 gh pr-review review --add-comment --review-id $REVIEW_ID --path "$FILE" --line $LINE --body "P1: <problem>. <fix>." -R $REPO $PR
 gh pr-review review --submit --review-id $REVIEW_ID --event $EVENT --body "$SUMMARY" -R $REPO $PR
 ```
 
-Use `--start-line` for a range. When there are no inline comments, skip `--add-comment` and submit the review with `--body "$SUMMARY"`. The summary opens with the result, the count by severity and the top concern.
+Pass `--commit "$REVIEWED_HEAD"` to `--start` so the review never attaches to a commit pushed after you began. Use `--start-line` for a range. When there are no inline comments, skip `--add-comment` and submit the review with `--body "$SUMMARY"`. The summary opens with the result, the count by severity and the top concern.
+
+Before submitting `APPROVE`, recheck the live pull request (`gh pr view`) and base branch (`git fetch origin` and `git rev-parse "origin/$BASE"`). If the pull request head moved past `$REVIEWED_HEAD`, submit `REQUEST_CHANGES` naming the unreviewed commits. If the target branch changed, reject the surface with `REQUEST_CHANGES`. If the base moved, submit `REQUEST_CHANGES` as **Change approved, rebase expected** naming the base head you reviewed against.
 
 - **Accepted:** `APPROVE` (including when only non-blocking `P3` findings remain). Submitting `APPROVE` records acceptance on GitHub and clears any earlier `REQUEST_CHANGES` from this reviewer.
 - **Rejected, Surface rejected, or Change approved, rebase expected:** `REQUEST_CHANGES` (the pull request must not merge in this state).
