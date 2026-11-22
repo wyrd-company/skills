@@ -11,7 +11,8 @@ A report exists so that one reader can understand something or decide something.
 ## Before you write
 
 - **Name the reader and the question.** The reader is the person who asked, unless they name someone else, such as a manager reading a brief. The question is what that person needs to understand or decide. When the request leaves the reader unclear and the right depth depends on it, ask.
-- **Pitch it to what the reader knows.** A colleague in the code can follow file names and internal terms. A manager or a newcomer gets plain words, a definition the first time a term appears, and a link to anything they would need to open.
+- **Pitch it to what the reader knows.** When the reader is an operator, their profile says what they know and how they want to be told. A colleague in the code can follow file names and internal terms. A manager or a newcomer gets plain words, a definition the first time a term appears, and a link to anything they would need to open.
+- **Assume the reader has none of your context, even when they asked.** You have read files, memories, logs and tool output that the reader has not seen. A reader who comes back after an hour has forgotten most of the thread, including what you told them. Open with where things stand: what the work is, what has happened since they last looked, and what you need from them. Before you refer to a file, a memory, a term, an earlier decision or an option you offered, say what it is. "The earlier fix" and "option B" mean nothing to a reader who has lost the thread.
 - **Find the facts before you write about them.** Read the code, run the command or open the source. A claim about how code behaves comes from reading or running it, not from a function's name, a comment or memory.
 
 ## Shape
@@ -56,7 +57,7 @@ Deliver in the thread unless the reader needs the report somewhere else. When it
 | To read it in the thread | Your reply. Use the harness's preview tool for HTML or images when it has one |
 | A link to a static page or deck, outside the thread | [Postplan](references/postplan.md) |
 | A page that runs code, reads live data from this workspace, or is too large for Postplan | [A page served from this workspace](references/workspace-site.md) |
-| An image, recording or file to embed in GitHub, Postplan or Discord | [The public assets bucket](references/assets.md) |
+| An image, recording or file to embed in GitHub, Postplan or Discord | The [`public-assets` skill](../public-assets/SKILL.md) |
 | A notice that the report is ready, or an answer about it | Discord, through the [`contact` skill](../contact/SKILL.md). Link the report from the message |
 
 Everything delivered outside the thread can be read by someone other than the person you are working with. It must contain no secrets, tokens, private URLs or local file paths.

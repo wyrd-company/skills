@@ -15,7 +15,7 @@ Read this when the reader asked for slides, will present the material, or wants 
 - A slide that cannot be split, such as a long table or code block, gets `class="scrollable"` and scrolls inside the frame.
 - Code goes in `<pre><code class="language-ts">`, or another language name. highlight.js colours it.
 - Inside sections, use only semantic HTML: `p`, `ul`, `ol`, `table` with `thead` and `tbody`, `pre`, `code`, `strong`, `em`. The deck provides the classes `muted`, `tag` (with `warn` and `err`), `two` for two columns, `check` for an acceptance box, and `kicker`.
-- Leave out `<style>`, `<script>` and external resources. Embed images as data URLs, or link them from the [assets bucket](assets.md). Draw diagrams as inline SVG.
+- Leave out `<style>`, `<script>` and external resources. Embed images as data URLs, or link them from the [public assets bucket](../../public-assets/SKILL.md). Draw diagrams as inline SVG.
 
 Keep the source fragment somewhere that outlives the container, not in `/tmp`: in `/workspace/briefings/<task>/` when that folder exists, otherwise beside the work it reports on. Record its path with the Postplan draft id. Later revisions are rebuilt from the source, not reconstructed from the published page.
 

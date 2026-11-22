@@ -157,7 +157,7 @@ Reread the handoff against its evidence. Each result quoted comes from a run at 
 
 Work is reviewed after the fact, so include evidence that lets a person see the outcome without running anything or reading the transcript: screenshots, recordings, terminal captures, the output of the proving script.
 
-Keep the evidence where the reviewer will look: linked in the pull request, issue and task. Commit it only when it will be reused elsewhere. Upload media to the public assets bucket, as `reporting`'s [assets reference](../reporting/references/assets.md) says, and link its URL in GitHub descriptions and comments.
+Keep the evidence where the reviewer will look: linked in the pull request, issue and task. Commit it only when it will be reused elsewhere. Upload media as the [`public-assets` skill](../public-assets/SKILL.md) says, and link its URL in GitHub descriptions and comments.
 
 Name a skipped check as unverified. Do not report it as passed.
 

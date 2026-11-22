@@ -2,7 +2,7 @@
 
 The skill an agent uses when someone asks it to explain something, or for a report, brief, summary or deck. It starts from the reader and their question, chooses the smallest form that answers it, checks every claim and figure against its source, and delivers the result in the thread, through Postplan, on a page served from the workspace, through Discord or through the public assets bucket.
 
-Everyday replies are covered by the core instructions in `workspace-dotfiles`; this skill takes over when the request is for an explanation, report, brief or deck. A pull request's handoff is in `executing`, which links here for the assets bucket. Charts are in `dataviz` when it is installed.
+Everyday replies are covered by the core instructions in `workspace-dotfiles`; this skill takes over when the request is for an explanation, report, brief or deck. A pull request's handoff is in `executing`. Both use `public-assets` for media at a public URL. Charts are in `dataviz` when it is installed.
 
 | File | What it is for |
 |---|---|
@@ -16,7 +16,6 @@ Everyday replies are covered by the core instructions in `workspace-dotfiles`; t
 | [references/decks.md](references/decks.md) | Deck sources and the build script |
 | [references/postplan.md](references/postplan.md) | Publishing to and reading from Postplan |
 | [references/workspace-site.md](references/workspace-site.md) | Serving a page through the workspace's Caddy |
-| [references/assets.md](references/assets.md) | The public assets bucket |
 | [scripts/build-deck.py](scripts/build-deck.py) | Builds a reveal.js deck from a source fragment and uploads it to Postplan |
 | [assets/deck/VERSIONS.md](assets/deck/VERSIONS.md) | The vendored reveal.js and highlight.js files, and their versions |
 

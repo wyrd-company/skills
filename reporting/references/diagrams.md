@@ -32,4 +32,4 @@ Every box, arrow and label must match something real, such as a module, a call, 
 
 ## Formats
 
-Mermaid is quick and diffable, and is the default inside Markdown. Use inline SVG when you need exact placement, annotations or a before-and-after pair. A PNG is for places that render neither. Export it from the SVG and upload it to the [assets bucket](assets.md).
+Mermaid is quick and diffable, and is the default inside Markdown. Use inline SVG when you need exact placement, annotations or a before-and-after pair. A PNG is for places that render neither. Export it from the SVG and upload it as the [`public-assets` skill](../../public-assets/SKILL.md) says.
