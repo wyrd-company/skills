@@ -41,7 +41,7 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
    Round 1 reads the whole change. Later rounds at `low` and `normal` read what changed since the last round, and at `high` the whole change again. Read more when that change reaches into code you approved. A round after a rebase expected is the exception at every level: it checks what the rebase changed, as below.
 5. **Check how the previous round's findings were settled,** as below.
 6. **Verify each finding before you report it.** A finding is a claim about the work, and it needs the evidence its severity implies. Point at the line, and for P0 and P1 show the failure: a command, a test, a trace. A finding you could not confirm is a `Q`.
-7. **Decide** the result, and deliver it on the surface.
+7. **Decide** the result, and deliver it on [the surface](references/surfaces.md).
 8. **Merge** only when you are authorized and every gate holds.
 9. **Hand off.**
 

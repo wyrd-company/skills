@@ -32,13 +32,14 @@ Post the round as one review:
 ```bash
 gh pr-review review --start -R $REPO $PR
 gh pr-review review --add-comment --review-id $REVIEW_ID --path "$FILE" --line $LINE --body "P1: <problem>. <fix>." -R $REPO $PR
-gh pr-review review --submit --review-id $REVIEW_ID --event REQUEST_CHANGES --body "$SUMMARY" -R $REPO $PR
+gh pr-review review --submit --review-id $REVIEW_ID --event $EVENT --body "$SUMMARY" -R $REPO $PR
 ```
 
-Use `--start-line` for a range. The summary opens with the result, the count by severity and the top concern.
+Use `--start-line` for a range. When there are no inline comments, skip `--add-comment` and submit the review with `--body "$SUMMARY"`. The summary opens with the result, the count by severity and the top concern.
 
-- **Rejected:** `REQUEST_CHANGES`.
-- **Accepted, or findings that do not block:** `COMMENT`. An agent never submits `APPROVE`. Approval on GitHub is the operator's, so an accepted review ends: `Ready for operator review at <head>.`
+- **Accepted:** `APPROVE` (including when only non-blocking `P3` findings remain). Submitting `APPROVE` records acceptance on GitHub and clears any earlier `REQUEST_CHANGES` from this reviewer.
+- **Rejected, Surface rejected, or Change approved, rebase expected:** `REQUEST_CHANGES` (the pull request must not merge in this state).
+- **Accepted pending a judge's verdict, or standalone non-blocking comments:** `COMMENT`. Do not submit `APPROVE` before the judge completes the acceptance.
 
 ### Reply to the previous round
 
@@ -81,6 +82,10 @@ gitpr merge $ID
 ```
 
 Use `--text-file` for text with backticks or several lines, and `--pr-level` for a finding with no line.
+
+- **Accepted:** run `gitpr approve $ID --basis "$SOURCE:$BASE"` (including when only non-blocking `P3` findings remain).
+- **Rejected, Surface rejected, or Change approved, rebase expected:** run `gitpr reject $ID --basis "$SOURCE:$BASE"` (the pull request must not merge in this state).
+- **Accepted pending a judge's verdict:** post the summary with `--pr-level` and do not run `gitpr approve` before the judge completes the acceptance.
 
 `approve`, `reject` and `merge` are separate steps. `approve` records the verdict and refuses if either head has moved. `merge` merges the head recorded at approval, so check the base yourself just before it. Leave `--cleanup` off: the executor removes its worktree and branch.
 
