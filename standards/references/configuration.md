@@ -43,7 +43,7 @@ Read this when designing, implementing or reviewing runtime configuration for a 
 
 - Support `/etc/<app>/policy.yml` only when an application has settings administrators need to lock against user overrides; `/etc/<app>/config.yml` remains overridable system defaults.
 - `policy.yml` holds exact locked values using the same `kebab-case` YAML shape as `config.yml`, and sits at the top of the precedence ladder above CLI flags. `--config` and `<APP>_CONFIG` never bypass it.
-- Not every setting needs to be supported in `policy.yml`. Declare in the schema and document in the configuration reference which settings `policy.yml` accepts; per-layer validation rejects unsupported keys in `policy.yml`.
+- Not every setting needs to be supported in `policy.yml`. Declare in the schema which settings `policy.yml` accepts; per-layer validation rejects unsupported keys in `policy.yml`.
 - Require `policy.yml` to be owned by root and not writable by non-root users; fail startup if its ownership or permissions are weaker rather than silently ignoring it.
 - When a lower layer (configuration file, environment variable or CLI flag) sets a field locked by `policy.yml`, the policy value wins and the application writes a warning to standard error naming the locked field and the overridden source. `<app> config show` reports `policy` as the source layer.
 
@@ -108,7 +108,7 @@ Read this when designing, implementing or reviewing runtime configuration for a 
 
 ## Shape, validation and diagnostics
 
-- **One source of truth:** Describe the configuration contract in `docs/specifications/configuration.yml` and define it in JSON Schema beside it (one schema, or one schema per mode matching each mode's name), placed by [specification definitions](../../designing/references/documents.md#specification-definitions). Generate reference documentation from the schema ([reference](user-documentation.md#reference)), validate committed examples in `docs/user/` against it ([published links](user-documentation.md#published-links)), and generate derived configuration flags in the command-line specification from the schema or fail `task check` when the two disagree. Include the application's effective precedence order (every configuration file path, environment variables, CLI flags, and `policy.yml` when supported) and, when `policy.yml` is supported, which settings it may lock in the published configuration documentation.
+- **One source of truth:** Describe the configuration contract in `docs/specifications/configuration.yml` and define it in JSON Schema beside it (one schema, or one schema per mode matching each mode's name), placed by [specification definitions](../../designing/references/documents.md#specification-definitions). Generate reference documentation from the schema ([reference](user-documentation.md#reference)), validate committed examples in `docs/user/` against it ([published links](user-documentation.md#published-links)), and generate derived configuration flags in the command-line specification from the schema or fail `task check` when the two disagree.
 - **Keep the shape concise and user-centred:**
   - Group fields by user concept rather than internal code packages, and keep nesting shallow (two to three levels deep, excluding the shared secret-source mapping itself).
   - Choose safe defaults so a minimal working configuration is only a few lines.

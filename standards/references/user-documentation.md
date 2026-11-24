@@ -46,6 +46,7 @@ A reader opens the documentation with one need: to learn, to get a task done, to
 - **The check catches drift.** A committed generation task produces the reference reproducibly. The repository's `check` regenerates it and fails on any difference from the committed output, including missing and obsolete pages. It also fails when generation fails. Review checks that changing a definition or doc comment without regenerating makes this check fail.
 - **Its structure follows the product's:** a page for each command, endpoint, resource or module, in the same order and with the same names.
 - **Complete and plain.** Every public entry is documented. Give its name, type or signature, default, accepted values, errors and example wherever those apply. It describes; it does not instruct or recommend.
+- **Configuration reference covers sources and surfaces.** Generated configuration reference states the application's configuration sources and precedence order (file paths, environment variables, CLI flags, and admin policy when supported) from the configuration specification and schema, and marks each setting's schema-declared surfaces and constraints (environment variable, cross-tool aliases, CLI flag, project-local allowlist status, and whether admin policy may lock it; see [application configuration](configuration.md)).
 - **The version that added an entry** is marked on the entry when the product has users on more than one version.
 
 ## Explanation
