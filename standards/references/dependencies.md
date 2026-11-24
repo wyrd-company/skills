@@ -1,11 +1,19 @@
 # Dependencies
 
-Read this when adding, pinning, auditing, updating, reviewing or removing a dependency in a repository: language packages, package managers, runtimes, container base images and CI actions. Every repository also carries `renovate.json`, committed lockfiles and `LICENSES/` as the [repository standard](repository.md) specifies. Not for choosing an application's primary framework ([stack](stack.md)) or installing tools into a devcontainer ([workspace](workspace.md)).
+Read this when evaluating, adopting, vendoring, forking, pinning, auditing, updating, reviewing or removing a dependency or piece of infrastructure software: language packages, package managers, runtimes, container base images and CI actions. Every repository also carries `renovate.json`, committed lockfiles and `LICENSES/` as the [repository standard](repository.md) specifies. Not for choosing an application's primary framework ([stack](stack.md)) or installing tools into a devcontainer ([workspace](workspace.md)).
 
-## Choosing and adding
+## Build, adopt, vendor or fork
 
-- **Make every dependency earn its keep.** Use the standard library or a small amount of owned code instead of a single-purpose micro-package. Every added package expands audit, upgrade and supply-chain surface.
-- **Vet before adding.** Confirm the package is actively maintained, its license is compatible with the repository's [license](repository.md#license) (no unintended strong copyleft such as AGPL or SSPL in Apache-2.0 or MIT projects), and its transitive dependency tree is proportionate to what it provides.
+- **Adopt non-trivial infrastructure and libraries; own trivial code.** Adopt an existing third-party implementation for non-trivial infrastructure and dependencies unless no suitable one exists. Conversely, use the standard library or a small amount of owned code instead of pulling in a single-purpose micro-package, because every added package expands audit, upgrade and supply-chain surface.
+- **Evaluate candidates before adopting.** Suitability is a judgement call rather than a rigid formula; a less popular specialist library can still be the right answer. Weigh:
+  - **Standing and adoption:** established reputation (for example over 1,000 GitHub stars or research confirming real-world adoption).
+  - **Active maintenance:** consistent release cadence (consistency matters more than interval length), issue age and responsiveness, and pull-request merge history.
+  - **Source inspection:** inspect a shallow clone of the latest release in the project's `references/` directory and confirm it presents no security risks.
+  - **License and weight:** compatibility with the repository's [license](repository.md#license) (no unintended strong copyleft such as AGPL or SSPL in Apache-2.0 or MIT projects) and a transitive dependency tree proportionate to what the package provides.
+- **Vendor, fork or build separately when no suitable active package exists:**
+  - **Vendor** small, useful older or abandoned projects before creating a fork, recording their third-party license in `LICENSES/` ([repository](repository.md#license)).
+  - **Fork** an older, abandoned or smaller project when it is likely to be needed across future projects or still carries value for the wider community. Ask the operator to create the fork, and maintain it under the [repository fork rules](repository.md#forks).
+  - **Build as a separate project** when nothing in the ecosystem provides the needed non-trivial infrastructure, so it stays reusable across projects and can be shared back with the community.
 - **One library per job, one major version per graph.** Reuse the dependency the repository already carries for a concern (HTTP, dates, CLI parsing, serialisation) rather than adding a second one. When a change adds a duplicate major version of a shared dependency to the lockfile, inspect the graph (`cargo tree -d`, `pnpm why`, `uv tree`) and consolidate to one version unless an upstream transitive dependency forces the split.
 - **Scope dependencies accurately.** Put test, lint, formatting and build-only tools in development or build dependency groups, never in runtime dependencies.
 
@@ -29,7 +37,8 @@ Read this when adding, pinning, auditing, updating, reviewing or removing a depe
 
 ## Updating and reviewing
 
-- **Update on a steady, small-batch cadence.** Use the repository's [Renovate configuration](repository.md#files) to group low-risk updates (linters, type definitions, patch releases) on a regular schedule so updates stay small and reviewable instead of accumulating into large catch-up changes.
+- **Put an update plan in place when adopting or forking.** Whenever adopting infrastructure software, adding a dependency reference in `references/`, or creating a fork, put a mechanism in place to keep it current right away (or at the next opportunity if missed): [Renovate](repository.md#files), a scheduled Dagu workflow ([workspace](workspace.md#fit-one-workspace-to-its-needs)), or checks during development tasks or deployments. When the mechanism cannot be implemented immediately, check whether an issue or task already tracks it and file one if none exists.
+- **Update on a steady, small-batch cadence.** Use the repository's Renovate configuration to group low-risk updates (linters, type definitions, patch releases) on a regular schedule so updates stay small and reviewable instead of accumulating into large catch-up changes.
 - **Keep dependency updates isolated.** Land dependency updates in their own commits and pull requests, separate from feature work and refactors, so regressions bisect and revert cleanly.
 - **Read release notes; never automerge.** Automated dependency updates are never automerged on green CI alone. Read the upstream release notes or changelog for bug fixes, security fixes, deprecations and behavioural changes before merging.
 - **Verify behavioural changes on high-risk majors.** A green test suite proves only what the tests already assert. When a major upgrade touches a library that shapes output (a template engine, serialiser or parser), sits on a security boundary (authentication, cryptography, sandboxing), or formats error text that later passes through redaction or logging:
@@ -51,6 +60,7 @@ Prefer an automated check over a review habit ([instructions](instructions.md#ev
 |---|---|
 | Lockfile freshness and reproducibility | CI (`--frozen-lockfile` / `--locked`) |
 | Release cooldown, update grouping, SHA-pinned actions and image digests | Organisation Renovate preset ([`renovate.json`](../assets/repository/renovate.json)) |
+| Keeping infrastructure applications, `references/` clones and forks current | Renovate, scheduled Dagu workflows, deployment/task checks, or a tracked issue or task |
 | Blocked install lifecycle scripts | Repository package-manager configuration (`.npmrc` or `pnpm-workspace.yaml`) |
 | Vulnerabilities and disallowed licenses | `task check` / CI (`cargo deny`, `pnpm audit`, `pip-audit`, `osv-scanner`) |
 | Unused dependencies | `task lint` or scheduled cleanup (`knip`, `cargo-machete`, `deptry`) |

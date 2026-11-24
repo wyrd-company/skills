@@ -11,7 +11,7 @@ The rules our work is held to. The agent doing the work follows them, and the ag
 | [references/interface.md](references/interface.md) | How an interface a person uses is built: usability, accessibility, states, layout, colour, type, motion, copy, platforms and terminal tools |
 | [references/stack.md](references/stack.md) | What websites and web applications are built with, and the template a site starts from |
 | [references/configuration.md](references/configuration.md) | Runtime configuration for published applications: files, precedence, naming, secret retrieval, validation and diagnostics |
-| [references/dependencies.md](references/dependencies.md) | Dependency management: choosing, pinning, supply-chain security, updating, reviewing and pruning dependencies |
+| [references/dependencies.md](references/dependencies.md) | Dependency and infrastructure management: build versus adopt, vetting, vendoring and forking, pinning, supply-chain security, updating, reviewing and pruning |
 | [references/repository.md](references/repository.md) | What every repository holds: its README, `AGENTS.md`, `CONTRIBUTING.md`, license, automation with Task and Lefthook, configuration and layout, and how a fork is treated |
 | [assets/repository/](assets/repository/) | Templates for those files |
 | [references/workspace.md](references/workspace.md) | How the workspace environment is configured and fitted to one workspace's needs, including overlay folders and `skills sync` |
