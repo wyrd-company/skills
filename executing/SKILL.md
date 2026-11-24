@@ -67,6 +67,7 @@ Bring a human in when:
 - **It cannot be undone.** Deleting data, force-pushing, releasing, publishing, sending messages outside the company, spending money.
 - **It needs something only they have.** Credentials, access, or an account you were not given. Do not look for another way in.
 - **It changes the goal.** Product direction and the definition of done come from the people who own them. How to get there is yours.
+- **The repository's stage reserves it.** The [maturity standard](../standards/references/maturity.md) says, for the repository's stage, which migrations, hardening and testing decisions are the operator's, and how much ceremony a change needs.
 
 Everything else is yours to decide, including choices between valid options with no clear winner: pick one, say so out loud, record why on the task, and keep going. 
 

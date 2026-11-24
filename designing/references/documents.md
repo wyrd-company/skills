@@ -76,6 +76,8 @@ Most decisions are not decision records. A choice of storage is part of the tech
 
 Write a decision record only for a real trade-off: options that were each viable, where choosing one gave something up, and where a later reader would otherwise reopen the choice. The record names the options, the one chosen and why, and what it costs. The documents it shapes link to it.
 
+Whether a record is written at all, and what changing a settled decision takes, depends on the repository's stage: the [maturity standard](../../standards/references/maturity.md) says which.
+
 ## Converging drafts
 
 When several drafts of one document exist, they become one.

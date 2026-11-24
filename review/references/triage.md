@@ -19,7 +19,7 @@ Read the change's file list, its diff stat, the handoff and the task's **Constra
 ### `high`: a miss is expensive or cannot be undone
 
 - **It cannot be undone:** data migrations, deletions, releases, publishing, anything that sends messages or spends money.
-- **Security:** authentication, authorization, secrets, crypto, input that crosses a trust boundary, sandboxing, the permissions of agents or tools.
+- **Security:** authentication, authorization, secrets, crypto, input that crosses a trust boundary, sandboxing, the permissions of agents or tools. In a repository at the early stage of the [maturity standard](../../standards/references/maturity.md), this signal gives `normal`, unless the work is one of the cases that standard always hardens.
 - **Contracts others depend on:** public APIs, schemas, wire and file formats, CLI flags others script against.
 - **Shared foundations:** CI and release pipelines, build tooling, infrastructure, devcontainer definitions, code most of the repository calls.
 - **High-risk dependency upgrades:** major upgrades to libraries that shape output (template engines, serialisers, parsers), sit on a security boundary, or format error text passed through redaction or logging ([dependencies](../../standards/references/dependencies.md#updating-and-reviewing)).
