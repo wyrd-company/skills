@@ -20,4 +20,14 @@ jobs:
       - uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
         with:
           version: "3.54.0"
+      # The workspace manager's scenario tests run the real kanban-md.
+      - name: Install kanban-md 0.39.0
+        run: |
+          curl -fsSL -o /tmp/kanban-md.tar.gz \
+            https://github.com/antopolskiy/kanban-md/releases/download/v0.39.0/kanban-md_0.39.0_linux_amd64.tar.gz
+          echo "6c3e49c1f4383faeda8d49e93f186e6302f1b33258f544345f7ad43d9e10b403  /tmp/kanban-md.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/kanban-md.tar.gz -C /tmp kanban-md
+          sudo install /tmp/kanban-md /usr/local/bin/kanban-md
       - run: task check
+        env:
+          REQUIRE_MANAGER_TOOLS: "1"

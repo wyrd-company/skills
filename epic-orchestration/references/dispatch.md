@@ -10,6 +10,8 @@ Read the record yourself, not a summary of it: the status, the claim, the blocke
 
 Confirm that any handoff before this one is complete and that the previous agent has stopped.
 
+Check the workspace's budget and take a place under its thread limit, as the workspace manager's [budget](../../workspace-management/references/dispatch.md#budget) and [limits](../../workspace-management/references/dispatch.md#limits) say, with the `budget.sh` and `admit.sh` scripts in the workspace-management skill's folder. When `budget.sh`'s first line is `budget: at` or `budget: unavailable`, or `admit.sh take` exits 3, leave the task in `todo` and record the hold on the epic task. Give the place back with `admit.sh release` once the dispatch has returned. Remediation sent back to an executor's own session takes a place too.
+
 ## The prompt
 
 Dispatch each task to its own agent session, which outlives the pass. Keep the prompt minimal and do not paste the task into it:

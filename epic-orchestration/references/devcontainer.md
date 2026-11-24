@@ -1,6 +1,6 @@
 # Devcontainer
 
-Read this when you set up or debug the parts of a devcontainer that every epic shares: the event path that wakes passes, and the storage finished boards are archived to. A pass does not need it. Read it from a pass only when a pass did not follow an event it should have, or an archive failed. Setting these up belongs to the workspace manager; each epic only registers itself, at [Start](start.md).
+Read this when you set up or debug the parts of a devcontainer that every epic shares: the event path that wakes passes, and the storage finished boards are archived to. A pass does not need it. Read it from a pass only when a pass did not follow an event it should have, or an archive failed. They are set up once per devcontainer, as [below](#once-per-devcontainer), and the [workspace manager](../../workspace-management/references/maintenance.md#event-path) checks them each day; each epic only registers itself, at [Start](start.md).
 
 The configuration in [assets/events](../assets/events/) is an example to adjust when it meets live events. Each file passes its tool's validation and has been run on sample events, but not yet end to end through NATS. The archive has been run end to end.
 

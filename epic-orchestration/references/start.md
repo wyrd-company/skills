@@ -2,7 +2,7 @@
 
 Read this when you have been handed an epic and its task is not claimed yet. It sets up what every later pass and every event depends on: the claim, the epic branches and pull requests, and the schedule.
 
-The workspace manager hands you the epic in the thread that will run its passes.
+The [workspace manager](../../workspace-management/SKILL.md) hands you the epic in the thread that will run its passes.
 
 1. **Claim the epic task with this thread,** as in [task-ownership](../../task-ownership/SKILL.md), and move it to `in-progress`. Every pass runs in this thread, so the claim is the same across them. A pass that finds nothing to do writes nothing, so set the board's `claim_timeout` longer than the schedule's interval, or the claim lapses between passes.
 2. **Open the epic branch and its pull request.** In each repository the epic touches, create the epic branch from the current default branch, push it, and open a draft pull request into the default branch. GitHub needs a commit to open one: start the branch with an empty commit. The description states the outcome, links the issues, and has an empty **What landed** section. People watch this pull request as the work lands. Set up a repository the epic reaches later the same way, before its first dispatch. When the **Target branch** section names the default branch instead, there is no epic branch or epic pull request: children merge into the default branch, and the default branch is what you record below.
