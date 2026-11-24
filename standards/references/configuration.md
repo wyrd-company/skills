@@ -11,6 +11,7 @@ Read this when designing, implementing or reviewing runtime configuration for a 
   - **System services:** `/etc/<app>/config.yml`.
   - **User applications and CLIs:** `$XDG_CONFIG_HOME/<app>/config.yml`, falling back to `~/.config/<app>/config.yml` when `XDG_CONFIG_HOME` is unset, empty or relative. When a user application also supports system-wide defaults in `/etc/<app>/config.yml`, the user file overrides the system file.
   - **Project-local tools:** nearest `.<app>.yml` walking upward to the repository root, overriding user configuration (see [Project-local configuration](#project-local-configuration)).
+  - **Admin-enforced policy (when supported):** `/etc/<app>/policy.yml` (or `/etc/<app>/<mode>-policy.yml` when modes use separate files), overriding every user-controlled layer (see [Admin-enforced policy](#admin-enforced-policy)).
 - **Explicit path override and missing files:** Support `--config <path>` (and `-c` where it does not conflict) and `<APP>_CONFIG`. An explicit path replaces default discovery and fails immediately if the file is missing or unreadable. Under default discovery, skip each absent optional file, retain values from all other layers (built-in defaults, present files, environment variables and CLI flags), and fail only when required settings remain unset after layering.
 - **Resolve relative paths safely:** Expand a leading `~/` in a path value to the user's home directory, and perform no other tilde or shell expansion. Resolve every remaining relative path set in a configuration file (such as a CA bundle, client certificate, socket, secret `file`, or `command[0]` containing a path separator like `./bin/helper`) against the directory of the configuration file that declared it, never the current working directory. Resolve relative paths supplied by environment variables or CLI flags against the current working directory. Resolve a bare executable name (no path separator) strictly via `PATH`, never against the current working directory.
 - **Multiple modes in one binary:**
@@ -38,6 +39,14 @@ Read this when designing, implementing or reviewing runtime configuration for a 
 - Grant trust only through a dedicated action (such as `<app> trust <path>` or an interactive prompt answered at a terminal) that names the file, displays each restricted setting whole with control and non-printing characters escaped, and states that approving a command trusts every file it reads from the project at runtime, including later versions of those files.
 - General prompt-answering flags such as `--yes` never grant trust, and a non-interactive run without a matching recorded approval refuses the restricted settings.
 
+### Admin-enforced policy
+
+- Support `/etc/<app>/policy.yml` only when an application has settings administrators need to lock against user overrides; `/etc/<app>/config.yml` remains overridable system defaults.
+- `policy.yml` holds exact locked values using the same `kebab-case` YAML shape as `config.yml`, and sits at the top of the precedence ladder above CLI flags. `--config` and `<APP>_CONFIG` never bypass it.
+- Not every setting needs to be supported in `policy.yml`. Declare in the schema and document in the configuration reference which settings `policy.yml` accepts; per-layer validation rejects unsupported keys in `policy.yml`.
+- Require `policy.yml` to be owned by root and not writable by non-root users; fail startup if its ownership or permissions are weaker rather than silently ignoring it.
+- When a lower layer (configuration file, environment variable or CLI flag) sets a field locked by `policy.yml`, the policy value wins and the application writes a warning to standard error naming the locked field and the overridden source. `<app> config show` reports `policy` as the source layer.
+
 ## Sources, naming and precedence
 
 - **Precedence from lowest to highest:**
@@ -47,8 +56,9 @@ Read this when designing, implementing or reviewing runtime configuration for a 
   4. Project-local configuration file (for project-scoped tools)
   5. Environment variables
   6. CLI flags
+  7. Admin-enforced policy file (`/etc/<app>/policy.yml`, when supported)
 
-  When `--config` or `<APP>_CONFIG` is set, that file replaces layers 2 through 4.
+  When `--config` or `<APP>_CONFIG` is set, that file replaces layers 2 through 4; layer 7 still applies.
 - **Merging across layers:** Mappings merge key by key across layers, except per-secret source mappings and Vault `auth` mappings (which replace as a whole unit; see [Secrets](#secrets)). Lists replace the lower layer's list whole, and an explicit empty list (`[]`) clears the inherited list.
 - **Expose settings across surfaces:** Offer environment variables for runtime settings, especially for services and containerised workloads. Applications with a CLI also expose settings as CLI flags, except literal secret values (see [Secrets](#secrets)).
 - **Derive names mechanically from the YAML path:**
@@ -98,7 +108,7 @@ Read this when designing, implementing or reviewing runtime configuration for a 
 
 ## Shape, validation and diagnostics
 
-- **One source of truth:** Describe the configuration contract in `docs/specifications/configuration.yml` and define it in JSON Schema beside it (one schema, or one schema per mode matching each mode's name), placed by [specification definitions](../../designing/references/documents.md#specification-definitions). Generate reference documentation from the schema ([reference](user-documentation.md#reference)), validate committed examples in `docs/user/` against it ([published links](user-documentation.md#published-links)), and generate derived configuration flags in the command-line specification from the schema or fail `task check` when the two disagree.
+- **One source of truth:** Describe the configuration contract in `docs/specifications/configuration.yml` and define it in JSON Schema beside it (one schema, or one schema per mode matching each mode's name), placed by [specification definitions](../../designing/references/documents.md#specification-definitions). Generate reference documentation from the schema ([reference](user-documentation.md#reference)), validate committed examples in `docs/user/` against it ([published links](user-documentation.md#published-links)), and generate derived configuration flags in the command-line specification from the schema or fail `task check` when the two disagree. Include the application's effective precedence order (every configuration file path, environment variables, CLI flags, and `policy.yml` when supported) and, when `policy.yml` is supported, which settings it may lock in the published configuration documentation.
 - **Keep the shape concise and user-centred:**
   - Group fields by user concept rather than internal code packages, and keep nesting shallow (two to three levels deep, excluding the shared secret-source mapping itself).
   - Choose safe defaults so a minimal working configuration is only a few lines.
