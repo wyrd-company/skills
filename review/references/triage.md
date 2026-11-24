@@ -22,6 +22,7 @@ Read the change's file list, its diff stat, the handoff and the task's **Constra
 - **Security:** authentication, authorization, secrets, crypto, input that crosses a trust boundary, sandboxing, the permissions of agents or tools.
 - **Contracts others depend on:** public APIs, schemas, wire and file formats, CLI flags others script against.
 - **Shared foundations:** CI and release pipelines, build tooling, infrastructure, devcontainer definitions, code most of the repository calls.
+- **High-risk dependency upgrades:** major upgrades to libraries that shape output (template engines, serialisers, parsers), sit on a security boundary, or format error text passed through redaction or logging ([dependencies](../../standards/references/dependencies.md#updating-and-reviewing)).
 - **Instructions many agents follow:** skills, `AGENTS.md`, prompts and templates other work is generated from. One wrong rule repeats in everything that follows it.
 - **Concurrency and state over time:** locks, retries, queues, caches, recovery after a crash or restart.
 - **Evidence the executor could not get:** the handoff's **Not verified** list covers something a Definition of Done line depends on.
@@ -36,7 +37,7 @@ Read the change's file list, its diff stat, the handoff and the task's **Constra
 
 - Wording, typos and formatting in documentation, comments or messages.
 - Tests only, when no production code changes.
-- A mechanical change that a tool or the compiler checks: a rename, a dependency bump with no API change, regenerated output.
+- A mechanical change that a tool or the compiler checks: a rename, a patch or minor dependency bump with no API change (major upgrades to output-shaping or security-boundary libraries are `high`), regenerated output.
 - Throwaway work: a spike, a script that runs once.
 
 A `low` signal never lowers a `high` one. A typo fix inside a skill is still an instruction many agents follow; read the whole sentence it changes.

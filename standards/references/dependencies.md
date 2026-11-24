@@ -1,6 +1,6 @@
 # Dependencies
 
-Read this when evaluating, adopting, vendoring, forking, pinning, auditing, updating, reviewing or removing a dependency or piece of infrastructure software: language packages, package managers, runtimes, container base images and CI actions. Every repository also carries `renovate.json`, committed lockfiles and `LICENSES/` as the [repository standard](repository.md) specifies. Not for choosing an application's primary framework ([stack](stack.md)) or installing tools into a devcontainer ([workspace](workspace.md)).
+Read this when evaluating, adopting, vendoring, forking, pinning, auditing, updating, reviewing or removing a dependency or piece of infrastructure software: language packages, package managers, runtimes, container base images and CI actions. Every repository also carries `renovate.json` and committed lockfiles, and `LICENSES/` when it includes third-party code or assets, as the [repository standard](repository.md) specifies. Not for choosing an application's primary framework ([stack](stack.md)) or installing tools into a devcontainer ([workspace](workspace.md)).
 
 ## Build, adopt, vendor or fork
 
@@ -8,7 +8,7 @@ Read this when evaluating, adopting, vendoring, forking, pinning, auditing, upda
 - **Evaluate candidates before adopting.** Suitability is a judgement call rather than a rigid formula; a less popular specialist library can still be the right answer. Weigh:
   - **Standing and adoption:** established reputation (for example over 1,000 GitHub stars or research confirming real-world adoption).
   - **Active maintenance:** consistent release cadence (consistency matters more than interval length), issue age and responsiveness, and pull-request merge history.
-  - **Source inspection:** inspect a shallow clone of the latest release in the project's `references/` directory and confirm it presents no security risks.
+  - **Source inspection:** take a shallow clone of the latest release in the project folder's `references/` directory (beside the repository folders). Inspect its install and build scripts, any bundled binaries or minified or obfuscated code, network or filesystem access on import, and recent maintainer changes, and record the inspection result in the adoption pull request.
   - **License and weight:** compatibility with the repository's [license](repository.md#license) (no unintended strong copyleft such as AGPL or SSPL in Apache-2.0 or MIT projects) and a transitive dependency tree proportionate to what the package provides.
 - **Vendor, fork or build separately when no suitable active package exists:**
   - **Vendor** small, useful older or abandoned projects before creating a fork, recording their third-party license in `LICENSES/` ([repository](repository.md#license)).
@@ -30,19 +30,19 @@ Read this when evaluating, adopting, vendoring, forking, pinning, auditing, upda
 
 ## Supply-chain security
 
-- **Enforce a release cooldown.** Require newly published package versions to soak for 3 to 7 days before Renovate proposes them or a package manager installs them (for example Renovate `minimumReleaseAge` or pnpm `minimumReleaseAge`), so fresh account-takeover and typosquatting releases are caught upstream before landing. Bypass the cooldown only for an urgent security fix, naming the advisory in the pull request.
+- **Enforce a 3-day release cooldown.** Require newly published package versions to soak for 3 days before Renovate proposes them or a package manager installs them (for example `minimumReleaseAge: "3 days"` in Renovate and `minimumReleaseAge: 4320` minutes in pnpm), so fresh account-takeover and typosquatting releases are caught upstream before landing. Bypass the cooldown only for an urgent security fix, naming the advisory in the pull request.
 - **Disable install lifecycle scripts by default.** In JavaScript and TypeScript repositories, block arbitrary `postinstall` execution (`ignore-scripts=true` or pnpm's `onlyBuiltDependencies` allowlist) and allow only packages that compile native code.
-- **Audit vulnerabilities and licenses in `task check`.** Run the ecosystem's audit tool (`cargo audit` and `cargo deny`, `pnpm audit`, `pip-audit`, or `osv-scanner`) as part of the repository's [checks](repository.md#automation). When an advisory is unreachable in the repository, record a scoped, time-boxed ignore with the reason and review date rather than suppressing the check globally.
+- **Audit vulnerabilities and licenses in CI.** Run offline license and policy checks (such as `cargo deny` license rules) in `task check`, and run live vulnerability audits (`cargo audit`, `pnpm audit`, `pip-audit`, or `osv-scanner`) in CI when a manifest or lockfile changes and on a scheduled workflow so a newly published advisory does not block unrelated pull requests. When an advisory is unreachable in the repository, record a scoped, time-boxed ignore with the reason and review date rather than suppressing the check globally.
 - **Record third-party licenses for included code or assets.** Any vendored or bundled third-party code or asset carries its license file in `LICENSES/` ([repository](repository.md#license)).
 
 ## Updating and reviewing
 
-- **Put an update plan in place when adopting or forking.** Whenever adopting infrastructure software, adding a dependency reference in `references/`, or creating a fork, put a mechanism in place to keep it current right away (or at the next opportunity if missed): [Renovate](repository.md#files), a scheduled Dagu workflow ([workspace](workspace.md#fit-one-workspace-to-its-needs)), or checks during development tasks or deployments. When the mechanism cannot be implemented immediately, check whether an issue or task already tracks it and file one if none exists.
+- **Put an update plan in place when adopting or forking.** Whenever adopting infrastructure software, adding a dependency reference in the project folder's `references/` directory, or creating a fork, put a mechanism in place to keep it current right away (or at the next opportunity if missed): [Renovate](repository.md#files), a scheduled Dagu workflow ([workspace](workspace.md#fit-one-workspace-to-its-needs)), or checks during development tasks or deployments. When the mechanism cannot be implemented immediately, check whether an issue or task already tracks it and file one if none exists.
 - **Update on a steady, small-batch cadence.** Use the repository's Renovate configuration to group low-risk updates (linters, type definitions, patch releases) on a regular schedule so updates stay small and reviewable instead of accumulating into large catch-up changes.
 - **Keep dependency updates isolated.** Land dependency updates in their own commits and pull requests, separate from feature work and refactors, so regressions bisect and revert cleanly.
 - **Read release notes; never automerge.** Automated dependency updates are never automerged on green CI alone. Read the upstream release notes or changelog for bug fixes, security fixes, deprecations and behavioural changes before merging.
 - **Verify behavioural changes on high-risk majors.** A green test suite proves only what the tests already assert. When a major upgrade touches a library that shapes output (a template engine, serialiser or parser), sits on a security boundary (authentication, cryptography, sandboxing), or formats error text that later passes through redaction or logging:
-  - treat the upgrade as high risk during review rather than a mechanical bump;
+  - treat the upgrade as `high` risk in [triage](../../review/references/triage.md#high-a-miss-is-expensive-or-cannot-be-undone) rather than a mechanical bump;
   - read the upstream upgrade guide and changed defaults;
   - compare the old and new versions against representative inputs when existing tests do not pin formatting, error messages or edge cases.
 - **Document consumer-visible effects.** When a dependency update raises a minimum runtime or compiler version, changes documented behaviour or alters an upgrade step, update the repository's documentation and release-note mechanism in the same change.
@@ -59,9 +59,11 @@ Prefer an automated check over a review habit ([instructions](instructions.md#ev
 | Rule | Enforced by |
 |---|---|
 | Lockfile freshness and reproducibility | CI (`--frozen-lockfile` / `--locked`) |
-| Release cooldown, update grouping, SHA-pinned actions and image digests | Organisation Renovate preset ([`renovate.json`](../assets/repository/renovate.json)) |
+| No automerge, weekly lockfile maintenance and 1-day npm cooldown | Organisation Renovate preset ([`renovate.json`](../assets/repository/renovate.json)) |
+| 3-day cross-ecosystem cooldown, update grouping, SHA-pinned actions and image digests | Repository Renovate and package-manager configuration and pull request review (tracked for the organisation preset in [wyrd-company/.github#27](https://github.com/wyrd-company/.github/issues/27)) |
 | Keeping infrastructure applications, `references/` clones and forks current | Renovate, scheduled Dagu workflows, deployment/task checks, or a tracked issue or task |
 | Blocked install lifecycle scripts | Repository package-manager configuration (`.npmrc` or `pnpm-workspace.yaml`) |
-| Vulnerabilities and disallowed licenses | `task check` / CI (`cargo deny`, `pnpm audit`, `pip-audit`, `osv-scanner`) |
+| Licenses and dependency policy | `task check` / CI (`cargo deny` and ecosystem policy checks) |
+| Known vulnerabilities | CI on manifest or lockfile changes and on a scheduled workflow (`cargo audit`, `pnpm audit`, `pip-audit`, `osv-scanner`) |
 | Unused dependencies | `task lint` or scheduled cleanup (`knip`, `cargo-machete`, `deptry`) |
 | Release-note and behavioural review | Pull request review |
