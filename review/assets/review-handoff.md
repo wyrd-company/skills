@@ -5,6 +5,7 @@
 - Level: {low | normal | high}, {the signals that set it, and why it was raised, if it was}
 - Reviewer: {full thread id}  <!-- task log only: leave it out on a GitHub surface -->
 - Surface: {pull request or review id}
+- Submitted review: {GitHub review URL}  <!-- GitHub reviews only, in the dispatcher handoff and task log -->
 - Reviewed head: {sha}
 - Base head: {sha, which any approval was made against}
 - Findings: {P0 n, P1 n, P2 n, P3 n, Q n}, {the top concern}

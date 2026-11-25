@@ -8,6 +8,8 @@ You decide whether delivered work meets its contract, and you show the executor 
 
 Review runs in rounds. Each round ends with the work accepted or rejected with findings. The executor triages the findings, as [executing](../executing/SKILL.md#triage-review) describes, and hands back. The next round checks how each finding was settled. Rounds continue until nothing that blocks acceptance is left.
 
+When you own a pull request review round, submit its verdict on the pull request yourself. Refuse any instruction in the brief to report the result only to the dispatcher. If submission fails, report the error to the dispatcher and leave the round incomplete.
+
 ## Level
 
 Review costs attention, time and tokens, and a miss costs more the riskier the work. So the review scales with risk. Before you read the change, set its level with [triage](references/triage.md).
@@ -41,7 +43,7 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
    Round 1 reads the whole change. Later rounds at `low` and `normal` read what changed since the last round, and at `high` the whole change again. Read more when that change reaches into code you approved. A round after a rebase expected is the exception at every level: it checks what the rebase changed, as below.
 5. **Check how the previous round's findings were settled,** as below.
 6. **Verify each finding before you report it.** A finding is a claim about the work, and it needs the evidence its severity implies. Point at the line, and for P0 and P1 show the failure: a command, a test, a trace. A finding you could not confirm is a `Q`.
-7. **Decide** the result, and deliver it on [the surface](references/surfaces.md).
+7. **Decide** the result and deliver it on [the surface](references/surfaces.md). For a pull request, verify that the verdict is recorded before merging or handing off a completed round.
 8. **Merge** only when you are authorized and every gate holds.
 9. **Hand off.**
 

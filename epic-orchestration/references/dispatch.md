@@ -21,6 +21,8 @@ Merge on acceptance: <yes, as the Authority section delegates | no: accept and h
 Surfaces in play: <for parallel siblings: what else is being touched, and by which task>
 ```
 
+For every review dispatch, including follow-up rounds, tell the reviewer to read and follow [review](../../review/SKILL.md), submit the verdict on the review surface, and include the submitted review's URL in the handoff for a GitHub pull request.
+
 Look up the model and effort in [models.yml](~/models.yml), as its header says: the cheapest entry that lists the task's `complexity`, or for a review its `risk`, from a provider other than the executor's. Either property is `normal` when unset. The task's `model` and `effort`, when set, override the lookup for its executor. Send remediation back to the executor's own session: it holds the context, and its claim names its thread.
 
 ## Siblings in parallel

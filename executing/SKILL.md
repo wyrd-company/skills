@@ -177,9 +177,17 @@ Self-review is not a substitute; the point is eyes you cannot bring yourself.
 
 When the task is a child of an epic, do not dispatch the review yourself: release the task for review and stop. The epic's orchestrator dispatches reviews one at a time, in the order it keeps, and sends remediation back to your session.
 
-Otherwise, use `delegate_task` to dispatch the independent review with handoff. Choose the reviewer's model from [models.yml](~/models.yml), as its header says: the cheapest entry that lists the task's `risk`, from a provider other than yours. The brief names the task's id and board, the review surface, and whether the reviewer merges on acceptance; it points at the task, which links its issues, and does not paste it. For work with no task, the brief carries the Definition of Done and the issues instead, as the [instructions standard](../standards/references/instructions.md#briefs-to-delegates) says. The reviewer follows [review](../review/SKILL.md), at the level the task's `risk` sets.
+Otherwise, use `delegate_task` to dispatch the independent review with handoff. Choose the reviewer's model from [models.yml](~/models.yml), as its header says: the cheapest entry that lists the task's `risk`, from a provider other than yours. The brief names the task's id and board, the review surface, and whether the reviewer merges on acceptance; it points at the task, which links its issues, and does not paste it. For work with no task, the brief carries the Definition of Done and the issues instead, as the [instructions standard](../standards/references/instructions.md#briefs-to-delegates) says.
+
+In every review brief, including follow-up rounds, explicitly tell the reviewer to read and follow [review](../review/SKILL.md) at the level the task's `risk` sets and submit the round's verdict on the review surface. For a GitHub pull request, ask for the submitted review's URL in the handoff.
 
 The reviewer may ask questions, answer them directly so they can finish their review.
+
+### Check the review result
+
+For each GitHub review round, open the [submitted review](../review/references/surfaces.md#verify-the-submitted-review) from the handoff and verify that it records the round's verdict and reviewed commit. Before handing off or merging an accepted pull request, confirm that the review is `APPROVED` and its commit is the live pull request head.
+
+If the review is missing, dismissed, or records the wrong verdict or commit, send the round back for the reviewer to complete on GitHub. If the pull request head moved after the review, dispatch a new round for the new head.
 
 ### Triage Review
 

@@ -27,7 +27,7 @@ Drop the filters when an outdated thread may still be unanswered.
 
 ### Comment
 
-Post the round as one review, anchored to the commit you reviewed:
+Submit one review for every round, including follow-up rounds, anchored to the commit you reviewed:
 
 ```bash
 gh pr-review review --start --commit "$REVIEWED_HEAD" -R $REPO $PR
@@ -42,6 +42,14 @@ Before submitting `APPROVE`, recheck the live pull request (`gh pr view`) and ba
 - **Accepted:** `APPROVE` (including when only non-blocking `P3` findings remain). Submitting `APPROVE` records acceptance on GitHub and clears any earlier `REQUEST_CHANGES` from this reviewer.
 - **Rejected, Surface rejected, or Change approved, rebase expected:** `REQUEST_CHANGES` (the pull request must not merge in this state).
 - **Accepted pending a judge's verdict, or standalone non-blocking comments:** `COMMENT`. Do not submit `APPROVE` before the judge completes the acceptance.
+
+### Verify the submitted review
+
+Check the individual GitHub review's state and commit. GitHub's REST API gives the review's `state`, `commit_id` and `html_url`. GitHub records `APPROVE` as `APPROVED` and `REQUEST_CHANGES` as `CHANGES_REQUESTED`. The pull request's overall review decision can include earlier reviews.
+
+For an acceptance, the review commit must match the live pull request head. If the head moved after submission, report the commit you approved and request another round for the new head.
+
+Include the submitted review's URL in the handoff to the dispatcher and in the task log when there is one.
 
 ### Reply to the previous round
 
