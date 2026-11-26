@@ -13,7 +13,7 @@ How much review the work gets scales with its risk. Triage sets a level, `low`, 
 | [references/lenses.md](references/lenses.md) | Running lenses at `high`, and their catalogue |
 | [references/task-audit.md](references/task-audit.md) | Reading a task's log and transcript for what the operator should still scrutinize |
 | [references/council.md](references/council.md) | Running a council |
-| [references/surfaces.md](references/surfaces.md) | Checking, commenting on and deciding a GitHub pull request or a `gitpr` review |
+| [references/surfaces.md](references/surfaces.md) | Which review surfaces are approved, and checking, commenting on and deciding a GitHub pull request, a `gitpr` review or a security fix |
 | [references/epic.md](references/epic.md) | The reviewer's part in an epic |
 | [assets/review-handoff.md](assets/review-handoff.md) | The template for the review handoff |
 

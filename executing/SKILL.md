@@ -162,14 +162,9 @@ Keep the evidence where the reviewer will look: linked in the pull request, issu
 
 Name a skipped check as unverified. Do not report it as passed.
 
-Note the target branch for the PR: Epics often use an epic branch as the target. Stand-alone work the default is `main`. If you are unsure, ask.
+Note the target branch for the PR: Epics often use an epic branch as the target. Stand-alone work the default is `main`. Work meant for an upstream repository targets a branch of our fork, as the [repository standard](../standards/references/repository.md#forks) says. If you are unsure, ask.
 
-- GitHub PR review (default):
-  - Push the branch
-  - Open a GitHub PR
-- gitpr review (local):
-  - create the PR using gitpr
-- Non-git review surfaces will be added as they are needed.
+Open the review on a GitHub pull request: push the branch and open the pull request. Any other surface needs an approval or a reason recorded first, as [surfaces](../review/references/surfaces.md#which-surface) says, and the reviewer rejects a surface without one. When you cannot open a GitHub pull request, stop and ask the operator. Do not choose another surface yourself.
 
 ### Independent review
 

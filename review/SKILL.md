@@ -34,7 +34,7 @@ The task's `risk` sets the lowest level. Raise it when the review shows more ris
 
    Put your full thread id in the entry: the claim is released at the end of the round, and the entry is what points the next round, and the task audit, at your transcript. The round number is one more than the last result entry, `REVIEW ROUND <n>: <result>`, or 1 when there is none. The `STARTED` and `TRIAGE` entries do not count.
 
-2. **Check the surface before reading it.** The surface targets the branch the work is meant to integrate into, its head matches the head of the task branch, and the base has not moved under the branch. A review of a surface that will never merge is wasted. If either fails, reject the surface, as below, and stop. The [surface](references/surfaces.md) reference has the commands.
+2. **Check the surface before reading it.** The surface is [one you may review on](references/surfaces.md#which-surface), it targets the branch the work is meant to integrate into, its head matches the head of the task branch, and the base has not moved under the branch. A review of a surface that will never merge is wasted. If any of these fails, reject the surface, as below, and stop. The [surface](references/surfaces.md) reference has the commands.
 3. **Read the contract.** The issue's goal, the task's Definition of Done, its soft claims and constraints, the handoff, and any previous rounds' findings. The [task-authoring](../task-authoring/SKILL.md) skill says what each part of a task promises.
 4. **Review the work** at its level, with the reference for its kind:
    - [code](references/code.md): source, tests, scripts, configuration, CI.
@@ -141,5 +141,5 @@ Notify whoever dispatched the review. In an epic, the release wakes the next pas
 - [Lenses](references/lenses.md): at `high`, to run fresh reviewers that each read the work for one question.
 - [Task audit](references/task-audit.md): at `normal` and `high`, to read the task's log and transcript for what the operator should still scrutinize.
 - [Council](references/council.md): when the task sets `council`, or the operator asks for one.
-- [Surfaces](references/surfaces.md): to check, comment on and decide a GitHub pull request or a `gitpr` review.
+- [Surfaces](references/surfaces.md): which surfaces are approved, and how to check, comment on and decide a GitHub pull request, a `gitpr` review or a security fix.
 - [Epic](references/epic.md): when the task is a child of an epic: the merge queue, publishing to the epic pull request, and what you never write.
