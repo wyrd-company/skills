@@ -40,7 +40,7 @@ Known gaps:
 
 ## Review
 
-{Omit for a GitHub pull request on this repository with the ordinary reviewer. Otherwise name the surface and why it is allowed, as review's surfaces reference says: the security fix it is, or the operator's approval, quoted and linked. For work meant for an upstream repository, name the fork branch the pull request targets. Say who reviews when it is not the ordinary reviewer, and whether the reviewer merges on acceptance.}
+{Whether the reviewer merges on acceptance, and who reviews when it is not the ordinary reviewer. For a surface other than a GitHub pull request, name it and why the review skill's surfaces reference allows it: the security fix, or the operator's approval quoted and linked. For work meant for an upstream repository, name the fork branch the pull request targets. Omit when none of these applies.}
 
 ## Related Records
 

@@ -25,7 +25,7 @@ git rev-parse "origin/$TASK_BRANCH" "origin/$BASE"
 git merge-base --is-ancestor "origin/$BASE" "origin/$TASK_BRANCH" && echo base contained
 ```
 
-`baseRefName` must be the branch the work is meant to integrate into: the base in the dispatch, the task's, or the default branch for stand-alone work. `headRefOid` must equal the task branch head, and the base must be an ancestor of the branch. Ancestry alone does not show the target: a pull request aimed at the wrong branch can pass it and show a different diff. Record both heads: every comment and verdict applies to that pair.
+The pull request's `url` must be on the repository the work targets: the fork, for work meant for upstream. `baseRefName` must be the branch the work is meant to integrate into: the base in the dispatch, the task's, or the default branch for stand-alone work. `headRefOid` must equal the task branch head, and the base must be an ancestor of the branch. Ancestry alone does not show the target: a pull request aimed at the wrong branch can pass it and show a different diff. Record both heads: every comment and verdict applies to that pair.
 
 ### Read the previous rounds
 
@@ -111,10 +111,10 @@ Use `--text-file` for text with backticks or several lines, and `--pr-level` for
 
 ## Security fix
 
-The fix is made in the temporary private fork of a draft [GitHub security advisory](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability), which keeps it private until the advisory is published. Integrations cannot reach that fork, so our GitHub App cannot post a review there, and status checks do not run. The agent review happens in `gitpr` instead:
+The fix is made in the temporary private fork of a draft [GitHub security advisory](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability), which keeps it private until the advisory is published. Everything about the fix stays private until then, its evidence included: no public issue, pull request, commit or upload, so not the public assets bucket. Integrations cannot reach that fork, so our GitHub App cannot post a review there, and status checks do not run. The agent review happens in `gitpr` instead:
 
 1. The executor works on a branch of the local clone, never pushed to `origin`, and opens a `gitpr` review against the base the fix will merge into. Reviews follow the [`gitpr`](#gitpr) section above. `gitpr merge` is not used: the fix merges from the advisory. When the draft advisory and its fork do not exist yet, ask the operator for them.
-2. Once the review is accepted, the executor pushes the accepted head to the temporary private fork, with the operator's key, and opens the pull request there as the operator. Run the checks yourself at that head and put their output in the pull request's description, because none run in the fork.
+2. Once the review is accepted, the executor pushes the accepted head to the temporary private fork, with the operator's key, and opens the pull request there as the operator with `gh --as-user pr create`. `--as-user` bypasses the App token and uses `gh`'s own login: check with `gh --as-user auth status` that it is the thread's operator, and when it is not, ask the operator to run `gh --as-user auth login`. Run the checks yourself at that head and put their output in the pull request's description, because none run in the fork.
 3. The operator merges from the advisory and publishes it. Publishing deletes the temporary private fork.
 4. After publication, and not before, the executor pushes the `gitpr` record to `origin` as the evidence of the review:
 
@@ -131,7 +131,7 @@ The fix is made in the temporary private fork of a draft [GitHub security adviso
 
    `gitpr show $ID` reads it too.
 
-   The record holds local machine paths: the worktree path and the repository root. The [merge gates](../SKILL.md#merge) keep machine paths out of public commits, so ask the operator before this push until `gitpr` can [export a record without them](https://github.com/wyrd-company/gitpr/issues/51).
+   The record holds the worktree path and the repository root. The operator allows them in this record, as an exception to the [merge gates](../SKILL.md#merge): they are the workspace's standard paths and identify no one.
 
 ## No pull request
 
