@@ -37,7 +37,7 @@ A task is ready when an executor can answer these without asking anyone:
 3. What must not change or be assumed?
 4. Which artifacts and earlier decisions matter?
 5. What access, resources or coordination does the work need?
-6. Who can do it, and how is it reviewed?
+6. Who can do it, and how is it reviewed? A review surface other than a GitHub pull request needs one of the reasons [review's surfaces reference](../review/references/surfaces.md#which-surface) allows.
 
 Use [the template](assets/template.md).
 
