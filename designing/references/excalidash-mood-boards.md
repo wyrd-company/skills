@@ -33,9 +33,8 @@ The [board script](../scripts/excalidash-board.py) uses the workspace's
 
 ## Create the user configuration file
 
-Run the script with Python 3.11 or later and PyYAML. Install PyYAML in the
-Python environment you use for the script, for example with
-`python3 -m pip install PyYAML` from an activated virtual environment.
+Run the script with `uv run`. Its inline dependency declaration lets uv
+supply PyYAML in an isolated environment.
 
 Create the configuration directory and file in your user config directory.
 Replace the example values with the ExcaliDash origin and OpenBao entry
@@ -46,31 +45,34 @@ config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/excalidash"
 mkdir -p "$config_dir"
 ```
 
-Save this YAML as `config.yaml` in that directory. It contains only the
+Save this YAML as `config.yml` in that directory. It contains only the
 three non-secret settings. The API key belongs in OpenBao.
 
 ```yaml
 url: "https://excalidash.example.com"
-vault_mount: "secret"
-vault_path: "tools/excalidash"
+vault-mount: "secret"
+vault-path: "tools/excalidash"
 ```
 
-The script reads `~/.config/excalidash/config.yaml` by default, or uses
-`$XDG_CONFIG_HOME/excalidash/config.yaml` when `XDG_CONFIG_HOME` is set.
-Pass `--config /path/to/config.yaml` before the subcommand to use another
-file.
+The script reads `~/.config/excalidash/config.yml` by default, or uses
+`$XDG_CONFIG_HOME/excalidash/config.yml` when `XDG_CONFIG_HOME` is set.
+Pass `--config /path/to/config.yml` before the subcommand to use another
+file. In a managed workspace, have the operator manage this non-secret
+file in the workspace dotfiles with chezmoi so it survives a rebuild.
+[Workspace configuration standard](../../standards/references/workspace.md#fit-one-workspace-to-its-needs)
 
 ## Find and read a board
 
 Run these commands from the designing skill directory.
 
 ```bash
-python3 scripts/excalidash-board.py list 'Mood board' --limit 10 --offset 0
-python3 scripts/excalidash-board.py read 'https://excalidash.example.com/editor/drawing-id'
+uv run scripts/excalidash-board.py list 'Mood board' --limit 10 --offset 0
+uv run scripts/excalidash-board.py read 'https://excalidash.example.com/editor/drawing-id'
 ```
 
 The list command prints `drawings`, `totalCount`, `limit`, and `offset`.
-Increase `offset` to page through matches. The read command accepts a
+It searches boards owned by the account that issued the key. Increase
+`offset` to page through matches. The read command accepts a
 drawing ID or an editor link on the configured instance and prints the
 scene JSON, including the drawing version, elements, app state, and files.
 Stored image entries can point to URLs that require a signed-in session.
@@ -78,21 +80,21 @@ Stored image entries can point to URLs that require a signed-in session.
 ## Publish a board for the operator
 
 From the designing skill directory, run [the board script](../scripts/excalidash-board.py)
-with Python 3. Pass a PNG screenshot for a mood board or an Excalidraw scene
+with uv. Pass a PNG screenshot for a mood board or an Excalidraw scene
 export for an editable diagram. Include the image data in any scene export
 that references images.
 
 ```bash
-python3 scripts/excalidash-board.py publish 'Mood board — Website redesign' reference.png
-python3 scripts/excalidash-board.py publish 'Record ownership' ownership.excalidraw
+uv run scripts/excalidash-board.py publish 'Mood board — Website redesign' reference.png
+uv run scripts/excalidash-board.py publish 'Record ownership' ownership.excalidraw
 ```
 
 Each run creates a new board and prints its editor URL as soon as it exists.
 For a populated board, the script checks the saved scene with a fresh GET.
 The ExcaliDash account that issued the API key owns the board. Have that
 account share the board through the editor and grant edit access if the
-operator will annotate it. Open the URL while signed in and check the canvas
-before sending the link and the question to review.
+operator will annotate it. Send the link and the question to review. Ask the operator to check the
+canvas while signed in.
 
 ## Collect a diagram from the operator
 
@@ -100,7 +102,7 @@ Ask for an existing editor link if the operator already has a diagram. If
 they need a canvas, run the board script with only a title.
 
 ```bash
-python3 scripts/excalidash-board.py publish 'Design sketch'
+uv run scripts/excalidash-board.py publish 'Design sketch'
 ```
 
 Have the owning account grant edit access in the editor, then share the
@@ -115,10 +117,11 @@ confirmed there.
 
 ## Edit a board
 
-Use `add` to place one or more PNGs to the right of the existing content.
+Publish the first screenshot with `publish`, then use `add` to place more
+PNGs to the right of the existing content.
 
 ```bash
-python3 scripts/excalidash-board.py add drawing-id first.png second.png
+uv run scripts/excalidash-board.py add drawing-id first.png second.png
 ```
 
 The script reads the board with `GET /api/drawings/<id>?omitPreview=1`,
@@ -132,8 +135,8 @@ the board before retrying so you avoid duplicate images. If creation times
 out before returning an ID, search for the title first.
 
 An image element's `fileId` matches an entry in the scene's `files` map.
-ExcaliDash can replace an image data URL with a stored file URL in later
-reads. Keep the original PNG if you need its bytes for another board or
+ExcaliDash stores uploaded image bytes separately and returns a stored file
+URL in the scene. Keep the original PNG if you need its bytes for another board or
 export. The drawing key can receive `404` on the stored file URL.
 
 [Drawing read implementation](https://github.com/ZimengXiong/ExcaliDash/blob/c1013c0de630b3efeea6a11851adc039c2d2afe3/backend/src/routes/dashboard/drawingReadRoutes.ts)

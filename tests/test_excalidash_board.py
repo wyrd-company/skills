@@ -7,7 +7,9 @@ import subprocess
 import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+from threading import Thread
 from unittest.mock import patch
 from urllib.error import HTTPError
 
@@ -15,8 +17,8 @@ SCRIPT = Path(__file__).resolve().parents[1] / "designing/scripts/excalidash-boa
 ORIGIN = "https://excalidash.example.com"
 CONFIG = f"""\
 url: "{ORIGIN}"
-vault_mount: "secret"
-vault_path: "tools/excalidash"
+vault-mount: "secret"
+vault-path: "tools/excalidash"
 """
 PNG_HEADER = b"\x89PNG\r\n\x1a\n" + struct.pack(">I4sII", 13, b"IHDR", 960, 640)
 
@@ -33,7 +35,7 @@ class BoardTests(unittest.TestCase):
                 },
             ),
             patch.object(Path, "read_text", return_value=CONFIG) as config_read,
-            patch.object(sys, "argv", [str(SCRIPT), "--config", "/test/config.yaml", *args]),
+            patch.object(sys, "argv", [str(SCRIPT), "--config", "/test/config.yml", *args]),
             patch.object(Path, "read_bytes", return_value=PNG_HEADER),
             patch(
                 "subprocess.run",
@@ -154,8 +156,67 @@ class BoardTests(unittest.TestCase):
                     runpy.run_path(str(SCRIPT), run_name="__main__")
                 finally:
                     config_read.assert_called_once_with(
-                        Path("/test/config/excalidash/config.yaml"), encoding="utf-8"
+                        Path("/test/config/excalidash/config.yml"), encoding="utf-8"
                     )
                     bao.assert_not_called()
-                    self.assertIn("/test/config/excalidash/config.yaml", errors.getvalue())
+                    self.assertIn("/test/config/excalidash/config.yml", errors.getvalue())
                     self.assertNotIn("do-not-print", errors.getvalue())
+
+    def test_foreign_editor_url_stops_before_vault(self):
+        with (
+            patch.object(
+                sys, "argv", [str(SCRIPT), "read", "https://elsewhere.example/editor/board"]
+            ),
+            patch.object(Path, "read_text", return_value=CONFIG),
+            patch("subprocess.run") as bao,
+            redirect_stderr(io.StringIO()) as errors,
+            self.assertRaises(SystemExit),
+        ):
+            try:
+                runpy.run_path(str(SCRIPT), run_name="__main__")
+            finally:
+                bao.assert_not_called()
+                self.assertIn("configured instance", errors.getvalue())
+
+    def test_add_requires_elements_in_read_back(self):
+        scene = {"version": 1, "elements": [], "appState": {}, "files": {}}
+
+        def send(req, timeout):
+            if req.get_method() == "PUT":
+                scene["version"] = 2
+            return io.BytesIO(json.dumps(scene).encode())
+
+        with self.assertRaisesRegex(SystemExit, "expected elements and files"):
+            self.invoke(["add", "board", "reference.png"], send)
+
+    def test_request_refuses_redirect_before_forwarding_key(self):
+        calls = []
+
+        class RedirectServer(BaseHTTPRequestHandler):
+            def do_GET(self):
+                calls.append((self.path, self.headers.get("Authorization")))
+                if self.path == "/api/drawings":
+                    self.send_response(302)
+                    self.send_header("Location", "/destination")
+                else:
+                    self.send_response(200)
+                self.end_headers()
+
+            def log_message(self, *args):
+                pass
+
+        request = runpy.run_path(str(SCRIPT))["request"]
+        with HTTPServer(("127.0.0.1", 0), RedirectServer) as server:
+            thread = Thread(target=server.serve_forever)
+            thread.start()
+            try:
+                with self.assertRaises(HTTPError) as error:
+                    request(
+                        f"http://127.0.0.1:{server.server_port}", "test-key", "GET", "/drawings"
+                    )
+                error.exception.close()
+                self.assertEqual(error.exception.code, 302)
+            finally:
+                server.shutdown()
+                thread.join()
+        self.assertEqual(calls, [("/api/drawings", "Bearer test-key")])

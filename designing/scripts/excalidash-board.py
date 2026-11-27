@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["PyYAML==6.0.3"]
+# ///
 import argparse
 import base64
 import json
@@ -31,7 +35,10 @@ def request(origin, api_key, method, path, body=None):
         method=method,
     )
     with build_opener(RefuseRedirects()).open(req, timeout=15) as response:
-        return json.load(response)
+        try:
+            return json.load(response)
+        except (ValueError, UnicodeError):
+            raise SystemExit(f"ExcaliDash returned a non-JSON response to {method}.") from None
 
 
 def png_scene(path):
@@ -148,7 +155,7 @@ def load_config(path):
     try:
         import yaml
     except ImportError:
-        raise ValueError("Install PyYAML in the Python environment running this script.") from None
+        raise ValueError("Run this script with uv run so it can load PyYAML.") from None
 
     try:
         config = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -157,13 +164,13 @@ def load_config(path):
     except (yaml.YAMLError, UnicodeError):
         raise ValueError(f"Invalid YAML in ExcaliDash configuration at {path}.") from None
 
-    fields = ("url", "vault_mount", "vault_path")
+    fields = ("url", "vault-mount", "vault-path")
     if (
         not isinstance(config, dict)
         or config.keys() != set(fields)
         or any(not isinstance(config[field], str) or not config[field].strip() for field in fields)
     ):
-        raise ValueError(f"Set exactly url, vault_mount, and vault_path in {path}.")
+        raise ValueError(f"Set exactly url, vault-mount, and vault-path in {path}.")
 
     origin = config["url"].rstrip("/")
     try:
@@ -179,9 +186,9 @@ def load_config(path):
         or any(character.isspace() or character in "\\?#@" for character in origin)
     ):
         raise ValueError(f"Set url to the instance's HTTPS origin in {path}.")
-    if config["vault_path"].startswith("-"):
-        raise ValueError(f"Set vault_path to a KV entry path in {path}.")
-    return origin, config["vault_mount"], config["vault_path"]
+    if config["vault-path"].startswith("-"):
+        raise ValueError(f"Set vault-path to a KV entry path in {path}.")
+    return origin, config["vault-mount"], config["vault-path"]
 
 
 def main():
@@ -192,7 +199,7 @@ def main():
     parser.add_argument(
         "--config",
         type=Path,
-        default=config_home / "excalidash" / "config.yaml",
+        default=config_home / "excalidash" / "config.yml",
         help="Path to the user YAML configuration",
     )
     commands = parser.add_subparsers(dest="command", required=True)
@@ -217,7 +224,7 @@ def main():
         elif args.command in {"read", "add"}:
             board = drawing_id(args.board, origin)
             if args.command == "add":
-                images = [png_scene(path) for path in args.images]
+                images = [png_scene(image_path) for image_path in args.images]
         api_key = vault_key(mount, path)
     except (OSError, ValueError) as error:
         parser.error(str(error))
