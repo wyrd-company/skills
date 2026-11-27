@@ -15,6 +15,8 @@ Then name what success is on each surface. It sets how much the design expresses
 
 Name it per surface, not per product. A tool's landing page persuades, and its documentation is read.
 
+When the operator can show a screen flow or layout more clearly with a sketch, use the [ExcaliDash diagram workflow](excalidash-mood-boards.md#collect-a-diagram-from-the-operator).
+
 ## Structure before look
 
 Decide what the interface is made of before how it looks.
@@ -54,6 +56,8 @@ A new visual language comes from the product: its people, its scene, and what su
 Collect real screens that do what this interface must do well: from the product's own best surfaces, from products its people already use, and from collections of real product screens. For each, write down what to take from it: the layout, the type, the spacing, the density, a piece of interaction. Each one is the floor the work must reach, not something to copy. Take from several, and never another product's identity.
 
 The references and what to take from each are linked from the `feature` or the decision they shape. They become the reference shots the built interface is compared against ([standard](../../standards/references/interface.md#proving-it)).
+
+To collect screenshots, swatches, and notes on an editable website or UI mood board, see the [ExcaliDash REST workflow](excalidash-mood-boards.md).
 
 ## Prototype to decide
 

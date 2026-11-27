@@ -27,6 +27,8 @@ Resolve each decision in the way that fits it:
 
 Each answer lands in the document it shapes ([documents](documents.md)). New decisions it makes possible go on the list.
 
+When a decision depends on relationships or behavior the operator can sketch, use the [ExcaliDash diagram workflow](excalidash-mood-boards.md#collect-a-diagram-from-the-operator) to capture their explanation. If a draft diagram would help them compare options, [publish it as an editable board](excalidash-mood-boards.md#publish-a-board-for-the-operator).
+
 ## Decision tasks
 
 When the decisions will not fit one session, or several people or agents resolve them, track them on a board with [task-authoring](../../task-authoring/SKILL.md).

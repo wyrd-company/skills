@@ -24,6 +24,8 @@ Before a solution, understand the job the user is trying to get done, and the ou
 
 Write the frame's problem in terms of the job, and its acceptance scenario from a persona's point of view.
 
+If a journey or handoff is hard to describe in words, use the [ExcaliDash diagram workflow](excalidash-mood-boards.md#collect-a-diagram-from-the-operator) to collect the operator's sketch.
+
 ## Shaping an idea
 
 An idea starts as a few statements of what it is. Shaping it into a concept says what it is through its parts (properties, as noun phrases) and what it does (features, as verb phrases), the benefits it brings, the questions still open, and what it deliberately leaves out. A concept is ready to design against when its open questions are answered or recorded as assumptions.

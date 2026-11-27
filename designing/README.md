@@ -13,6 +13,8 @@ It covers technical design (modules, interfaces, data and state), product design
 | [references/technical.md](references/technical.md) | Designs that shape code |
 | [references/product.md](references/product.md) | Designs that shape what users get |
 | [references/interface.md](references/interface.md) | Designs that shape an interface, alternatives for a judge to choose from, and `DESIGN.md` |
+| [references/excalidash-mood-boards.md](references/excalidash-mood-boards.md) | Create mood boards and collect operator diagrams with the ExcaliDash REST API |
+| [scripts/excalidash-board.py](scripts/excalidash-board.py) | List, read, and publish boards using a key from OpenBao |
 
 ## Sources
 
@@ -34,3 +36,4 @@ Formats and tools the skill uses, rather than drew on:
 |---|---|---|
 | [google-labs-code/design.md](https://github.com/google-labs-code/design.md) | Apache-2.0 | The `DESIGN.md` format, and the `@google/design.md` linter and exporter. |
 | `wyrd-company/refinery-ontology` | Ours | The schemas of the design documents. |
+| [ExcaliDash](https://github.com/ZimengXiong/ExcaliDash/tree/c1013c0de630b3efeea6a11851adc039c2d2afe3) | LGPL-3.0 | Drawing REST endpoints and editor for mood boards and design diagrams. |

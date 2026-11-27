@@ -19,6 +19,8 @@ A request often arrives as a proposed design. Do not infer the frame from it: as
 - **Keep the question short.** Put the context and reasoning around it, not in it: a long question gets skimmed.
 - **Label what stays open.** An unresolved point goes in the frame as an assumption or an open question, so it cannot quietly become a requirement.
 
+If the operator can explain the current workflow or problem more clearly with a sketch, use the [ExcaliDash diagram workflow](excalidash-mood-boards.md#collect-a-diagram-from-the-operator) during the interview.
+
 ## Words
 
 - **Check terms against the repository's `terms/`.** When the operator uses a word differently from its definition, say so at once: "`terms/cancellation` means the whole order is withdrawn; you seem to mean one line of it. Which is it?"

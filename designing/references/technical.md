@@ -6,6 +6,8 @@ Read this when the design shapes code: modules, interfaces, data structures and 
 
 Know every part of the system the new code touches before you shape it: trace how it works today, not only which files it lives in. When the design moves ownership or layering, find out why the current shape is the way it is, so that reason becomes a constraint instead of a guess. Only work with no surrounding system skips this.
 
+When the operator can clarify system boundaries, data flow, or state with a sketch, use the [ExcaliDash diagram workflow](excalidash-mood-boards.md#collect-a-diagram-from-the-operator) to collect it and check it against the system. To walk the operator through a proposed system shape, [publish an editable diagram](excalidash-mood-boards.md#publish-a-board-for-the-operator).
+
 ## Data first
 
 Get the data's shape right before the logic. Define the core types, trace every way the data is read and written, and choose structures that fit the common paths. Changing a data structure is a line early and a rewrite late.
