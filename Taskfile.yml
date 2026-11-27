@@ -34,8 +34,8 @@ tasks:
     desc: Check code, Markdown, YAML and formatting without changing files
     deps: [tools]
     cmds:
-      - uv run --frozen ruff check scripts tests
-      - uv run --frozen ruff format --check scripts tests
+      - uv run --frozen ruff check scripts tests designing/scripts
+      - uv run --frozen ruff format --check scripts tests designing/scripts
       - uv run --frozen python scripts/quality.py lint
       - git diff --check
 
@@ -49,8 +49,8 @@ tasks:
     desc: Format Python and Markdown files
     deps: [tools]
     cmds:
-      - uv run --frozen ruff check --fix scripts tests
-      - uv run --frozen ruff format scripts tests
+      - uv run --frozen ruff check --fix scripts tests designing/scripts
+      - uv run --frozen ruff format scripts tests designing/scripts
       - uv run --frozen python scripts/quality.py format
 
   skills:check:

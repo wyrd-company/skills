@@ -14,7 +14,7 @@ It covers technical design (modules, interfaces, data and state), product design
 | [references/product.md](references/product.md) | Designs that shape what users get |
 | [references/interface.md](references/interface.md) | Designs that shape an interface, alternatives for a judge to choose from, and `DESIGN.md` |
 | [references/excalidash-mood-boards.md](references/excalidash-mood-boards.md) | Create mood boards and collect operator diagrams with the ExcaliDash REST API |
-| [scripts/excalidash-board.py](scripts/excalidash-board.py) | List, read, and publish boards using a key from OpenBao |
+| [scripts/excalidash-board.py](scripts/excalidash-board.py) | List, read, publish, and add images using a key from OpenBao |
 
 ## Sources
 

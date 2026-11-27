@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 from uuid import uuid4
@@ -145,13 +145,18 @@ def drawing_id(board, origin):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="List, read, or publish ExcaliDash boards.")
+    parser = argparse.ArgumentParser(
+        description="List, read, publish, or add images to ExcaliDash boards."
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     publish = commands.add_parser("publish", help="Create a blank or populated board")
     publish.add_argument("title")
     publish.add_argument("source", nargs="?", type=Path, help="PNG or Excalidraw scene export")
     read = commands.add_parser("read", help="Print the drawing scene as JSON")
     read.add_argument("board", help="Drawing ID or editor URL")
+    add = commands.add_parser("add", help="Add one or more PNGs to a board")
+    add.add_argument("board", help="Drawing ID or editor URL")
+    add.add_argument("images", nargs="+", type=Path)
     listing = commands.add_parser("list", help="Search drawings by name")
     listing.add_argument("search", nargs="?", default="")
     listing.add_argument("--limit", type=int, default=10)
@@ -161,14 +166,20 @@ def main():
     origin = os.environ.get("EXCALIDASH_URL", "").rstrip("/")
     mount = os.environ.get("EXCALIDASH_VAULT_MOUNT", "")
     path = os.environ.get("EXCALIDASH_VAULT_PATH", "")
-    url = urlsplit(origin)
+    try:
+        url = urlsplit(origin)
+        port = url.port
+    except ValueError:
+        parser.error("Set EXCALIDASH_URL to the instance's HTTPS origin.")
     if (
         url.scheme != "https"
         or not url.hostname
+        or port == 0
         or url.path
         or url.query
         or url.fragment
-        or url.username
+        or url.username is not None
+        or any(character.isspace() or character == "\\" for character in origin)
     ):
         parser.error("Set EXCALIDASH_URL to the instance's HTTPS origin.")
     if not mount or not path or path.startswith("-"):
@@ -177,8 +188,10 @@ def main():
     try:
         if args.command == "publish":
             scene = read_scene(args.source)
-        elif args.command == "read":
+        elif args.command in {"read", "add"}:
             board = drawing_id(args.board, origin)
+            if args.command == "add":
+                images = [png_scene(path) for path in args.images]
         api_key = vault_key(mount, path)
     except (OSError, ValueError) as error:
         parser.error(str(error))
@@ -193,33 +206,49 @@ def main():
             result = request(origin, api_key, "GET", f"/drawings/{board}?omitPreview=1")
             json.dump(result, sys.stdout, indent=2)
             print()
+        elif args.command == "add":
+            add_images(origin, api_key, board, images)
         else:
-            publish_board(origin, api_key, args.title, scene, args.source is not None)
+            publish_board(origin, api_key, args.title, scene)
     except HTTPError as error:
+        error.close()
         if error.code == 409:
             raise SystemExit("Board changed. Read the latest scene and reapply the edit.") from None
         raise SystemExit(f"ExcaliDash returned HTTP {error.code}.") from None
+    except (URLError, TimeoutError):
+        raise SystemExit(
+            "The ExcaliDash request did not complete. Check the board before retrying a write."
+        ) from None
 
 
-def publish_board(origin, api_key, title, scene, populated):
-    created = request(
-        origin,
-        api_key,
-        "POST",
-        "/drawings",
-        {
-            "name": title,
-            "elements": [],
-            "appState": {},
-            "files": {},
-        },
-    )
-    path = f"/drawings/{created['id']}"
+def publish_board(origin, api_key, title, scene):
+    created = request(origin, api_key, "POST", "/drawings", {"name": title, **scene})
     print(f"{origin}/editor/{created['id']}", flush=True)
-    if not populated:
-        return
+    verify_scene(origin, api_key, created["id"], created["version"], scene)
 
+
+def add_images(origin, api_key, board, images):
+    path = f"/drawings/{board}"
     current = request(origin, api_key, "GET", path + "?omitPreview=1")
+    x = (
+        max(
+            (
+                element["x"] + element["width"]
+                for element in current["elements"]
+                if not element.get("isDeleted")
+            ),
+            default=20,
+        )
+        + 40
+    )
+    additions = {"elements": [], "files": {}}
+    for image in images:
+        element = image["elements"][0]
+        element.update(x=x, index=None)
+        additions["elements"].append(element)
+        additions["files"].update(image["files"])
+        x += element["width"] + 40
+
     saved = request(
         origin,
         api_key,
@@ -227,17 +256,20 @@ def publish_board(origin, api_key, title, scene, populated):
         path,
         {
             "version": current["version"],
-            "elements": [*current["elements"], *scene["elements"]],
-            "appState": {**current["appState"], **scene["appState"]},
-            "files": {**current["files"], **scene["files"]},
+            "elements": [*current["elements"], *additions["elements"]],
+            "appState": current["appState"],
+            "files": {**current["files"], **additions["files"]},
         },
     )
-    verified = request(origin, api_key, "GET", path + "?omitPreview=1")
+    verify_scene(origin, api_key, board, saved["version"], additions)
 
+
+def verify_scene(origin, api_key, board, version, scene):
+    verified = request(origin, api_key, "GET", f"/drawings/{board}?omitPreview=1")
     expected_ids = {element["id"] for element in scene["elements"] if not element.get("isDeleted")}
     saved_ids = {element["id"] for element in verified["elements"] if not element.get("isDeleted")}
     if (
-        verified["version"] < saved["version"]
+        verified["version"] < version
         or not expected_ids.issubset(saved_ids)
         or not scene["files"].keys() <= verified["files"].keys()
     ):

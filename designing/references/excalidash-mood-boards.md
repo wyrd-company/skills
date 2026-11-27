@@ -1,12 +1,15 @@
 # Mood boards and design diagrams with the ExcaliDash REST API
 
+Read this when a design benefits from a shared sketch or mood board.
 Use ExcaliDash to collect reference screenshots, color swatches, and design
 notes on an editable Excalidraw board. Share the editor link with a reviewer
 who has access so they can rearrange references and annotate the canvas.
 
 ## Set up vault access
 
-In ExcaliDash settings, create an account API key with **Read drawings**.
+Ask the operator to provision the vault entry and grant workspace access.
+
+In ExcaliDash settings, the operator creates an account API key with **Read drawings**.
 Include **Write drawings** if the workspace will publish boards. Save the
 key in the `api_key` field of a dedicated OpenBao KV entry. Use your vault's
 secret entry form, or run this from a Bash shell with permission to create
@@ -25,7 +28,10 @@ the entry. Replace the example mount and path with the ones for your workspace.
 
 Grant the workspace's Wyrwood identity read access to that entry. For a KV v2
 mount, the policy path for the example is `secret/data/tools/excalidash`.
-Configure these non-secret values in the workspace.
+Keep the non-secret settings below in the workspace's local configuration,
+for example in `.config/excalidash.env` at the workspace root. Source that
+file in the same shell invocation as the board command, or export the values
+in the current interactive shell.
 
 ```bash
 export EXCALIDASH_URL='https://excalidash.example.com'
@@ -65,9 +71,10 @@ python3 scripts/excalidash-board.py publish 'Record ownership' ownership.excalid
 
 Each run creates a new board and prints its editor URL as soon as it exists.
 For a populated board, the script checks the saved scene with a fresh GET.
-Open the URL while signed in and check the canvas before sharing it with the
-operator. Give them the question to review and check that they have edit
-access if you want them to annotate or revise the diagram.
+The ExcaliDash account that issued the API key owns the board. Have that
+account share the board through the editor and grant edit access if the
+operator will annotate it. Open the URL while signed in and check the canvas
+before sending the link and the question to review.
 
 ## Collect a diagram from the operator
 
@@ -78,33 +85,38 @@ they need a canvas, run the board script with only a title.
 python3 scripts/excalidash-board.py publish 'Design sketch'
 ```
 
-Share the printed editor URL and confirm they have edit access. Give them a specific question to sketch, such as which
+Have the owning account grant edit access in the editor, then share the
+printed URL. Give the operator a specific question to sketch, such as which
 steps happen before a handoff or which system owns a record.
 
-When they finish, open the editor URL with an account that has access, or use the board script's `read` command to inspect the scene.
+When they finish, open the editor URL with an account that has access or
+use the board script's `read` command to inspect the scene.
 Ask the operator to explain any ambiguous labels or arrows. Link the diagram
 from the frame or decision it informed, and record what the operator
 confirmed there.
 
 ## Edit a board
 
-Read the latest scene with `GET /api/drawings/<id>?omitPreview=1`. Preserve its
-existing elements, `appState`, and `files` as you add references, labels, or
-swatches. Send the updated scene and the drawing `version` you read to
-`PUT /api/drawings/<id>`. The version guards the save. When modifying an existing
-element, increment its Excalidraw `version` and generate a new `versionNonce`.
+Use `add` to place one or more PNGs to the right of the existing content.
 
-On `409 VERSION_CONFLICT`, fetch the latest scene and reapply the intended
-edit. After an update times out, read the scene and check the intended element
-IDs before retrying. If creation times out before returning an ID, search for
-the title and confirm whether the board exists before creating another. Verify
-the intended elements with a fresh read after saving.
+```bash
+python3 scripts/excalidash-board.py add drawing-id first.png second.png
+```
 
-An image element's `fileId` matches an entry in the scene's `files` map. Pass
-the new image bytes as a data URL. ExcaliDash can return a stored file URL in
-later scene reads. Preserve that file entry when editing the scene. A drawing
-API key can receive `404` when fetching the stored file URL directly. Retain
-the original PNG if you need its bytes for an export or another board.
+The script reads the board with `GET /api/drawings/<id>?omitPreview=1`,
+preserves the existing scene, and sends the updated scene with its drawing
+version to `PUT /api/drawings/<id>`. It checks the saved scene with a fresh
+GET. Use the editor to rearrange the canvas or change existing elements.
+
+On `409 VERSION_CONFLICT`, read the board again and confirm the images
+still belong there before rerunning `add`. After an uncertain write, inspect
+the board before retrying so you avoid duplicate images. If creation times
+out before returning an ID, search for the title first.
+
+An image element's `fileId` matches an entry in the scene's `files` map.
+ExcaliDash can replace an image data URL with a stored file URL in later
+reads. Keep the original PNG if you need its bytes for another board or
+export. The drawing key can receive `404` on the stored file URL.
 
 [Drawing read implementation](https://github.com/ZimengXiong/ExcaliDash/blob/c1013c0de630b3efeea6a11851adc039c2d2afe3/backend/src/routes/dashboard/drawingReadRoutes.ts)
 and [drawing write implementation](https://github.com/ZimengXiong/ExcaliDash/blob/c1013c0de630b3efeea6a11851adc039c2d2afe3/backend/src/routes/dashboard/drawingCreateUpdateRoutes.ts).
