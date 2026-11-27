@@ -24,7 +24,7 @@ PNG_HEADER = b"\x89PNG\r\n\x1a\n" + struct.pack(">I4sII", 13, b"IHDR", 960, 640)
 
 
 class BoardTests(unittest.TestCase):
-    def invoke(self, args, send, vault_error=None):
+    def invoke(self, args, send, vault_error=None, *, key="key-from-vault", export=None):
         output = io.StringIO()
         with (
             patch.dict(
@@ -34,12 +34,12 @@ class BoardTests(unittest.TestCase):
                     "EXCALIDASH_API_KEY": "ignored-environment-value",
                 },
             ),
-            patch.object(Path, "read_text", return_value=CONFIG) as config_read,
+            patch.object(Path, "read_text", side_effect=[CONFIG, export]) as config_read,
             patch.object(sys, "argv", [str(SCRIPT), "--config", "/test/config.yml", *args]),
             patch.object(Path, "read_bytes", return_value=PNG_HEADER),
             patch(
                 "subprocess.run",
-                return_value=subprocess.CompletedProcess([], 0, "key-from-vault", ""),
+                return_value=subprocess.CompletedProcess([], 0, key, ""),
                 side_effect=vault_error,
             ) as bao,
             patch("urllib.request.build_opener") as opener,
@@ -47,7 +47,7 @@ class BoardTests(unittest.TestCase):
         ):
             opener.return_value.open.side_effect = send
             runpy.run_path(str(SCRIPT), run_name="__main__")
-        config_read.assert_called_once_with(encoding="utf-8")
+        self.assertEqual(config_read.call_count, 1 + (export is not None))
         bao.assert_called_once_with(
             ["bao", "kv", "get", "-field=api_key", "-mount=secret", "tools/excalidash"],
             capture_output=True,
@@ -67,6 +67,59 @@ class BoardTests(unittest.TestCase):
 
         output = self.invoke(["read", ORIGIN + "/editor/board"], send)
         self.assertEqual(json.loads(output)["version"], 4)
+
+    def test_publish_editable_scene_prints_link_and_verifies(self):
+        elements = [{"id": "box", "type": "rectangle"}]
+        export = json.dumps({"elements": elements})
+        methods = []
+
+        def send(req, timeout):
+            method = req.get_method()
+            methods.append(method)
+            if method == "POST":
+                self.assertEqual(json.loads(req.data)["elements"], elements)
+                return io.BytesIO(b'{"id": "board", "version": 1}')
+            self.assertEqual(req.full_url, ORIGIN + "/api/drawings/board?omitPreview=1")
+            return io.BytesIO(
+                json.dumps({"version": 1, "elements": elements, "files": {}}).encode()
+            )
+
+        output = self.invoke(["publish", "Diagram", "scene.excalidraw"], send, export=export)
+        self.assertEqual(methods, ["POST", "GET"])
+        self.assertEqual(
+            output.splitlines(), [ORIGIN + "/editor/board", "Verified drawing version 1."]
+        )
+
+    def test_publish_rejects_export_with_unembedded_image(self):
+        export = json.dumps(
+            {
+                "elements": [{"id": "image", "type": "image", "fileId": "attachment"}],
+                "files": {"attachment": {"dataURL": "/api/files/board/attachment"}},
+            }
+        )
+        with (
+            patch.object(sys, "argv", [str(SCRIPT), "publish", "Diagram", "scene.excalidraw"]),
+            patch.object(Path, "read_text", side_effect=[CONFIG, export]),
+            patch("subprocess.run") as bao,
+            redirect_stderr(io.StringIO()) as errors,
+            self.assertRaises(SystemExit),
+        ):
+            try:
+                runpy.run_path(str(SCRIPT), run_name="__main__")
+            finally:
+                bao.assert_not_called()
+                self.assertIn("with its image data embedded", errors.getvalue())
+
+    def test_vault_rejects_multiline_key_without_printing_it(self):
+        errors = io.StringIO()
+
+        def send(req, timeout):
+            self.fail("No HTTP request should use a malformed key.")
+
+        with redirect_stderr(errors), self.assertRaises(SystemExit):
+            self.invoke(["list"], send, key="first-secret-line\nsecond-secret-line")
+        self.assertIn("single API key", errors.getvalue())
+        self.assertNotIn("secret-line", errors.getvalue())
 
     def test_rejected_publish_sends_populated_create_only(self):
         methods = []

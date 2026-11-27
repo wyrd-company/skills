@@ -59,15 +59,18 @@ The script reads `~/.config/excalidash/config.yml` by default, or uses
 Pass `--config /path/to/config.yml` before the subcommand to use another
 file. In a managed workspace, have the operator manage this non-secret
 file in the workspace dotfiles with chezmoi so it survives a rebuild.
-[Workspace configuration standard](../../standards/references/workspace.md#fit-one-workspace-to-its-needs)
+[Workspace configuration standard](../../standards/references/workspace.md#where-configuration-belongs)
 
 ## Find and read a board
 
-Run these commands from the designing skill directory.
+Set `skill_dir` to the absolute path of the installed designing skill. The
+examples use the default location for Codex and Pi. Run the commands from
+any directory. Relative input paths resolve from your current directory.
 
 ```bash
-uv run scripts/excalidash-board.py list 'Mood board' --limit 10 --offset 0
-uv run scripts/excalidash-board.py read 'https://excalidash.example.com/editor/drawing-id'
+skill_dir="$HOME/.agents/skills/designing"
+uv run "$skill_dir/scripts/excalidash-board.py" list 'Mood board' --limit 10 --offset 0
+uv run "$skill_dir/scripts/excalidash-board.py" read 'https://excalidash.example.com/editor/drawing-id'
 ```
 
 The list command prints `drawings`, `totalCount`, `limit`, and `offset`.
@@ -79,14 +82,13 @@ Stored image entries can point to URLs that require a signed-in session.
 
 ## Publish a board for the operator
 
-From the designing skill directory, run [the board script](../scripts/excalidash-board.py)
-with uv. Pass a PNG screenshot for a mood board or an Excalidraw scene
+Run [the board script](../scripts/excalidash-board.py) with uv. Pass a PNG screenshot for a mood board or an Excalidraw scene
 export for an editable diagram. Include the image data in any scene export
 that references images.
 
 ```bash
-uv run scripts/excalidash-board.py publish 'Mood board — Website redesign' reference.png
-uv run scripts/excalidash-board.py publish 'Record ownership' ownership.excalidraw
+uv run "$skill_dir/scripts/excalidash-board.py" publish 'Mood board — Website redesign' reference.png
+uv run "$skill_dir/scripts/excalidash-board.py" publish 'Record ownership' ownership.excalidraw
 ```
 
 Each run creates a new board and prints its editor URL as soon as it exists.
@@ -102,7 +104,7 @@ Ask for an existing editor link if the operator already has a diagram. If
 they need a canvas, run the board script with only a title.
 
 ```bash
-uv run scripts/excalidash-board.py publish 'Design sketch'
+uv run "$skill_dir/scripts/excalidash-board.py" publish 'Design sketch'
 ```
 
 Have the owning account grant edit access in the editor, then share the
@@ -121,7 +123,7 @@ Publish the first screenshot with `publish`, then use `add` to place more
 PNGs to the right of the existing content.
 
 ```bash
-uv run scripts/excalidash-board.py add drawing-id first.png second.png
+uv run "$skill_dir/scripts/excalidash-board.py" add drawing-id first.png second.png
 ```
 
 The script reads the board with `GET /api/drawings/<id>?omitPreview=1`,
