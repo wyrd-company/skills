@@ -144,9 +144,56 @@ def drawing_id(board, origin):
     return board
 
 
+def load_config(path):
+    try:
+        import yaml
+    except ImportError:
+        raise ValueError("Install PyYAML in the Python environment running this script.") from None
+
+    try:
+        config = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise ValueError(f"Create the ExcaliDash configuration at {path}.") from None
+    except (yaml.YAMLError, UnicodeError):
+        raise ValueError(f"Invalid YAML in ExcaliDash configuration at {path}.") from None
+
+    fields = ("url", "vault_mount", "vault_path")
+    if (
+        not isinstance(config, dict)
+        or config.keys() != set(fields)
+        or any(not isinstance(config[field], str) or not config[field].strip() for field in fields)
+    ):
+        raise ValueError(f"Set exactly url, vault_mount, and vault_path in {path}.")
+
+    origin = config["url"].rstrip("/")
+    try:
+        url = urlsplit(origin)
+        port = url.port
+    except ValueError:
+        raise ValueError(f"Set url to the instance's HTTPS origin in {path}.") from None
+    if (
+        url.scheme != "https"
+        or not url.hostname
+        or port == 0
+        or url.path
+        or any(character.isspace() or character in "\\?#@" for character in origin)
+    ):
+        raise ValueError(f"Set url to the instance's HTTPS origin in {path}.")
+    if config["vault_path"].startswith("-"):
+        raise ValueError(f"Set vault_path to a KV entry path in {path}.")
+    return origin, config["vault_mount"], config["vault_path"]
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="List, read, publish, or add images to ExcaliDash boards."
+    )
+    config_home = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=config_home / "excalidash" / "config.yaml",
+        help="Path to the user YAML configuration",
     )
     commands = parser.add_subparsers(dest="command", required=True)
     publish = commands.add_parser("publish", help="Create a blank or populated board")
@@ -163,29 +210,8 @@ def main():
     listing.add_argument("--offset", type=int, default=0)
     args = parser.parse_args()
 
-    origin = os.environ.get("EXCALIDASH_URL", "").rstrip("/")
-    mount = os.environ.get("EXCALIDASH_VAULT_MOUNT", "")
-    path = os.environ.get("EXCALIDASH_VAULT_PATH", "")
     try:
-        url = urlsplit(origin)
-        port = url.port
-    except ValueError:
-        parser.error("Set EXCALIDASH_URL to the instance's HTTPS origin.")
-    if (
-        url.scheme != "https"
-        or not url.hostname
-        or port == 0
-        or url.path
-        or url.query
-        or url.fragment
-        or url.username is not None
-        or any(character.isspace() or character == "\\" for character in origin)
-    ):
-        parser.error("Set EXCALIDASH_URL to the instance's HTTPS origin.")
-    if not mount or not path or path.startswith("-"):
-        parser.error("Set EXCALIDASH_VAULT_MOUNT and EXCALIDASH_VAULT_PATH.")
-
-    try:
+        origin, mount, path = load_config(args.config.expanduser())
         if args.command == "publish":
             scene = read_scene(args.source)
         elif args.command in {"read", "add"}:

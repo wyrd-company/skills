@@ -13,12 +13,11 @@ from urllib.error import HTTPError
 
 SCRIPT = Path(__file__).resolve().parents[1] / "designing/scripts/excalidash-board.py"
 ORIGIN = "https://excalidash.example.com"
-CONFIG = {
-    "EXCALIDASH_URL": ORIGIN,
-    "EXCALIDASH_VAULT_MOUNT": "secret",
-    "EXCALIDASH_VAULT_PATH": "tools/excalidash",
-    "EXCALIDASH_API_KEY": "ignored-environment-value",
-}
+CONFIG = f"""\
+url: "{ORIGIN}"
+vault_mount: "secret"
+vault_path: "tools/excalidash"
+"""
 PNG_HEADER = b"\x89PNG\r\n\x1a\n" + struct.pack(">I4sII", 13, b"IHDR", 960, 640)
 
 
@@ -26,8 +25,15 @@ class BoardTests(unittest.TestCase):
     def invoke(self, args, send, vault_error=None):
         output = io.StringIO()
         with (
-            patch.dict(os.environ, CONFIG),
-            patch.object(sys, "argv", [str(SCRIPT), *args]),
+            patch.dict(
+                os.environ,
+                {
+                    "EXCALIDASH_URL": "https://ignored.example.com",
+                    "EXCALIDASH_API_KEY": "ignored-environment-value",
+                },
+            ),
+            patch.object(Path, "read_text", return_value=CONFIG) as config_read,
+            patch.object(sys, "argv", [str(SCRIPT), "--config", "/test/config.yaml", *args]),
             patch.object(Path, "read_bytes", return_value=PNG_HEADER),
             patch(
                 "subprocess.run",
@@ -39,6 +45,7 @@ class BoardTests(unittest.TestCase):
         ):
             opener.return_value.open.side_effect = send
             runpy.run_path(str(SCRIPT), run_name="__main__")
+        config_read.assert_called_once_with(encoding="utf-8")
         bao.assert_called_once_with(
             ["bao", "kv", "get", "-field=api_key", "-mount=secret", "tools/excalidash"],
             capture_output=True,
@@ -131,3 +138,24 @@ class BoardTests(unittest.TestCase):
             )
         self.assertIn("Vault denied access", errors.getvalue())
         self.assertNotIn("sensitive detail", errors.getvalue())
+
+    def test_invalid_configuration_stops_before_vault(self):
+        for payload in ("[", "api_key: do-not-print", CONFIG.replace("https:", "http:")):
+            with (
+                self.subTest(payload=payload),
+                patch.object(sys, "argv", [str(SCRIPT), "list"]),
+                patch.dict(os.environ, {"XDG_CONFIG_HOME": "/test/config"}),
+                patch.object(Path, "read_text", autospec=True, return_value=payload) as config_read,
+                patch("subprocess.run") as bao,
+                redirect_stderr(io.StringIO()) as errors,
+                self.assertRaises(SystemExit),
+            ):
+                try:
+                    runpy.run_path(str(SCRIPT), run_name="__main__")
+                finally:
+                    config_read.assert_called_once_with(
+                        Path("/test/config/excalidash/config.yaml"), encoding="utf-8"
+                    )
+                    bao.assert_not_called()
+                    self.assertIn("/test/config/excalidash/config.yaml", errors.getvalue())
+                    self.assertNotIn("do-not-print", errors.getvalue())

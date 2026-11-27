@@ -28,19 +28,37 @@ the entry. Replace the example mount and path with the ones for your workspace.
 
 Grant the workspace's Wyrwood identity read access to that entry. For a KV v2
 mount, the policy path for the example is `secret/data/tools/excalidash`.
-Keep the non-secret settings below in the workspace's local configuration,
-for example in `.config/excalidash.env` at the workspace root. Source that
-file in the same shell invocation as the board command, or export the values
-in the current interactive shell.
-
-```bash
-export EXCALIDASH_URL='https://excalidash.example.com'
-export EXCALIDASH_VAULT_MOUNT='secret'
-export EXCALIDASH_VAULT_PATH='tools/excalidash'
-```
-
 The [board script](../scripts/excalidash-board.py) uses the workspace's
 `bao` access and reads the key into memory for each invocation.
+
+## Create the user configuration file
+
+Run the script with Python 3.11 or later and PyYAML. Install PyYAML in the
+Python environment you use for the script, for example with
+`python3 -m pip install PyYAML` from an activated virtual environment.
+
+Create the configuration directory and file in your user config directory.
+Replace the example values with the ExcaliDash origin and OpenBao entry
+your operator configured.
+
+```bash
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/excalidash"
+mkdir -p "$config_dir"
+```
+
+Save this YAML as `config.yaml` in that directory. It contains only the
+three non-secret settings. The API key belongs in OpenBao.
+
+```yaml
+url: "https://excalidash.example.com"
+vault_mount: "secret"
+vault_path: "tools/excalidash"
+```
+
+The script reads `~/.config/excalidash/config.yaml` by default, or uses
+`$XDG_CONFIG_HOME/excalidash/config.yaml` when `XDG_CONFIG_HOME` is set.
+Pass `--config /path/to/config.yaml` before the subcommand to use another
+file.
 
 ## Find and read a board
 
